@@ -1,0 +1,36 @@
+% Cours : Process creation & termination, fork() – spawn a child process
+The process creation and termination concept involves the ability of one process, known as the parent, to create another process, referred to as the child. The Process Control Block (PCB) is allocated and initialized during this creation. An interesting task to witness this is running the command 'ps auxwww' in the shell, where PPID signifies the parent's PID. In POSIX, a child process inherits most of the parent's attributes, including User ID, open files, current working directory, etc. It is recommended to close the open files if they are not needed. The PCB transitions between different queues while the process is executing, which is determined by the state change graph. The queues include runnable, sleep/wait for event i (where i=1,2,3...). Post the execution or interruption of a process, it turns into a zombie. The parent process uses the wait* system call to remove the zombie from the system. The wait system call family includes wait, waitpid, waitid, wait3, wait4, for instance, the definition of wait4 is pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage). The parent process can either wait for its child to finish or run parallelly. The wait*() will block unless WNOHANG is provided in 'options'. A useful task for understanding this is reading 'man 2 wait'.
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark\hspace{0.5em}\textbf{\`A retenir}}]
+Key points to remember include the parent-child relationship in process creation, the role of PCB, the inheritance of parent's attributes by the child in POSIX, the transition of PCB between different queues, the transformation of a process into a zombie after execution or interruption, and the role of the wait* system call in dealing with zombies.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5!white, colframe=green!75!black, title={\faLightbulb\hspace{0.5em}Intuition}]
+The process of creation and termination can be likened to a parent-child relationship where the parent process creates a child process and can decide to wait for its completion or run alongside it. This relationship is managed using PCB and different system calls.
+\end{tcolorbox}
+
+The main function in the provided code initiates the process creation with the fork() system call. This system call generates a new Process Control Block (PCB) based on the parent's value, which is then added to the runnable queue. Consequently, two processes exist at the same execution point. The child process has a new address space which is a complete replica of the parent's space, with one difference: the fork() returns twice, once at the parent with pid>0 and again at the child with pid=0. If the fork() fails, it prints a string associated with 'errno', a global variable that contains the error number of the last syscall. The printing order would be a significant point to consider in understanding the execution flow.
+\begin{algorithm}[H]
+\caption{Algorithme extrait}
+\begin{algorithmic}
+\begin{verbatim} 
+int main(int argc, char *argv[]) { 
+	int pid = fork(); 
+	if( pid==0 ) { 
+		// child 
+		printf(“parent=%d son=%d\n”, getppid(), getpid()); 
+	} 
+	else if( pid > 0 ) { 
+		// parent 
+		printf(“parent=%d son=%d\n”, getpid(), pid); 
+	} 
+	else { 
+		// print string associated with errno 
+		perror(“fork() failed”); 
+	} 
+	return 0; 
+}
+\end{verbatim}
+\end{algorithmic}
+\end{algorithm}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark\hspace{0.5em}\textbf{\`A retenir}}]
+The main points to remember are that the fork() system call initiates a new process, creating a new PCB based on the parent's values. This leads to two processes at the same execution point. The child process's address space is a copy of the parent's, but the fork() returns twice - once for the parent and once for the child. If fork() fails, the 'errno' global variable holds the error number of the last syscall.
+\end{tcolorbox}

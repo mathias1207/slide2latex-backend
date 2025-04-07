@@ -1,0 +1,129 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{string}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : string
+\section{Création et terminaison des processus}
+
+Un processus, que nous appellerons le \textit{parent}, peut en créer un autre, le \textit{enfant}. Pour cela, un nouveau Bloc de Contrôle de Processus (BCP) est alloué et initialisé. Vous pouvez observer cela en exécutant la commande 'ps auxwww' dans le shell ; PPID est l'ID du processus parent.
+
+\subsection{Héritage des attributs}
+
+Dans POSIX, le processus enfant hérite de la plupart des attributs de son parent. Cela inclut l'ID de l'utilisateur, les fichiers ouverts (qui devraient être fermés si inutiles ; pourquoi ?), le répertoire de travail actuel, etc.
+
+\subsection{Exécution et mouvement entre les files d'attente}
+
+Pendant l'exécution, le BCP se déplace entre différentes files d'attente, en fonction du graphique de changement d'état. Ces files d'attente peuvent être : exécutable, sommeil/attente d'un événement i (i=1,2,3...).
+
+\subsection{Terminaison d'un processus}
+
+Après qu'un processus meurt (soit par une sortie normale, soit par une interruption), il devient un \textit{zombie}. Le processus parent utilise l'appel système wait* pour effacer le zombie du système (pourquoi ?). La famille d'appels système wait comprend : wait, waitpid, waitid, wait3, wait4. Par exemple :
+
+\begin{lstlisting}[language=C]
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+\end{lstlisting}
+
+Le processus parent peut soit attendre que son enfant termine, soit s'exécuter en parallèle. L'appel système wait*() bloquera à moins que WNOHANG ne soit donné dans 'options'.
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+Un processus parent peut créer un processus enfant, qui hérite de la plupart des attributs de son parent. Pendant l'exécution, le BCP du processus se déplace entre différentes files d'attente. Lorsqu'un processus meurt, il devient un zombie et doit être effacé du système par le processus parent.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]
+Imaginez le processus parent comme un enseignant qui donne une tâche à un élève (le processus enfant). L'élève hérite des instructions de l'enseignant (les attributs), travaille sur la tâche (exécution), puis rend la tâche (devient un zombie) avant que l'enseignant ne corrige et valide le travail (efface le zombie).
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb Vulgarisation simple}]
+Un processus dans un ordinateur, c'est un peu comme une recette de cuisine en cours de réalisation. Le processus parent serait le chef cuisinier qui commence une nouvelle recette (le processus enfant). Le chef donne à la recette tout ce dont elle a besoin pour être réalisée (les attributs), puis la recette est préparée (exécution). Une fois la recette terminée, elle doit être nettoyée et rangée (le processus devient un zombie et est ensuite effacé).
+\end{tcolorbox}
+
+\section{Création d'un processus enfant avec fork()} 
+
+La fonction fork() est utilisée pour créer un nouveau processus, appelé processus enfant, qui est une copie du processus qui l'a appelé, le processus parent. Cette fonction initialise un nouveau Bloc de Contrôle de Processus (BCP) basé sur la valeur du processus parent. Le BCP est ensuite ajouté à la file d'exécution, ce qui signifie qu'il est prêt à être exécuté. 
+
+Une fois que la fonction fork() a été appelée, il y a deux processus qui sont au même point d'exécution. La nouvelle espace d'adressage du processus enfant est une copie complète de l'espace d'adressage du processus parent, avec une seule différence : la fonction fork() retourne deux fois. Dans le processus parent, elle retourne l'ID du processus enfant (un nombre supérieur à 0), tandis que dans le processus enfant, elle retourne 0. 
+
+Un point intéressant à noter est l'ordre d'impression. Comme les deux processus sont indépendants, l'ordre dans lequel ils s'exécutent n'est pas déterminé et peut varier. 
+
+Enfin, si la fonction fork() échoue pour une raison quelconque, elle retourne une valeur négative. Dans ce cas, la variable globale 'errno' contient le numéro de l'erreur du dernier appel système, qui peut être utilisé pour déterminer la cause de l'échec.
+\begin{lstlisting}[language=C]
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf("parent=%d son=%d\n",
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf("parent=%d son=%d\n",
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror("fork() failed"); 
+  }
+  return 0;
+}
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+La fonction fork() est utilisée pour créer un nouveau processus, appelé processus enfant, qui est une copie du processus parent. Elle initialise un nouveau BCP basé sur la valeur du processus parent et l'ajoute à la file d'exécution. La fonction fork() retourne deux fois : dans le processus parent, elle retourne l'ID du processus enfant (un nombre supérieur à 0), tandis que dans le processus enfant, elle retourne 0. Si la fonction fork() échoue, elle retourne une valeur négative et la variable globale 'errno' contient le numéro de l'erreur du dernier appel système.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]
+Imaginez que vous êtes en train de lire un livre et que vous voulez faire une pause pour faire une autre tâche, mais que vous voulez pouvoir reprendre votre lecture exactement là où vous en êtes. Vous pourriez utiliser un marque-page pour marquer votre place. C'est essentiellement ce que fait la fonction fork() : elle crée une copie du processus (le livre) avec son propre BCP (le marque-page) pour que le processus enfant puisse commencer à s'exécuter à partir du même point.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb Vulgarisation simple}]
+La fonction fork() est un peu comme si vous aviez un clone. Ce clone fait exactement les mêmes choses que vous, mais il a sa propre identité. Dans le monde des processus, cette identité est représentée par le Bloc de Contrôle de Processus (BCP). Donc, lorsque vous appelez la fonction fork(), vous créez un clone de votre processus actuel, avec son propre BCP. Ce clone peut alors faire les mêmes choses que le processus original, mais il a sa propre vie, c'est-à-dire qu'il peut s'exécuter indépendamment du processus original.
+\end{tcolorbox}
+
+
+\end{document}

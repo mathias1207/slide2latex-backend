@@ -1,0 +1,876 @@
+
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\tcbuselibrary{theorems}
+\usepackage{fontawesome5}
+
+\newtcolorbox{myvulga}[1]{colback=yellow!10,colframe=yellow!80!black,fonttitle=\bfseries,title={\faLightbulb\hspace{0.5em}#1}}
+\newtcolorbox{aretenir}[1]{colback=green!5,colframe=green!60!black,fonttitle=\bfseries,title={\faBook\hspace{0.5em}#1}}
+\newtheorem{remark}{Remarque}
+
+\setlist[itemize]{topsep=0pt,itemsep=2pt,left=1em}
+
+\begin{document}
+\section{Operating Systems (234123)}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Processes \& Signals
+Dan Tsafrir
+2024-06-03, 2024-06-10
+OS (234123) - processes \& signals
+1
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{What’s a process}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le cadre de l'implémentation du concept de machine abstraite, il est essentiel de comprendre le concept de processus. Un processus peut être défini comme une instance en cours d'exécution d'un exécutable, invoquée par un utilisateur. Il s'agit d'une entité planifiable sur le processeur central, ou CPU. 
+
+Il convient de noter que ce terme est parfois utilisé de manière interchangeable avec d'autres termes dans le domaine de l'informatique. Cependant, il est important de réaliser que le noyau du système d'exploitation (OS) ne peut être catégorisé ni comme un processus ni comme une entité planifiable. 
+
+En outre, pour éviter toute confusion, il est préférable de ne pas renvoyer à ces entités en utilisant le terme générique "processus". Ce terme, bien qu'il soit largement utilisé, peut prêter à confusion en raison de sa définition non standardisée et de son utilisation variée dans différents contextes. Ainsi, une compréhension précise des différentes entités et de leur fonctionnement est nécessaire pour une implémentation efficace du concept de machine abstraite.
+– Which we discussed in the previous lecture
+– Can have multiple independent processes of the same executable
+– OS decides which of these entities gets to run on a CPU core, and when
+– Task or job
+– Rather, it’s a set of procedures executing in response to events
+(≈ interrupts)
+– Albeit sometimes the OS runs some code within schedulable entities
+which correspond to user programs; we may refer to them as
+“kernel threads“ instead
+OS (234123) - processes \& signals
+2
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Process address space is contiguous}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+OS (234123) - processes \& signals
+3
+0x0000…0000
+max\_address
+(e.g. 0x…ffff)
+address space
+code
+(text segment)
+static data
+(data segment)
+heap
+(dynamic allocated mem)
+stack
+(dynamic allocated mem)
+program counter
+stack pointer
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Process states}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+OS (234123) - processes \& signals
+4
+zombie
+ready
+running
+waiting
+created
+finished
+or killed
+scheduled
+preempted
+process is
+runnable
+process is
+sleeping
+termination
+status
+collected
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{• The OS maintains a “state” }
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le cadre de l'étude des systèmes d'exploitation, nous aborderons spécifiquement le système Linux. Ce système est largement utilisé dans le monde de l'informatique pour sa flexibilité et sa robustesse. Un aspect particulièrement intéressant de Linux est son utilisation des commutations de contexte (context switches).
+
+Les commutations de contexte sont un élément clé de la multitâche dans Linux. Elles permettent au système d'exploitation de gérer efficacement plusieurs processus en même temps. En effet, lorsqu'un processus est interrompu, le système sauvegarde son contexte (c'est-à-dire l'état du processus à un moment donné) pour pouvoir le reprendre ultérieurement là où il s'est arrêté. De cette façon, Linux peut gérer un grand nombre de processus simultanément sans perdre de données.
+
+La question qui se pose alors est comment et quand ces commutations de contexte se produisent-elles exactement ? Au cours de nos prochaines sessions, nous explorerons plus en détail ce mécanisme essentiel du système d'exploitation Linux. Nous examinerons également comment les commutations de contexte impactent les performances du système et comment nous pouvons optimiser leur utilisation pour améliorer l'efficacité du système.
+for every process
+– Encapsulated in a  PCB
+– Called a “process descriptor”
+– Of type task\_struct (C struct)
+– Has O(100) fields
+– Updated upon preemption
+– Loaded upon resumption
+– Can a process access its own
+PCB?
+PID (process ID)
+UID (user ID)
+Pointer to address space
+Registers
+Scheduling priority
+Resources usage limits (e.g.,
+memory, CPU, num of open files)
+Resources consumed
+State (previous slide)
+Current/present working
+directory (pwd=cwd)
+Open files table
+…
+OS (234123) - processes \& signals
+5
+Process control block (“PCB”)
+process attributes
+in PCB
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Context switching (in runnable state)}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+OS (234123) - processes \& signals
+6
+process 1
+process 2
+kernel
+running
+running
+ready
+ready
+ready
+running
+save state (notably, registers) in PCB1
+load state from PCB2
+save state in PCB2
+syscall/interrupt
+syscall/interrupt
+load state from PCB1
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Process creation \& termination}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le cadre des systèmes d'exploitation, un processus, que nous appellerons le "parent", a la capacité de créer un autre processus, désigné comme le "fils". Ce concept est particulièrement pertinent dans l'environnement POSIX où le processus enfant hérite de la plupart des attributs du processus parent. 
+
+Lors de l'exécution, il est essentiel de noter que le Bloc de Contrôle de Processus (PCB) se déplace entre différentes files d'attente. Ce mouvement est intrinsèque à la gestion des différents processus en cours. 
+
+En outre, lorsqu'un processus cesse de fonctionner, soit en sortant via une fonction exit(), soit en étant interrompu par une autre fonction, il entre dans un état connu sous le nom de "zombie". Cet état est transitoire et signifie que le processus a terminé son exécution, mais que son entrée dans la table des processus persiste.
+
+Enfin, il est important de souligner que le processus parent a la possibilité de se mettre en veille ou d'attendre la fin de l'exécution de son processus enfant. Alternativement, le processus parent peut également choisir de s'exécuter en parallèle avec son processus enfant. Cette décision dépend généralement de la nature de la tâche à accomplir et des ressources disponibles.
+– A new PCB is allocated and initialized
+– Homework: run ‘ps auxwww’ in the shell; PPID is the parent’s PID
+– UID, open files (should be closed if unneeded; why?), cwd, etc.
+– According to state change graph
+– Queues: runnable, sleep/wait for event i (i=1,2,3…)
+– Parent uses wait* syscall to clear zombie from the system (why?)
+– Wait syscall family: wait, waitpid, waitid, wait3, wait4; example:
+– pid\_t wait4(pid\_t, int *wstatus, int options, struct rusage *rusage);
+– wait*() will block unless WNOHANG given in ‘options’
+– Homework: read ‘man 2 wait’
+OS (234123) - processes \& signals
+7
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{int main(int argc, char *argv[])}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Lors de l'exécution de la fonction fork(), une nouvelle structure de contrôle de processus (PCB) est initialement mise en place. Suite à cette action, on se retrouve avec deux processus distincts. Il est important de noter que l'espace d'adresse du nouveau processus, qui est l'enfant, est différent de celui du processus parent. 
+
+Un fait intéressant et unique à propos de la fonction fork() est qu'elle retourne deux fois. Cela peut sembler inhabituel, mais c'est une caractéristique essentielle qui permet de distinguer le processus parent du processus enfant, en termes de traitement après l'appel de la fonction.
+
+Un autre point à discuter concerne l'ordre d'impression. Il est essentiel de comprendre qu'il peut être indéterminé en raison de l'ordonnancement des processus par l'ordonnanceur du système d'exploitation. Par conséquent, il est difficile de prévoir l'ordre d'impression entre le processus parent et le processus enfant.
+
+Enfin, il est crucial de mentionner 'errno', une variable globale souvent utilisée en programmation système. Cette variable est automatiquement définie par le système lors de la survenue d'erreurs dans certaines fonctions de la bibliothèque standard, fournissant ainsi un moyen précieux de comprendre les problèmes qui se produisent au cours de l'exécution d'un programme.
+\{
+int pid = fork();
+if( pid==0 ) \{
+//
+// child
+//
+printf(“parent=\%d son=\%d\textbackslash\{\}n”,
+getppid(), getpid());
+\}
+else if( pid > 0 ) \{
+//
+// parent
+//
+printf(“parent=\%d son=\%d\textbackslash\{\}n”,
+getpid(), pid);
+\}
+else \{ // print string associated
+// with errno
+perror(“fork() failed”);
+\}
+return 0;
+\}
+– Based on parent’s value
+– PCB added to runnable queue
+– At same execution point
+– Complete copy of parent’s
+space, with one difference…
+– At the parent, with pid>0
+– At the child, with pid=0
+– Holds error num of last syscall
+OS (234123) - processes \& signals
+8
+fork() – spawn a child process
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{System call errors}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+// int errno = number of last system call error.
+// Errors aren’t zero. (If you want to test value of
+// errno after a system call, need to zero it before.)
+\#include <errno.h> // see man 3 errno
+// const char * const sys\_errlist[];
+// char* strerror(int errnum) \{
+//
+// check errnum is in range
+//
+return sys\_errlist[errnum];
+// \}
+\#include <string.h>
+//  void perror(const char *prefix);
+// prints: “\%s: \%s\textbackslash\{\}n” , prefix, sys\_errlist[errno]
+\#include <stdio.h>
+OS (234123) - processes \& signals
+9
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{exec*() – replace current process image}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Lorsque l'on souhaite initier un tout nouveau programme, on utilise généralement la fonction int execv() en programmation. Cette fonction nécessite deux arguments principaux pour fonctionner correctement. Le premier est 'const char *programPath', qui représente le chemin du programme à exécuter. Le second argument est 'char *const argv[]', qui est un tableau de pointeurs vers des chaînes. Ces chaînes représentent les arguments qui seront passés au programme lors de son exécution.
+
+En ce qui concerne la sémantique de cette fonction, il est important de noter que les valeurs de PID (Process ID) et PPID (Parent Process ID) restent les mêmes avant et après l'exécution de toute fonction exec*(). Cela signifie que bien que la fonction execv() remplace le programme courant par un nouveau programme, le processus qui exécute le programme conserve son PID original. Ainsi, le PID et le PPID fournissent un moyen constant d'identifier un processus tout au long de son cycle de vie, indépendamment des programmes spécifiques qu'il exécute.
+– Use the exec*() syscall family; for example:
+– Homework: read ‘man execv’
+– Stops the execution of the invoking process
+– Loads the executable ‘programPath’
+– Starts ‘programPath’, with ‘argv’ as its argv
+– Never returns (unless fails)
+– Replaces the new process; doesn’t create a new process
+OS (234123) - processes \& signals
+10
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Simplistic UNIX shell loop example}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+OS (234123) - processes \& signals
+11
+int main(int argc, char *argv[])
+\{
+for(;;) \{
+int stat;
+char **argv;
+char *c = readNextCom(\&argv);
+int pid = fork();
+if( pid < 0 ) \{
+perror(“fork failed”);
+\}
+else if( pid==0 ) \{ // child
+execv(c, argv);
+perror(“execv failed”);
+\}
+else \{ // parent
+if( wait(\&stat) < 0 )
+perror(“wait failed”);
+else
+chkStatus(pid,stat);
+release(argv);
+\}
+\}
+return 0;
+\}
+void chkStatus(int pid, int stat)
+\{
+if( WIFEXITED(stat) ) \{
+printf(“\%d exit code=\%d\textbackslash\{\}n”,
+pid, WEXITSTATUS(stat));
+\}
+else if( WIFSIGNALED(stat) ) \{
+// the topic we’re going
+// to learn next
+printf(“\%d died on signal=\%d\textbackslash\{\}n”,
+pid, WTERMSIG(stat));
+\}
+else if
+// a few more options…
+\}
+Finished
+here
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Who wait()-s for an “orphan” process?}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans notre exploration de l'informatique des systèmes, il est essentiel de comprendre les spécifications POSIX. Selon ces spécifications, qui sont disponibles en détail sur le site Open Group Publications à l'adresse https://pubs.opengroup.org/onlinepubs/9699919799/functions/w, diverses fonctions et opérations sont définies pour le développement et la gestion des systèmes d'exploitation.
+
+Par ailleurs, le manuel Linux offre également des informations précieuses et pertinentes pour notre discussion. En particulier, il est conseillé de consulter deux sections spécifiques du manuel. La première, accessible à l'adresse https://linux.die.net/man/8/init, traite du processus d'initialisation. La seconde section, que vous pouvez trouver à l'adresse https://linux.die.net/man/2/wait, explique le fonctionnement de la fonction d'attente.
+
+En combinant les informations de ces sources, nous pouvons avoir une compréhension plus approfondie de la façon dont les systèmes d'exploitation gèrent les processus et les opérations. Cela nous permettra de mieux comprendre les complexités de l'informatique des systèmes et d'appliquer ces connaissances à une gamme plus large de situations et de problèmes.
+– “If a parent process terminates without waiting for all of its child
+processes to terminate, the remaining child processes shall be assigned
+a new parent process ID corresponding to an implementation-defined
+system process”
+ait.html
+– “init […becomes] the parent of all processes whose natural parents
+have died, and it is responsible for reaping those when they die. […]
+init expects to have a process id of 1”
+– “If a parent process terminates, then its zombie children (if any) are
+adopted by init”
+OS (234123) - processes \& signals
+12
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{POSIX SIGNALS}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+OS-supported asynchronous notifications
+OS (234123) - interrupts \& signals
+13
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Reminder from the 1st lecture}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+OS (234123) - intro
+14
+signals
+(privileged ops ≠
+super user)
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{What are signals \& signal handlers }
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le contexte des systèmes informatiques, un signal peut être conceptualisé comme une notification envoyée à un processus. Ce signal informe le processus d'un événement spécifique qui nécessite son attention. Lorsqu'un processus reçoit un signal, il doit déterminer comment réagir en fonction du type de signal qu'il a reçu. 
+
+Cela nous amène à la notion de l'action de gestion par défaut d'un signal. Chaque signal a une action de gestion par défaut qui est définie par le système. Cependant, la plupart des processus ont la capacité de configurer la manière dont ils gèrent la plupart des signaux. Cela signifie qu'un processus peut choisir de surcharger l'action de gestion par défaut d'un signal en précisant une action de gestion personnalisée.
+
+Il est important de noter qu'il y a deux exceptions à cette règle. En fait, il y a trois exceptions, mais nous discuterons de la troisième exception plus en détail dans une section ultérieure. Ces exceptions se réfèrent à des signaux spécifiques que le processus n'est pas autorisé à configurer. 
+
+Enfin, pour faciliter l'identification et la gestion des signaux, ceux-ci ont des noms et des numéros qui sont standardisés par POSIX. Ces noms et numéros servent de référence universelle pour les différents types de signaux qui peuvent être émis dans un système.
+– To asynchronously notify it that some event occurred
+– The process stops whatever it is doing \& handles it
+– Either die or ignore (depends on the type of the signal)
+– Different signals can have a different handlers,
+and they can be temporarily blocked/unblocked = “masked”/”unmasked”
+– Do ‘man 7 signal’ in shell/Google for a listing/explanation of all signals
+– For example: http://man7.org/linux/man-pages/man7/signal.7.html ,
+https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/signal.h.html
+– HOMEWORK: take a few minutes to quickly survey all signals
+OS (234123) - interrupts \& signals
+15
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Silly example}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+\#include <signal.h>
+\#include <stdio.h>
+\#include <stdlib.h>
+void sigfpe\_handler(int signum) \{
+fprintf(stderr,"I divided by zero (sig=\%d)!\textbackslash\{\}n“,
+signum);    // prints SIGFPE’s const value
+exit(EXIT\_FAILURE); // what happens if not exiting?
+\}
+int main() \{
+signal(SIGFPE, sigfpe\_handler);
+int x = 1/0; // processor interrupt, then OS signal
+return 0;
+\}
+OS (234123) - interrupts \& signals
+16
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Another silly example}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+\#include <signal.h>
+\#include <stdio.h>
+\#include <stdlib.h>
+void sigint\_handler(int signum) \{
+printf("I’m disregarding your crtl-c!\textbackslash\{\}n");
+\}
+int main() \{
+// when pressing ctrl-c in the shell
+// => SIGINT is delivered to foreground process
+// (who makes this happen?)
+signal(SIGINT,sigint\_handler);
+for(;;) \{ /*endless loop*/ \}
+return 0;
+\}
+OS (234123) - interrupts \& signals
+17
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Another silly example}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+<0>dan@csa:\textasciitilde{}\$ ./a.out
+\# here I clicked ctrl-c => delivered SIGINT
+I’m disregarding your crtl-c!
+\# here I clicked ctrl-c again => delivered SIGINT
+I’m disregarding your crtl-c!
+\# here I clicked ctrl-z => delivered SIGSTOP, must obey
+[1]+  Stopped                 ./a.out
+<148>dan@csa:\textasciitilde{}\$ ps
+PID TTY          TIME CMD
+10148 pts/19   00:00:00 bash
+21709 pts/19   00:00:12 a.out
+21710 pts/19   00:00:00 ps
+<0>dan@csa:\textasciitilde{}\$ kill -9 21709   \# 9=SIGKILL, must obey
+[1]+  Killed                  ./a.out
+<0>dan@csa:\textasciitilde{}\$
+OS (234123) - interrupts \& signals
+18
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Another silly example}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+<0>dan@csa:\textasciitilde{}\$ ./a.out
+\# here I clicked ctrl-c (=> deliver SIGINT)
+I'm ignoring your crtl-c!
+\# here I clicked ctrl-c again (=> deliver SIGINT)
+I'm ignoring your crtl-c!
+\# here I clicked ctrl-z => deliver SIGSTP, can’t ignore
+[1]+  Stopped                 ./a.out
+<148>dan@csa:\textasciitilde{}\$ ps
+PID TTY          TIME CMD
+10148 pts/19   00:00:00 bash
+21709 pts/19   00:00:12 a.out
+21710 pts/19   00:00:00 ps
+<0>dan@csa:\textasciitilde{}\$ kill -9 21709   \# 9=SIGKILL, can’t ignore
+[1]+  Killed                  ./a.out
+<0>dan@csa:\textasciitilde{}\$
+OS (234123) - interrupts \& signals
+19
+When I click ctrl-c, the OS gets an interrupt
+from the keyboard, which the OS then
+translates into a SIGINT signal delivered to
+the relevant process.
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Notice}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans cette partie du cours, nous allons discuter de l'utilité de la commande 'kill' en shell. Plus précisément, nous examinerons les trois variantes de cette commande : 'kill -9 <pid>', 'kill -s KILL <pid>' et 'kill -s SIGKILL <pid>'. Ces trois commandes envoient différents signaux à un processus pour l'arrêter. En effet, il est important de noter qu'un processus ne peut ignorer trois signaux.
+
+Nous nous pencherons également sur la question de savoir si l'effet de SIGSTOP est réversible. SIGSTOP est un signal qui arrête temporairement un processus, mais est-ce que cet arrêt est définitif ou peut-il être inversé ? 
+
+De plus, nous examinerons le signal SIGCONT, qui est un signal qui ne peut pas être ignoré par un processus. Quel est son rôle précis et pourquoi est-il si important dans le fonctionnement d'un shell ?
+
+Enfin, nous verrons ce que vous pouvez faire avec les signaux SIGSTOP et SIGCONT. Comment peuvent-ils être utilisés de manière efficace et quel est leur impact sur le fonctionnement d'un processus ? 
+
+Ces questions et ces points seront abordés en détail dans le cadre de ce cours, afin de vous donner une compréhension plus approfondie de l'interaction entre les signaux et les processus dans un shell.
+– Any signal (not just 9=kill)
+– SIGKILL = terminate the receiving process
+– SIGSTOP = suspend the receiving process (make it sleep)
+– Yes, when you send to the process SIGCONT
+– A SIGSTOP-ed process *will* continue
+– But process can set a handler for it, which will be invoked immediately
+when the process gets hit by the SIGCONT and is resumed as a result
+OS (234123) - interrupts \& signals
+20
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Job control}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le contexte d'une session shell, supposons que nous exécutons un programme appelé 'loop' qui effectue une certaine tâche. Il est important de noter qu'en appuyant sur ctrl-z dans la shell, une action spécifique est déclenchée. 
+
+Ensuite, l'invocation de 'fg' dans la shell a des conséquences particulières. C'est une commande qui permet de reprendre en avant-plan un travail qui a été stoppé. 
+
+En alternative à 'fg', nous pouvons invoquer 'bg' dans la shell. Cette commande reprend en arrière-plan le travail qui a été stoppé, permettant ainsi à l'utilisateur de continuer d'autres tâches dans le shell pendant que le travail initial se poursuit en arrière-plan.
+
+Cependant, une simplification a été faite précédemment pour faciliter la compréhension. En réalité, le fait d'appuyer sur ctrl-z génère un signal STGTSTP et non un SIGSTOP, comme on aurait pu le laisser entendre. Ce détail technique a son importance dans la gestion précise des processus au sein de la shell.
+– int main() \{ while(1); return 0; \}
+– Will make ‘loop’ sleep
+– Will wake ‘loop’ up in the foreground (meaning, the shell sleeps, and
+any typed input is directed to ‘loop’)
+– Will wake ‘loop’ up in the background (as is we executed it with “\&”,
+so shell becomes operational, and typed input goes to the shell)
+– For reasons related to job control, actually, ctrl-z
+– There are subtle differences between the two, which we won’t learn
+OS (234123) - processes \& signals
+21
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{This is how a signal is truly ignored}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+\#include <signal.h>
+\#include <stdio.h>
+\#include <stdlib.h>
+int main() \{
+// Before, we used sigint\_handler as the arg.
+// Now, we use the SIG\_IGN macro, which means
+// no handler will be called.
+// There’s also SIG\_DFL, to restore the default
+// behavior
+signal(SIGINT, SIG\_IGN);
+for(;;) \{ /*endless loop*/ \}
+return 0;
+\}
+OS (234123) - interrupts \& signals
+22
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Example – ask a running daemon }
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le contexte informatique, le terme "daemon" est utilisé pour désigner un type spécifique de processus qui fonctionne en arrière-plan plutôt qu'en interaction directe avec l'utilisateur. Ces processus, bien que souvent invisibles à l'utilisateur, jouent un rôle crucial dans le fonctionnement du système en effectuant diverses tâches de maintenance et d'administration. Ils peuvent également être utilisés pour attendre la survenue d'événements spécifiques, puis pour réagir à ces événements de manière prédéfinie. Le concept de "daemon" est une composante fondamentale de nombreux systèmes d'exploitation, notamment ceux basés sur Unix.
+how much “work” it did thus far
+void do\_work() \{ for(int i=0; i<10000000; i++); \}
+int g\_count=0; // counts num. of times do\_work was invoked
+void sigusr\_handler(int signum) \{
+printf("Work done so far: \%d\textbackslash\{\}n", g\_count);
+\}
+int main() \{
+signal(SIGUSR1,sigusr\_handler);
+for(;;) \{ do\_work(); g\_count++; \}
+return 0;
+\}
+OS (234123) - interrupts \& signals
+23
+– Background process, not controlled interactively by user
+– In shell: nohup <command> \& (see: https://linux.die.net/man/1/nohup)
+– Daemon name typically ends with “d” (e.g., sshd, syslogd, swapd)
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{<0>dan@csa:\textasciitilde{}\$ ./a.out \&}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+[1] 23998
+\# recall: kill utility also accepts strings as signals
+<0>dan@csa:\textasciitilde{}\$ kill –s USR1 23998
+Work done so far: 626
+<0>dan@csa:\textasciitilde{}\$ kill –s USR1 23998
+Work done so far: 862
+<0>dan@csa:\textasciitilde{}\$ kill –s USR1 23998
+Work done so far: 1050
+<0>dan@csa:\textasciitilde{}\$ kill –s KILL 23998
+[1]+  Killed                  ./a.out
+OS (234123) - interrupts \& signals
+24
+Example – ask a running daemon
+how much “work” it did thus far
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Enumerate signals}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le cadre d'un système d'exploitation, lorsque des signaux tels que SIGSEGV, SIGBUS, SIGILL et SIGFPE sont reçus, ils sont généralement associés à une interruption déclenchée par des erreurs graves telles qu'une violation de segmentation, un bus error, une instruction illégale ou une erreur de point flottant. C'est le système d'exploitation qui reçoit cette interruption associée.
+
+Lorsque ces interruptions se produisent, le gestionnaire d'interruption du système d'exploitation entre en jeu. Il garantit que le processus qui a mal fonctionné reçoit les conséquences appropriées. Pour ces signaux spécifiques, le gestionnaire de signaux par défaut est appelé, ce qui aboutit généralement à un core dump - un enregistrement de l'état de la mémoire du processus à un moment donné - suivi de la terminaison du processus.
+
+D'autres signaux, comme SIGCHLD et SIGALRM, ont des significations spécifiques, le premier étant émis lorsqu'un processus enfant s'arrête ou se termine, et le second étant utilisé pour alerter le processus courant après un délai spécifique. Chaque signal a une action par défaut qui est effectuée par le système d'exploitation lorsqu'il est reçu, mais ces actions peuvent être personnalisées par les programmeurs en utilisant un gestionnaire de signaux personnalisé.
+– ILL = illegal instruction (trying to invoke privileged instruction)
+– SEGV = segmentation violation (illegal memory ref, e.g., outside an array)
+– BUS = dereference invalid address (null/misaligned, assume it’s like SEGV)
+– FPE = floating point exception (despite name, actually all arithmetic
+errors, nor just floating point; example: divide by zero)
+– These are driven by the associated (HW) interrupts
+the associated signal
+– Parent gets it whenever fork()ed child terminates or is SIGSTOP-ed
+– Get a signal after some specified time
+– Set by system calls: alarm(2) \& setitimer(2) (homework: read man)
+OS (234123) - interrupts \& signals
+25
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Enumerate signals}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le cadre de ce cours universitaire, nous allons aborder plusieurs types de signaux en informatique. Le premier signal que nous allons étudier est le SIGTRAP. Ce signal est utilisé pour signaler une condition de point d'arrêt dans un programme, généralement pour les besoins du débogage.
+
+Nous allons ensuite nous intéresser à deux signaux spécifiques, SIGUSR1 et SIGUSR2. Ces signaux sont réservés pour être utilisés par l'utilisateur. Ils sont idéaux pour envoyer des messages simples à un processus, et sont souvent utilisés dans des scripts shell pour signaler des événements aux processus en cours.
+
+Le signal SIGXCPU mérite également notre attention. Ce signal est envoyé à un processus lorsque celui-ci a utilisé plus de temps CPU que celui qui lui a été alloué. C'est un mécanisme important pour contrôler l'utilisation des ressources dans les systèmes multi-utilisateurs.
+
+Enfin, nous aborderons le signal SIGPIPE. Ce signal est généré lorsque nous essayons d'écrire dans un tuyau qui n'a pas de lecteur. C'est un signal couramment utilisé pour indiquer qu'un processus de communication a été interrompu.
+
+Chacun de ces signaux joue un rôle essentiel dans la gestion des processus et des ressources dans les systèmes d'exploitation. Ils fournissent des mécanismes pour signaler les erreurs, gérer l'utilisation des ressources et communiquer entre les processus.
+– When debugging / single-stepping a process
+– E.g., can be delivered upon each instruction
+– User decides the meaning (e.g., see our daemon example)
+– Delivered when a process used up more CPU then its soft-limit allows
+– Soft/hard limits are set by the system call: setrlimit()
+– Soft-limits warn the process its about to exceed the hard-limit
+– Exceeding the hard-limit => SIGKILL will be delivered
+– Write to pipe with no readers (we’ll learn about pipes later, for the
+time being think about the shell’s pipe: “|”)
+OS (234123) - interrupts \& signals
+26
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Enumerate signals}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le contexte des entrées-sorties non bloquantes, SIGIO est un signal important qui peut être utilisé pour notifier un processus qu'une opération d'entrée-sortie est disponible pour un fichier non bloquant. Par exemple, lorsqu'un processus effectue une opération de lecture (read()) sur un descripteur de fichier non bloquant, le système génère un signal SIGIO pour indiquer que l'opération peut être effectuée sans être bloqué.
+
+Dans des situations où l'opération ne peut pas être effectuée immédiatement, une valeur spécifique, connue sous le nom de EAGAIN ou EWOULDBLOCK, est attribuée à la variable d'erreur 'errno'. Cette attribution signifie que l'opération d'entrée-sortie non bloquante a été tentée mais n'a pas pu être complétée, indiquant ainsi au processus d'essayer à nouveau ultérieurement. En d'autres termes, EAGAIN et EWOULDBLOCK sont des indicateurs qui signalent que l'opération d'entrée-sortie non bloquante est temporairement indisponible et qu'une nouvelle tentative devrait être envisagée.
+
+Il y a encore quelques points supplémentaires à considérer dans la gestion des entrées-sorties non bloquantes, qui seront abordés ensuite. Ces concepts supplémentaires aideront à approfondir votre compréhension de la manière dont les systèmes d'exploitation gèrent les opérations d'entrée-sortie non bloquantes et comment vous pouvez utiliser ces mécanismes pour concevoir des programmes efficaces et réactifs.
+– Can configure file descriptors such that a signal will be delivered
+whenever some I/O is ready
+– Typically makes sense when also configuring the file descriptors to be
+“non blocking”
+call immediately returns to user if there’s currently nothing to read
+– man 7 signal
+– http://man7.org/linux/man-pages/man7/signal.7.html
+OS (234123) - interrupts \& signals
+27
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Signal vs. interrupts}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+OS (234123) - interrupts \& signals
+28
+interrupts
+signals
+Who triggers them?
+Who defines their meaning?
+Hardware:
+CPU cores (sync) \&
+other devices (async)
+Software (OS),
+HW is unaware
+Who handles them?
+Who (un)blocks them?
+OS
+processes
+When do they occur?
+Both synchronously
+\& asynchronously
+Likewise, but,
+technically, invoked
+when returning
+from kernel to user
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Signal system calls – sending}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le cadre de ce cours, nous allons explorer en détail la fonction 'kill' en programmation. Cette fonction est typiquement définie comme 'int kill(pid_t pid, int sig)'. Cette fonction est utilisée pour envoyer un signal spécifique à un processus spécifique, généralement dans le but de terminer ce processus. Le 'pid_t pid' est l'identifiant du processus auquel le signal est envoyé, et 'int sig' est le signal spécifique qui est envoyé.
+
+Pour votre travail à la maison, on vous demande de rechercher et de comprendre plus profondément comment cette fonction fonctionne exactement. Comment fait-on pour envoyer un signal à un processus ? Comment le processus reçoit-il ce signal ? Quels sont les effets de différents signaux sur un processus ?
+
+Nous allons également aborder la signification des chiffres "2" et "1" dans le contexte des appels système et des utilitaires de shell. Le chiffre "2" est généralement associé aux appels système. Les appels système sont des interfaces entre le noyau du système d'exploitation et les processus en cours d'exécution. D'autre part, le chiffre "1" est associé aux utilitaires de shell. Les utilitaires de shell sont des commandes ou des programmes qui sont exécutés dans un shell ou un terminal.
+
+Ces concepts sont fondamentaux pour comprendre le fonctionnement interne des systèmes d'exploitation et comment les processus interagissent avec le noyau du système d'exploitation. Nous allons explorer ces concepts en détail au cours des prochaines semaines.
+– (Not the shell utility, the actual system call)
+– Allows a process to send a signal to another process (or to itself)
+– man 2 kill – http://linux.die.net/man/2/kill
+OS (234123) - interrupts \& signals
+29
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Signal system calls – (un)blocking}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le domaine de la programmation, nous rencontrons un certain nombre de défis, l'un d'eux étant le traitement des signaux qui peuvent être asynchrones. L'asynchronie peut entraîner ce qu'on appelle des "conditions de concurrence" ou "race conditions" en anglais. Ces conditions se produisent lorsqu'il y a une dépendance sur la séquence ou le timing de l'exécution des processus ou des threads pour l'accès aux données partagées.
+
+Pour faire face à cette situation, il existe une fonction spécifique dans le langage C : int sigprocmask(int how, const sigset_t *set, sigset_t *oldset). Cette fonction est utilisée pour modifier et/ou examiner le masque de signaux bloqués du processus appelant. Elle change l'ensemble des signaux bloqués en fonction de la valeur de "how". Les signaux spécifiés dans "set" sont modifiés, tandis que l'ancien ensemble de signaux bloqués est sauvegardé dans "oldset".
+
+Il est important de se référer au manuel pour comprendre tous les détails de cette fonction. L'appréhension de ces concepts peut être subtile, mais elle est essentielle pour une programmation efficace et sans erreur. Elle vous permettra de comprendre comment les signaux sont traités et comment vous pouvez contrôler leur comportement pour éviter des conditions de concurrence potentiellement problématiques.
+– Therefore, as noted, all signals (except kill/stop) can be blocked
+– Like how OS disables/enables interrupt
+– The PCB maintains a set of currently blocked signals
+– Which can be manipulated by users via the following syscall
+– ‘how’ = SIG\_BLOCK (+=), SIG\_UNBLOCK (-=), SIG\_SETMASK (=)
+– ‘set’ can be maipulated with sigset ops sigetmptyset(sigset\_t *set),
+sigfillset(sigset\_t *), sigaddset(sigset\_t *set, int signum),
+sigismember(sigset\_t *set, int signum)
+– man 2 sigprocmask – http://linux.die.net/man/2/sigprocmask
+– man 3 sigsetops – https://linux.die.net/man/3/sigsetops
+OS (234123) - interrupts \& signals
+30
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{(Un)blocking example}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+OS (234123) - processes \& signals
+31
+Record\_t db[N];
+void my\_handler(int signum) \{
+/* may read/update db */
+\}
+int main(int argc, char *argv[])
+\{
+sigset\_t mask, orig\_mask;
+sigemptyset(\&mask);
+sigaddset(\&mask, SIGTERM);
+signal(SIGTERM, my\_handler);
+for(;;) \{
+char *cmd = read\_command();
+sigprocmask(SIG\_BLOCK, \&mask, \&orig\_mask);
+// do stuff that may read/update db…
+sigprocmask(SIG\_SETMASK, \&orig\_mask, NULL);
+\}
+return 0;
+\}
+Recall that every syscall might fail;
+the example ignores this for brevity
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Signal system calls – control \& more info}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans cette partie du cours, nous allons approfondir nos connaissances sur le contrôle fin des signaux en utilisant la fonction 'sigaction' dans le contexte de la programmation en C. Cette fonction, 'int sigaction(int signum', nous offre un contrôle plus détaillé et précis sur la gestion des signaux dans nos programmes.
+
+La fonction 'sigaction' attend un entier 'signum' en tant que premier argument, qui représente le signal à manipuler. Il est important de noter que cette fonction est plus complexe que les fonctions de gestion de signaux que nous avons vues auparavant, mais elle offre également une plus grande flexibilité et des capacités de contrôle plus fines.
+
+Dans les sections suivantes, nous examinerons comment utiliser cette fonction de manière efficace, en mettant l'accent sur la manière de gérer les différents signaux possibles et de configurer le comportement de notre programme en réponse à ces signaux.
+– over how signals operate is provided via the following syscall
+const struct sigaction *act,
+struct sigaction *oldact)
+– man 2 sigaction – http://linux.die.net/man/2/sigaction
+(homework: read it)
+OS (234123) - interrupts \& signals
+32
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\section{Signals interact with other system calls}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans cette partie de notre cours, nous allons examiner en détail la fonction "read" en programmation. Cette fonction est généralement représentée comme suit : ssize_t read(int fd, void *buf, size_t count); 
+
+Chaque élément de cette fonction a une signification spécifique. Le premier élément, "ssize_t", est le type de retour de la fonction. Il indique la taille des données lues, en octets. S'il y a une erreur, la fonction renverra -1. 
+
+Le deuxième élément, "read", est le nom de la fonction. Cette fonction est utilisée pour lire des données d'un descripteur de fichier spécifié. 
+
+Le troisième élément, "(int fd, void *buf, size_t count)", est la liste des paramètres de la fonction. Le paramètre "int fd" est le descripteur de fichier à partir duquel les données sont lues. Le paramètre "void *buf" est un pointeur vers le tampon où les données lues seront stockées. Le dernier paramètre, "size_t count", est la quantité maximale de données qui peut être lue en une seule fois. 
+
+En résumé, la fonction "read" est une fonction essentielle en programmation qui permet de lire une certaine quantité de données d'un descripteur de fichier spécifié et de les stocker dans un tampon spécifié.
+– What happens if getting signal while read()ing?
+– The read system call returns -1, and it sets the global variable ‘errno’
+to hold EINTR
+– An example whereby read() might fail and user should simply retry
+OS (234123) - interrupts \& signals
+33
+int readn( int sockfd /*learn later*/, char *ptr, int nbytes )
+\{
+int nleft = nbytes;
+while( nleft > 0 ) \{ // ‘read’ is typically done in a loop (why?)
+int nread = read(sockfd, ptr, nleft);
+if( (nread == -1) \&\& (errno != EINTER) ) \{
+fprintf(stderr, “read failed, errno=\%m", errno);
+return -1;
+\}
+else if( nread == 0 )
+break; /*EOF*/
+nleft -= nread;
+ptr   += nread;
+\}
+return nbytes - nleft;
+\}
+\begin{aretenir}{À retenir}
+% À compléter
+\end{aretenir}
+
+\end{document}

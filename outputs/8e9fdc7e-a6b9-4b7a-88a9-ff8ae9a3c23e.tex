@@ -1,0 +1,112 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[hebrew]{babel}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{hebrew}
+\setotherlanguage{english}
+\newfontfamily\hebrewfont[Script=Hebrew]{Arial}
+\newfontfamily\englishfont[Script=Latin]{Arial}
+\setmainfont{Arial}
+\setmonofont{Courier New}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\graphicspath{{./images/}}
+\title{os}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : os
+\section{יצירת תהליך וסיום}
+
+\subsection{יצירת תהליך}
+
+\begin{itemize}
+\item תהליך אחד (ה"הורה") יכול ליצור תהליך אחר (ה"ילד").
+\item יש להקצות ולאתחל לוח PCB חדש.
+\item שיעורי בית: הרץ 'ps auxwww' ב-shell; PPID הוא ה-PID של ההורה.
+\end{itemize}
+
+\subsection{ירושה ב-POSIX}
+
+\begin{itemize}
+\item ב-POSIX, תהליך הילד מורשה את רוב מאפייני ההורה.
+\item UID, קבצים פתוחים (יש לסגור אם אינם נדרשים; למה?), cwd, וכו'.
+\end{itemize}
+
+\subsection{ביצוע התהליך}
+
+\begin{itemize}
+\item במהלך הביצוע, לוח ה-PCB מעביר בין תורים שונים.
+\item על פי גרף שינוי המצב.
+\item תורים: runnable, sleep/wait for event i (i=1,2,3…).
+\end{itemize}
+
+\section{סיום תהליך}
+
+\begin{itemize}
+\item לאחר שתהליך מת (exit()s / interrupted), הוא הופך לזומבי.
+\item ההורה משתמש בקריאת מערכת wait* כדי לנקות את הזומבי מהמערכת (למה?).
+\item משפחת קריאות המערכת wait: wait, waitpid, waitid, wait3, wait4; לדוגמה:
+\end{itemize}
+\begin{lstlisting}[language=C]
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark נקודות מפתח}]
+\begin{itemize}
+\item תהליך הורה יכול ליצור תהליך ילד.
+\item תהליך ילד מורשה את רוב מאפייני ההורה ב-POSIX.
+\item לאחר שתהליך מת, הוא הופך לזומבי וההורה נדרש לנקותו מהמערכת.
+\end{itemize}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb אינטואיציה}]
+הילדים מורשים את מאפייני ההורה שלהם, כמו בחיים האמיתיים. כאשר תהליך מת, הוא הופך לזומבי וההורה צריך לנקות את הזומבי מהמערכת, כמו בסרטי הזומבים.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb הסבר פשוט}]
+כאשר אנחנו יוצרים תהליך חדש במחשב, אנחנו יכולים לחשוב על זה כמו לידת ילד חדש. התהליך החדש (הילד) מקבל את רוב מאפייני התהליך שיצר אותו (ההורה). כאשר התהליך מסיים את פעולתו, הוא מת והופך לזומבי, וההורה צריך לנקות את הזומבי מהמערכת.
+\end{tcolorbox}
+
+  \section{יצירת תהליך עם fork()}  \subsection{הקוד}  נכתוב תהליך שמשתמש בפקודת fork() כדי ליצור תהליך חדש.  \subsection{הפקודה fork()}  פקודת fork() מאתחלת PCB חדש, המבוסס על הערך של ההורה. ה-PCB מתווסף לתור הרצה. כעת ישנם שני תהליכים באותו הנקודת ביצוע.  \subsection{התהליך החדש}  מרחב הכתובת של התהליך החדש הוא עותק מלא של מרחב הכתובת של ההורה, עם הבדל אחד...  \subsection{חזרה מפקודת fork()}  פקודת fork() מחזירה שני ערכים: בהורה, עם pid>0; ובילד, עם pid=0.  \subsection{סדר ההדפסה}  מהו סדר ההדפסה?  \subsection{המשתנה 'errno'}  'errno' הוא משתנה גלובלי שמחזיק את מספר השגיאה של הקריאה למערכת האחרונה.  
+  \begin{lstlisting}[language=C]  int main(int argc, char *argv[])  {    int pid = fork();    if( pid==0 ) {      //     // child        //        printf("parent=%d son=%d\n",               getppid(), getpid());    }    else if( pid > 0 ) {        //        // parent        //        printf("parent=%d son=%d\n",               getpid(), pid);    }    else { // print string associated           // with errno           perror("fork() failed");     }    return 0;  }  \end{lstlisting}  
+  \begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark נקודות מפתח}]  פקודת fork() מאתחלת PCB חדש, המבוסס על הערך של ההורה. ה-PCB מתווסף לתור הרצה. כעת ישנם שני תהליכים באותו הנקודת ביצוע. מרחב הכתובת של התהליך החדש הוא עותק מלא של מרחב הכתובת של ההורה, עם הבדל אחד... פקודת fork() מחזירה שני ערכים: בהורה, עם pid>0; ובילד, עם pid=0.  \end{tcolorbox}  
+
+
+\end{document}

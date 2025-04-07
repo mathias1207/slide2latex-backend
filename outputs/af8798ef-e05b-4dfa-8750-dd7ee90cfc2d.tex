@@ -1,0 +1,100 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\graphicspath{{./images/}}
+\title{os}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : os
+  \section{Process Creation and Termination}  In an operating system, one process, referred to as the parent, can create another process, known as the child. This is achieved through the allocation and initialization of a new Process Control Block (PCB). A practical example of this can be seen by running the command 'ps auxwww' in the shell, where PPID is the parent's PID.   \subsection{Inheritance in POSIX}  In POSIX, a child process inherits most of the parent's attributes. These attributes include the User ID (UID), open files, current working directory (cwd), among others. However, it is important to note that open files should be closed if they are unneeded.   \subsection{Process Control Block Movement}  While a process is executing, its PCB moves between different queues according to the state change graph. These queues can be runnable or sleep/wait for event i (where i=1,2,3, and so on).  \subsection{Process Termination}  After a process dies, either through exit() or interruption, it becomes a zombie. The parent process uses the wait* system call to clear the zombie from the system. The wait system call family includes wait, waitpid, waitid, wait3, and wait4. An example of this is the wait4 system call: pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage).   \subsection{Parent Process Behavior}  The parent process can either sleep/wait for its child to finish or run in parallel. The wait*() will block unless WNOHANG is given in 'options'. For further understanding, you can read 'man 2 wait'.  
+  \begin{lstlisting}  pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);  \end{lstlisting}  
+  \begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark Key Points}]  A parent process can create a child process, with the child process inheriting most of the parent's attributes. The Process Control Block (PCB) of a process moves between different queues while the process is executing. After a process dies, it becomes a zombie and the parent process uses the wait* system call to clear it from the system.  \end{tcolorbox}  
+  \begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]  The concept of parent and child processes allows for the creation of new processes in an operating system. The child process inherits attributes from the parent process, allowing for continuity and control. The movement of the PCB between different queues represents the different states a process can be in during its lifecycle.  \end{tcolorbox}  
+  \begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb Simple Explanation}]  Think of the parent process as a teacher who creates a student (the child process). The student inherits characteristics from the teacher (like knowledge and skills). The student's activities (like studying, playing, or sleeping) represent the movement of the PCB between different queues. When the student graduates (or the process dies), they become an alumni (or a zombie process) and the teacher (parent process) has to update the school records to reflect this change.  \end{tcolorbox}  
+
+\section{fork() Function} 
+ The fork() function is used to create a new process, which becomes the child process of the caller. After a new child process is created, both processes will execute the next instruction following the fork() system call. Therefore, we have to distinguish the parent from the child. This can be done by testing the returned value of fork(): 
+ \begin{itemize} 
+ \item If fork() returns a negative value, the creation of a child process was unsuccessful. 
+ \item fork() returns a zero to the newly created child process. 
+ \item fork() returns a positive value, the process ID of the child process, to the parent. The returned process ID is of type pid\_t defined in sys/types.h. Typically, the process ID is an integer. Moreover, a process can use function getpid() to retrieve the process ID assigned to this process. 
+ \end{itemize} 
+ \section{fork() Function Execution} 
+ When fork() is called, a new process is created and the address space of the parent is replicated in the child process. The child process has an exact copy of all the memory segments of the parent process.
+\begin{lstlisting}[language=C] 
+ int main(int argc, char *argv[]) 
+ { 
+ int pid = fork(); 
+ if( pid==0 ) { 
+ // 
+ // child 
+ // 
+ printf(“parent=%d son=%d\n”, 
+ getppid(), getpid()); 
+ } 
+ else if( pid > 0 ) { 
+ // 
+ // parent 
+ // 
+ printf(“parent=%d son=%d\n”, 
+ getpid(), pid); 
+ } 
+ else { // print string associated 
+ // with errno 
+ perror(“fork() failed”); 
+ } 
+ return 0; 
+ } 
+ \end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark Key Points}] 
+ \begin{itemize} 
+ \item fork() initializes a new PCB based on parent’s value and adds it to the runnable queue. 
+ \item After fork() is called, there are now two processes at the same execution point. 
+ \item The child’s new address space is a complete copy of the parent’s space, with one difference: fork() returns twice. At the parent, with pid>0, and at the child, with pid=0. 
+ \item 'errno' is a global variable that holds the error number of the last system call. 
+ \end{itemize} 
+ \end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}] 
+ The fork() function is a key function in process creation at the OS level. It's like a cell division in biology. The newly created child process is a replica of the parent process, but it has its own process ID and its own memory space. 
+ \end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb Simple Explanation}] 
+ Imagine you're in a kitchen (the parent process) and you're about to prepare a meal. You decide to call your friend (fork()) to help you. Your friend arrives in the kitchen and you both start preparing the meal. You both have the same recipe (the program), but you're doing the tasks separately. If you change something in your recipe, your friend won't see the changes because they have their own copy. That's basically how fork() works. 
+ \end{tcolorbox}
+
+
+\end{document}

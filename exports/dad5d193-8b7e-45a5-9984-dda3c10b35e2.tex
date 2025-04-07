@@ -1,0 +1,553 @@
+
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\tcbuselibrary{theorems}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    frame=single,
+    breaklines=true,
+    columns=fullflexible
+}
+
+\newtcolorbox{myvulga}[1]{colback=yellow!10,colframe=yellow!80!black,fonttitle=\bfseries,title={\faLightbulb\hspace{0.5em}#1}}
+\newtcolorbox{aretenir}[1]{colback=green!5,colframe=green!60!black,fonttitle=\bfseries,title={\faBook\hspace{0.5em}#1}}
+\newtheorem{remark}{Remarque}
+
+\setlist[itemize]{topsep=0pt,itemsep=2pt,left=1em}
+
+\begin{document}
+\section{Process creation \& termination}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans le domaine des systèmes d'exploitation, un processus, appelé le "parent", a la capacité de créer un autre processus, dénommé le "enfant". Cette interaction parent-enfant est au cœur de la gestion des processus et permet une organisation efficace et structurée des tâches dans un système informatique. En effet, le processus parent est celui qui initie la création d'un nouveau processus enfant, établissant ainsi une hiérarchie claire et définie. Cette relation parent-enfant est cruciale pour comprendre comment les systèmes d'exploitation répartissent les ressources et gèrent les tâches.
+Dans le cadre des systèmes d'exploitation modernes, une dynamique particulière de création de processus est mise en œuvre. Dans cette dynamique, un processus, que nous désignerons comme le "processus parent", a la capacité de créer un autre processus, désigné comme le "processus enfant". Cette relation parent-enfant entre les processus est fondamentale dans le fonctionnement d'un système d'exploitation, car elle permet une organisation et une hiérarchisation efficaces des processus.
+Dans le cadre d'une étude approfondie des systèmes d'exploitation, il est important de comprendre comment les processus interagissent et se développent. Un concept essentiel à saisir est celui de la création d'un processus par un autre. En termes plus précis, un processus, que nous appellerons le "parent", a la capacité de générer un autre processus, désigné sous le nom de "l'enfant". Cette relation parent-enfant est une composante fondamentale de la gestion des processus dans les systèmes d'exploitation modernes, car elle permet une organisation et une hiérarchisation efficaces des tâches.
+Dans le cadre d'une séquence d'opérations, un processus, communément appelé le "processus parent", a la capacité de générer un autre processus, appelé le "processus enfant". Cette notion est fondamentale dans le contexte des systèmes d'exploitation. En particulier, dans le standard POSIX, qui est largement utilisé dans les systèmes d'exploitation modernes, le processus enfant hérite de la majorité des attributs de son processus parent. Cette héritage des attributs permet une certaine continuité et cohérence dans l'exécution des tâches, tout en permettant une certaine autonomie au processus enfant.
+Dans le domaine des systèmes d'exploitation, un processus, que nous appellerons "parent", a la capacité de générer un autre processus, désigné comme "enfant". Cette relation père-enfant est une notion fondamentale dans la gestion des processus. Dans le contexte de POSIX (Interface Portable d'exploitation de Système), qui est une norme définissant une interface entre un système d'exploitation et ses applications, le processus enfant hérite de la majorité des attributs de son processus parent. Cela signifie que les caractéristiques et les propriétés du processus parent sont transférées au processus enfant lors de sa création, permettant ainsi une continuité et une cohérence dans l'exécution des processus.
+Dans le cadre des systèmes d'exploitation, un processus, que nous appellerons le "processus parent", a la capacité de générer un autre processus, désigné sous le terme de "processus enfant". Ce concept est essentiel dans la gestion des tâches dans un système informatique. Selon la norme POSIX, qui définit l'interface de programmation des systèmes d'exploitation Unix, le processus enfant hérite de la majorité des attributs du processus parent. Cela permet une continuité et une cohérence dans les opérations exécutées par ces processus.
+
+Par ailleurs, durant leur exécution, le Bloc de Contrôle de Processus (PCB) se déplace entre différentes files d'attente. Le PCB est une structure de données qui contient des informations sur chaque processus. Il est essentiel pour le système d'exploitation de maintenir ces informations pour gérer efficacement tous les processus. Les files d'attente, quant à elles, sont utilisées pour organiser les processus en fonction de leur état ou de leur priorité, permettant ainsi une gestion plus efficace des ressources du système.
+Dans le cadre des systèmes d'exploitation, il est essentiel de comprendre que l'un des processus, généralement désigné comme le "parent", a la capacité de créer un autre processus, que nous appellerons le "child". Cette méthode de création de processus est vitale pour le fonctionnement multitâche des systèmes d'exploitation modernes.
+
+En se référant spécifiquement à l'interface de programmation POSIX (Portable Operating System Interface), un child process hérite de la majorité des attributs de son processus parent. Cela signifie que le processus enfant ne commence pas à partir de zéro, mais plutôt avec une copie presque complète de l'environnement du parent. C'est un aspect crucial de la structure de gestion des processus dans les systèmes POSIX.
+
+Enfin, il est important de noter que pendant l'exécution d'un processus, le Bloc de Contrôle du Processus (PCB - Process Control Block) se déplace entre différentes files d'attente. Ce mouvement est dicté par l'état du processus, qu'il soit prêt, en attente ou en cours d'exécution, et détermine ainsi la prochaine action que le système d'exploitation doit prendre en ce qui concerne ce processus.
+Dans les systèmes d'exploitation, il est courant qu'un processus, souvent désigné comme le "processus parent", ait la capacité de créer un autre processus, connu sous le nom de "processus enfant". Ce mécanisme de création de processus est particulièrement important dans les environnements POSIX, où le processus enfant hérite de la plupart des attributs de son processus parent. Cela permet une certaine continuité et cohérence dans l'exécution des tâches et des opérations. Pendant l'exécution, il est important de noter que le Bloc de Contrôle de Processus (PCB) ne reste pas statique. Au contraire, il se déplace constamment entre différentes files d'attente. Ce mouvement est crucial pour la gestion efficace des ressources et l'ordonnancement des processus, car il assure que chaque processus reçoit l'attention appropriée de la part du processeur et d'autres ressources système.
+Dans le cadre des systèmes d'exploitation, un processus, également désigné comme le "processus parent", a la capacité de générer un autre processus, appelé le "processus enfant". Cette association parent-enfant est fondamentale dans la structuration et l'organisation des processus au sein d'un système d'exploitation.
+
+Dans l'environnement POSIX, le processus enfant hérite de la majorité des attributs de son processus parent. Cette caractéristique rend l'environnement POSIX particulièrement efficace dans le maintien de la continuité et de la cohérence des processus.
+
+Durant l'exécution des processus, le bloc de contrôle de processus (PCB) se déplace entre différentes files d'attente. Ce mouvement est crucial pour le traitement et la gestion des différentes tâches dans le système d'exploitation.
+
+Enfin, lorsqu'un processus cesse d'exister, soit parce qu'il a terminé son exécution (exit()), soit parce qu'il a été interrompu, il devient un "processus zombie". Ce terme décrit un processus qui, bien que n'étant plus en cours d'exécution, réside toujours dans la table des processus du système d'exploitation.
+Dans le cadre des systèmes d'exploitation, il est important de comprendre le concept d'un processus et comment il se matérialise. Un processus, souvent appelé "parent", a la capacité de générer un autre processus, connu sous le nom de "child" ou "enfant". Ce phénomène est courant dans le standard POSIX (Portable Operating System Interface), où le processus enfant hérite de la majorité des attributs du processus parent.
+
+Lors de son exécution, le Process Control Block (PCB) du processus est déplacé entre différentes files d'attente pour la coordination et la planification de l'exécution du processus. Cela permet au système d'exploitation de gérer efficacement les ressources et d'assurer une performance optimale.
+
+Enfin, il est crucial de comprendre ce qui arrive à un processus lorsqu'il meurt, c'est-à-dire lorsqu'il est interrompu ou qu'il appelle la routine de sortie (exit()). À ce stade, le processus est communément référencé comme un "zombie". Il ne fonctionne plus, mais il peut encore occuper de l'espace dans la table des processus, nécessitant ainsi une gestion appropriée pour garantir l'efficacité du système.
+Dans un système d'exploitation, un processus, également connu sous le nom de "parent", peut en créer un autre, appelé "enfant". Selon le standard de l'interface de programmation POSIX, le processus enfant hérite de la plupart des attributs de son processus parent. Cela signifie que le processus enfant peut accéder et utiliser les mêmes ressources système que son parent.
+
+Au cours de son exécution, le Bloc de Contrôle de Processus (PCB) se déplace entre différentes files d'attente. Cette rotation permet au système d'exploitation de gérer efficacement plusieurs processus en même temps, en alternant leur accès aux ressources du système.
+
+Enfin, lorsqu'un processus cesse d'exister, soit parce qu'il a terminé son exécution (par l'appel de fonction exit()), soit parce qu'il a été interrompu, il entre dans un état connu sous le nom de "zombie". Dans cet état, le processus n'exécute plus aucune instruction, mais il reste présent dans la table des processus du système jusqu'à ce que son processus parent récupère son statut de sortie.
+Dans le cadre de la programmation, un processus, souvent appelé "processus parent", a la capacité de créer un autre processus, connu sous le nom de "processus enfant". Cette relation parent-enfant est un concept fondamental dans la programmation multitâche. Dans l'environnement POSIX, le processus enfant hérite de la plupart des attributs du processus parent, ce qui permet une continuité et une cohérence dans l'exécution des tâches.
+
+Lors de l'exécution d'un processus, le Bloc de Contrôle du Processus (BCP) se déplace entre différentes files d'attente. Ce déplacement est essentiel pour la gestion des processus, car il permet au système de suivre l'état actuel de tous les processus en cours.
+
+Finalement, lorsqu'un processus termine son exécution, que cela soit par un appel à exit() ou à cause d'une interruption, il entre dans un état connu sous le nom de "zombie". À ce stade, bien que le processus ait terminé son exécution, il reste encore dans la table des processus, permettant ainsi au processus parent de récupérer son statut de sortie. La compréhension de ces concepts est cruciale pour l'écriture de programmes multitâches efficaces et robustes.
+Au sein d'un système d'exploitation, un processus, que nous nommerons le "parent", a la capacité de générer un autre processus, que nous appellerons le "child". Selon les normes POSIX, le processus enfant hérite de la majorité des attributs du processus parent. Il est toutefois important de noter que ces attributs peuvent être modifiés par le processus enfant sans affecter ceux du processus parent.
+
+Au cours de son exécution, le bloc de contrôle du processus (PCB) se déplace entre différentes files d'attente. Ces déplacements sont généralement le résultat de changements dans l'état du processus, tels que le passage d'un état d'exécution à un état d'attente. Le PCB contient toutes les informations essentielles concernant un processus, dont l'état actuel du processus, son identifiant, ainsi que d'autres attributs.
+
+Lorsqu'un processus cesse d'exister, que ce soit par un appel à la fonction exit() ou par interruption, il entre dans un état appelé "zombie". Dans cet état, le processus a terminé son exécution mais reste présent dans la table des processus, en attendant que son processus parent récupère ses informations d'état.
+
+Par ailleurs, le processus parent peut choisir de se mettre en veille, ou "sleep", en attendant que son processus enfant termine sa propre exécution. Alternativement, le parent peut également choisir de continuer à s'exécuter en parallèle de son processus enfant. Cette dualité offre une grande flexibilité dans la gestion des processus et permet une utilisation plus efficace des ressources systèmes.
+Dans le contexte des systèmes d'exploitation, un processus, communément appelé "parent", est capable de créer un autre processus, appelé "enfant". Selon la norme POSIX, qui est une interface de programmation systématique largement utilisée, le processus enfant hérite de la majorité des attributs de son processus parent. Cela signifie que, sauf exceptions spécifiques, l'état initial du processus enfant est une copie de celui du processus parent au moment de la création.
+
+Au cours de leur exécution, les processus sont gérés par le système d'exploitation à travers ce que l'on appelle un bloc de contrôle de processus (PCB). Le PCB de chaque processus se déplace entre différentes files d'attente au fur et à mesure de l'exécution, en fonction de l'état du processus (prêt, en attente, en cours d'exécution, etc.).
+
+Lorsqu'un processus termine son exécution, soit normalement par un appel de la fonction exit(), soit de manière inattendue en raison d'une interruption, il entre dans un état spécial appelé "zombie". Dans cet état, le processus a terminé son exécution, mais conserve encore des informations dans la table des processus, généralement pour permettre au processus parent de récupérer son statut de sortie.
+
+Enfin, un processus parent a la possibilité de choisir comment gérer l'exécution de ses processus enfants. Il peut choisir de "dormir" ou d'attendre que son enfant termine avant de continuer son exécution. Alternativement, le parent peut choisir de continuer à s'exécuter en parallèle avec l'enfant. Cette décision dépend généralement des besoins spécifiques de l'application.
+Dans le cadre de la gestion des processus, un processus, communément appelé "parent", a la capacité de créer un autre processus, désigné comme le "child" ou l'enfant. Cette dynamique est particulièrement notable dans le modèle POSIX, où le processus enfant hérite de la plupart des attributs de son processus parent. 
+
+Durant son exécution, le Process Control Block (PCB) du processus se déplace entre différentes files d'attente, reflétant la variabilité et la fluidité de la gestion des processus. 
+
+Un aspect crucial du cycle de vie d'un processus est son aboutissement. Lorsqu'un processus prend fin, soit par une sortie normale (via la fonction exit()), soit par une interruption, il entre dans un état particulier dénommé "zombie". Ce phénomène se produit parce que le processus est techniquement terminé, mais sa description reste dans la table des processus afin que le processus parent puisse lire son code de sortie.
+
+En ce qui concerne le processus parent, il a deux options principales concernant son interaction avec le processus enfant. Il peut choisir de "dormir" ou d'attendre que l'enfant termine son exécution, ou bien il peut opter pour une exécution en parallèle, où le parent et l'enfant poursuivent simultanément leurs opérations. Cette décision dépend généralement des exigences spécifiques du programme et des ressources disponibles.
+Dans le cadre du fonctionnement des processus, un processus, que nous appellerons le "parent", peut en créer un autre, dénommé le "fils". Selon la norme POSIX, le processus enfant hérite de la majorité des attributs du processus parent, ce qui permet une certaine continuité dans l'exécution des tâches.
+
+Au cours de l'exécution, le Bloc de Contrôle de Processus (PCB) circule entre différentes files d'attente. Cela signifie que le processus peut se trouver dans différentes étapes de son cycle de vie, en fonction de l'état du système et des autres processus en cours.
+
+L'achèvement d'un processus peut se présenter de deux façons principales. Tout d'abord, un processus peut "mourir" lorsqu'il a terminé son exécution ou lorsqu'il est interrompu. À ce stade, il devient ce que l'on nomme un "processus zombie". Ce terme peut sembler étrange, mais il est couramment utilisé pour décrire un processus qui a terminé son exécution mais dont l'entrée dans la table des processus n'a pas encore été supprimée.
+
+Enfin, il est important de noter que le processus parent a la possibilité d'attendre que le processus enfant termine son exécution, ou de continuer à s'exécuter en parallèle. Ce choix dépend généralement des besoins spécifiques du système et de l'application en question.
+Dans le cadre des systèmes d'exploitation, il existe une structure de processus où un processus, communément appelé le « parent », a la capacité de créer un autre processus, le « enfant ». Selon la norme POSIX, le processus enfant hérite de la plupart des attributs du processus parent, ce qui assure une cohérence et une continuité dans l'exécution des tâches.
+
+Au cours de son exécution, le Process Control Block (PCB) du processus se déplace entre différentes files d'attente. Ces déplacements sont régis par des algorithmes de planification qui déterminent l'ordre d'exécution des processus en attente en fonction de divers critères, tels que la priorité, le temps d'exécution le plus court d'abord, etc.
+
+Lorsqu'un processus meurt, soit par un appel de sortie (exit()), soit par une interruption, il entre dans un état appelé « zombie ». C'est un état où le processus a terminé son exécution, mais où ses ressources, comme l'identifiant du processus ou le PCB, sont encore retenues par le système d'exploitation jusqu'à ce que le processus parent récupère l'état de sortie de l'enfant.
+
+Il est intéressant de noter que le processus parent a la possibilité de soit attendre que son enfant termine son exécution, soit de continuer à s'exécuter en parallèle. Cette décision est généralement prise en fonction des besoins spécifiques du programme ou du système d'exploitation.
+\section{int main(int argc, char *argv[])}
+\begin{myvulga}{Intuition}
+% À compléter
+\end{myvulga}
+Dans ce cours, nous aborderons un concept clé en systèmes d'exploitation : le processus de création d'un nouveau processus avec la fonction 'fork()'. 
+
+Considérez le fragment de code suivant : l'appel à 'fork()' initialise un nouveau Process Control Block (PCB) basé sur la valeur du processus parent. Ce PCB est ensuite ajouté à la file d'attente des tâches prêtes à être exécutées. Par conséquent, il y a maintenant deux processus au même point d'exécution. L'espace d'adresse du nouveau processus enfant est une copie complète de celui du processus parent, avec une seule différence notable.
+
+Il est intéressant de noter que 'fork()' retourne deux fois. Dans le processus parent, il retourne avec un 'pid' supérieur à zéro, tandis que dans le processus enfant, il retourne avec un 'pid' de zéro. Le code effectue une vérification de la valeur de 'pid' pour déterminer si le processus actuel est le parent ou l'enfant, et imprime ensuite les identifiants du processus parent et du processus enfant respectivement. 
+
+En cas d'échec de la fonction 'fork()', elle retourne une valeur négative. Le code gère ce cas d'erreur en imprimant la chaîne associée à 'errno', une variable globale qui contient le numéro d'erreur du dernier appel système.
+
+Une question qui peut se poser est : quel est l'ordre d'impression ? C'est un aspect que nous discuterons plus en détail dans les sessions à venir. 
+
+Pour conclure, la fonction 'fork()' est une fonction essentielle qui permet de créer un nouveau processus, ou plus précisément, un processus enfant à partir d'un processus parent dans un système d'exploitation.
+Dans le contexte de la programmation en C, le code présenté illustre l'utilisation de la fonction `fork()`. Cette fonction est utilisée pour initialiser un nouveau Process Control Block (PCB), basé sur la valeur du processus parent. Le nouveau PCB est ensuite ajouté à la file d'attente des processus prêts à être exécutés. 
+
+Suite à l'appel de `fork()`, deux processus sont présents au même point d'exécution. Le processus enfant obtient une nouvelle adresse d'espace qui est une copie complète de l'espace du processus parent, avec une différence notable : la fonction `fork()` retourne deux valeurs différentes pour chaque processus. Pour le processus parent, `fork()` retourne une valeur positive (l'identifiant du processus enfant), tandis que pour le processus enfant, `fork()` retourne zéro. 
+
+Le code comprend également des instructions pour afficher l'identifiant du processus parent et de l'enfant. On peut se demander dans quel ordre ces informations seront imprimées. Cela dépend en fait de l'ordonnanceur de processus de l'OS, qui décide quel processus s'exécute à un moment donné. 
+
+En cas d'échec de la fonction `fork()`, le code affiche une chaîne associée à `errno`, une variable globale qui contient le numéro d'erreur du dernier appel système. Cette déclaration est particulièrement utile pour le dépannage, car elle permet d'identifier rapidement la cause de l'échec.
+
+En somme, la fonction `fork()` est un outil clé pour la création de processus en programmation C. Son utilisation et sa compréhension sont essentielles pour gérer efficacement les processus et les signaux dans les systèmes d'exploitation.
+Dans le cadre du cours sur les processus et les signaux en système d'exploitation (OS 234123), nous allons explorer la fonction fork(). Le code présenté ci-dessus illustre le fonctionnement de base de cette fonction. Dans ce code, nous commençons par initialiser un nouvel identifiant de processus (pid) en appelant la fonction fork(). 
+
+La fonction fork() crée un nouveau processus en copiant le processus actuel. Plus précisément, elle initialise un nouveau bloc de contrôle de processus (PCB) basé sur la valeur du processus parent. Ce nouveau PCB est ensuite ajouté à la file d'attente des processus prêts à être exécutés. Ainsi, deux processus sont maintenant présents au même point d'exécution : le processus parent et le processus enfant.
+
+Le nouvel espace d'adresse du processus enfant est une copie complète de l'espace du processus parent, à une différence près : la valeur retournée par la fonction fork(). Cette fonction retourne deux fois. Dans le processus parent, elle retourne le pid du processus enfant (une valeur supérieure à zéro), tandis que dans le processus enfant, elle retourne zéro.
+
+Pour illustrer cette différence, le code affiche l’identifiant du processus parent et l’identifiant du processus enfant. Le processus parent affiche son propre pid et celui de son enfant, tandis que le processus enfant affiche le pid de son parent et le sien.
+
+Dans le cas où la fonction fork() échoue, elle retourne une valeur négative. Le code gère ce cas en affichant une chaîne associée à 'errno', une variable globale qui contient le numéro d'erreur du dernier appel système. Cette gestion d'erreur permet d'identifier la cause de l'échec de la fonction fork().
+
+Une question pertinente à se poser est celle de l'ordre d'affichage. Étant donné que les deux processus sont indépendants et s'exécutent en parallèle, l'ordre d'affichage peut varier d'une exécution à l'autre.
+
+Enfin, pour résumer, la fonction fork() est utilisée pour créer un nouveau processus en copiant le processus existant. Elle joue un rôle essentiel dans la gestion des processus en système d'exploitation.
+Dans le cadre de la création et de la gestion des processus dans les systèmes d'exploitation, la fonction fork() joue un rôle essentiel. Lorsque cette fonction est appelée, elle initialise un nouveau Process Control Block (PCB) basé sur la valeur de son processus parent. Le PCB nouvellement créé est ensuite ajouté à la file d'attente exécutable. Cela signifie qu'il y a maintenant deux processus - le parent et l'enfant - qui se trouvent au même point d'exécution.
+
+L'espace d'adresse du processus enfant est une copie complète de l'espace du processus parent, à une différence près. Cette différence est liée à la manière dont la fonction fork() retourne les valeurs. Dans le contexte de la fonction fork(), il est important de noter qu'elle renvoie deux valeurs : elle renvoie une valeur supérieure à zéro au processus parent, ce qui correspond à l'ID du processus enfant, et elle renvoie zéro au processus enfant lui-même.
+
+Dans le code donné, nous avons un fragment de code qui illustre ce processus. Après avoir initialisé un nouveau processus avec la fonction fork(), le programme vérifie le PID (ID du processus) renvoyé. Si le PID est égal à zéro, cela signifie que nous sommes dans le processus enfant. Le processus enfant imprime alors son propre PID et le PID de son processus parent. Si le PID est supérieur à zéro, cela signifie que nous sommes dans le processus parent. Le processus parent imprime alors son propre PID et le PID de son processus enfant.
+
+Une question intéressante à se poser à ce stade est l'ordre d'impression. Quel PID sera imprimé en premier, celui du parent ou celui de l'enfant ? Cela dépend de l'ordonnancement des processus effectué par le système d'exploitation.
+
+Si la fonction fork() échoue pour une raison quelconque, elle renvoie une valeur négative. Dans ce cas, le programme imprime une chaîne associée à 'errno', une variable globale qui contient le numéro d'erreur du dernier appel système. Dans notre exemple, un message "fork() failed" sera affiché si la fonction fork() échoue.
+
+En conclusion, la fonction fork() est un outil puissant pour la création de processus dans les systèmes d'exploitation, mais elle nécessite une compréhension précise de la manière dont les valeurs sont retournées et comment l'espace d'adressage est géré entre le processus parent et le processus enfant.
+Dans ce cours, nous explorons en détail le fonctionnement de l'appel système fork() qui est couramment utilisé dans les systèmes d'exploitation pour créer un nouveau processus. Considérez le segment de code suivant :
+
+```
+int pid = fork();
+if( pid==0 ) {
+  // child
+  printf(“parent=%d son=%d\n”, getppid(), getpid());
+}
+else if( pid > 0 ) {
+  // parent
+  printf(“parent=%d son=%d\n”, getpid(), pid);
+}
+else {
+  // print string associated with errno
+  perror(“fork() failed”);
+}
+return 0;
+```
+
+Lorsqu'un appel à la fonction fork() est effectué, un nouveau Bloc de Contrôle de Processus (PCB) est initialisé. Ce nouveau PCB est basé sur la valeur du processus parent et est ajouté à la file d'attente des processus exécutables. À ce stade, deux processus existent donc simultanément, chacun étant au même point d'exécution.
+
+L'espace d'adresse du nouveau processus fils est une copie complète de l'espace d'adresse du processus parent, avec une seule différence notable : la valeur retournée par la fonction fork(). En effet, cette fonction retourne deux fois. Dans le processus parent, elle retourne l'identifiant du processus (PID) du nouveau processus, qui est toujours un nombre supérieur à zéro. Dans le processus fils, elle retourne zéro.
+
+Une question intéressante à se poser est donc : quel est l'ordre d'impression des processus parent et fils ? Cela dépend entièrement de l'ordonnancement du système d'exploitation, ce qui rend l'ordre d'impression indéterminé.
+
+Enfin, si l'appel à la fonction fork() échoue pour une raison quelconque, une valeur d'erreur est stockée dans la variable globale 'errno'. Cette variable contient le numéro d'erreur de la dernière fonction système appelée. En affichant la chaîne associée à 'errno', on peut comprendre la cause de l'échec.
+
+C'est ainsi que fonctionne l'appel système fork(), qui est essentiel à la création de processus dans les systèmes d'exploitation.
+Dans le contexte de la programmation des systèmes d'exploitation, la fonction `fork()` est utilisée pour initier un nouveau Process Control Block (PCB). Ce nouveau PCB est basé sur la valeur du processus parent et est ajouté à la file d'attente prête à être exécutée. À la suite de cette opération, deux processus sont présents au même point d'exécution.
+
+Lorsque `fork()` est appelée, un nouvel espace d'adresse pour l'enfant est créé. Cet espace est une copie complète de l'espace du parent, à une différence près. La particularité est que la fonction `fork()` retourne deux fois : une fois pour le parent, où la valeur de pid est supérieure à 0, et une fois pour l'enfant, où la valeur de pid est égale à 0.
+
+Le programme donné illustre ce processus. Dans le cas où pid est égal à 0, nous sommes dans le processus enfant. Le programme imprime alors les pid du parent et de l'enfant. Si pid est supérieur à 0, nous sommes dans le processus parent et le programme imprime également les pid du parent et de l'enfant. Si une erreur se produit lors de l'appel à `fork()`, le programme imprime la chaîne associée à errno, une variable globale qui contient le numéro d'erreur du dernier appel système.
+
+Une question intéressante à se poser est l'ordre d'impression. En raison de la nature concurrente des processus, l'ordre peut varier. 
+
+En résumé, la fonction `fork()` est utilisée pour créer un nouveau processus, appelé processus enfant, qui est une copie du processus qui a fait l'appel, connu sous le nom de processus parent. C'est un concept fondamental dans la gestion des processus et des signaux dans les systèmes d'exploitation.
+Dans le contexte des systèmes d'exploitation et de la gestion des processus, `fork()` est une fonction essentielle. La fonction `fork()` initialise un nouveau Process Control Block (PCB) basé sur la valeur du processus parent. Le nouveau PCB est ensuite ajouté à la file d'attente des processus exécutables. Après l'exécution de `fork()`, il y a deux processus qui se trouvent au même point d'exécution.
+
+Il est important de noter que l'espace d'adresse du nouveau processus enfant est une copie complète de l'espace d'adresse du processus parent, à une différence près. Cette particularité sera traitée plus en détail dans la suite de ce cours.
+
+Un aspect singulier de la fonction `fork()` est qu'elle retourne deux fois. Dans le processus parent, la valeur de retour est supérieure à zéro (pid > 0), tandis que dans le processus enfant, la valeur de retour est zéro (pid = 0).
+
+Cela peut être illustré par le code suivant :
+
+```C
+int pid = fork();
+if( pid == 0 ) {
+   // This is the child process.
+   printf("parent=%d son=%d\n", getppid(), getpid());
+} else if( pid > 0 ) {
+   // This is the parent process.
+   printf("parent=%d son=%d\n", getpid(), pid);
+} else {
+   // If fork() fails, it returns -1.
+   perror("fork() failed");
+}
+return 0;
+}
+```
+
+Ce code lance un nouveau processus, puis imprime les identifiants du processus parent et du processus enfant. En cas d'échec de la fonction `fork()`, une erreur est imprimée.
+
+L'ordre d'impression n'est pas déterminé à l'avance, car il dépend de l'ordonnanceur du système d'exploitation.
+
+Enfin, dans le contexte des appels système, 'errno' est une variable globale qui stocke le numéro d'erreur du dernier appel système. Dans le cas de `fork()`, si l'appel échoue, la fonction `perror()` est utilisée pour afficher la chaîne associée à 'errno'.
+Dans ce segment de code, nous mettons en œuvre la fonction 'fork()' pour initialiser un nouveau Process Control Block (PCB). Cette fonction est basée sur la valeur du processus parent et le nouveau PCB est ajouté à la file d'attente exécutable. À la suite de cette opération, nous avons maintenant deux processus se trouvant au même point d'exécution.
+
+Le processus enfant se voit attribuer un nouvel espace d'adresse, qui est une copie complète de l'espace du processus parent, à une différence près. Notons que la fonction 'fork()' renvoie deux valeurs. Chez le processus parent, la valeur de 'pid' est supérieure à zéro, tandis que chez le processus enfant, la valeur de 'pid' est égale à zéro.
+
+Le code stipule que si 'pid' est égal à zéro, alors nous sommes dans le processus enfant. Dans ce cas, le programme affiche les identifiants du processus parent et du processus enfant. Si 'pid' est supérieur à zéro, alors nous sommes dans le processus parent et le programme affiche également les identifiants du processus parent et du processus enfant.
+
+Cependant, si la fonction 'fork()' échoue, une chaîne associée à 'errno' est imprimée. 'errno' est une variable globale qui contient le numéro d'erreur du dernier appel système.
+
+Une question intéressante à se poser est : quel est l'ordre d'impression ? Cette question est pertinente car elle met en évidence le caractère concurrent de l'exécution des processus parent et enfant.
+
+Pour conclure, la fonction 'fork()' est utilisée pour créer un nouveau processus, appelé processus enfant, à partir du processus parent actuel. Cette fonction est essentielle dans les systèmes d'exploitation pour la création de nouveaux processus et signaux.
+Dans le cadre de la programmation en système d'exploitation, la fonction 'fork()' est essentielle. Elle initie un nouveau Process Control Block (PCB) basé sur la valeur du processus parent. Une fois initié, le PCB est ajouté à la file d'attente exécutable. Ainsi, deux processus sont créés, se situant au même point d'exécution.
+
+Le code ci-dessous illustre l'utilisation de la fonction 'fork()' :
+
+```
+int pid = fork();   
+if( pid==0 ) {     
+    // child       
+    printf(“parent=%d son=%d\n”, getppid(), getpid());   
+}   
+else if( pid > 0 ) {       
+    // parent       
+    printf(“parent=%d son=%d\n”, getpid(), pid);   
+}   
+else { 
+    // print string associated with errno
+    perror(“fork() failed”);    
+}   
+return 0; 
+```
+
+Dans ce code, `fork()` est appelée une fois mais retourne deux fois. Dans le processus parent, la valeur de PID est supérieure à zéro, alors que dans le processus enfant, la valeur de PID est égale à zéro. C'est ce qui permet de distinguer le processus parent du processus enfant. 
+
+En ce qui concerne l'espace d'adresse du nouvel enfant, il s'agit d'une copie complète de l'espace du parent, avec une différence notable : le PID. En effet, bien que l'espace d'adressage soit copié, le PID de l'enfant est différent de celui du parent.
+
+Le flux d'exécution du programme peut susciter des interrogations, en particulier l'ordre d'impression des processus. Cela dépend du système d'exploitation et de sa gestion des processus. Il n'y a donc pas de réponse absolue à cette question.
+
+Enfin, s'il y a une erreur lors de l'appel à `fork()`, un message d'erreur est imprimé en utilisant la fonction `perror()`. `errno` est une variable globale qui contient le numéro d'erreur du dernier appel système. Si `fork()` échoue, `errno` contiendra le numéro d'erreur correspondant à l'échec de la création d'un nouveau processus.
+
+Ainsi, l'utilisation de la fonction `fork()` permet de créer un nouveau processus, ou plus précisément, un processus enfant. C'est un élément clé de la gestion des processus dans les systèmes d'exploitation.
+Dans le contexte de la programmation système, le code présenté est une illustration de l'utilisation de la fonction `fork()`, qui est utilisée pour créer un nouveau processus. Une fois que ce nouveau processus est créé, il est initialisé avec une nouvelle structure de contrôle de processus (PCB) basée sur la valeur de son processus parent. Ensuite, ce nouveau PCB est ajouté à la file d'attente des processus prêts à être exécutés.
+
+Il est intéressant de noter que, suite à cette opération, il y a désormais deux processus en exécution qui partagent le même point d'exécution. Cependant, le nouvel espace d'adresse du processus enfant est une copie complète de l'espace d'adresse du processus parent, avec une seule différence : la valeur de retour de la fonction `fork()`.
+
+En effet, la fonction `fork()` a la particularité de retourner deux fois. Dans le processus parent, elle retourne avec une valeur de pid supérieure à zéro, tandis que dans le processus enfant, elle retourne avec une valeur de pid égale à zéro. Une question naturelle qui pourrait survenir à ce stade est : quel est l'ordre d'impression des processus parent et enfant ? 
+
+Enfin, si la fonction `fork()` échoue pour une raison quelconque, le programme affiche une chaîne associée à `errno`, une variable globale qui contient le numéro d'erreur du dernier appel système. `fork()` est donc une fonction importante pour la création de processus en programmation système, notamment pour la mise en œuvre de processus et de signaux dans le système d'exploitation.
+Dans ce cours universitaire, nous nous intéressons à l'utilisation de la fonction fork() en programmation, qui est couramment utilisée pour créer un nouveau processus. Cette fonction initialise un nouveau PCB (Process Control Block) qui est basé sur la valeur du processus parent. Ce nouveau PCB est ensuite ajouté à la file d'attente des processus prêts à être exécutés.
+
+Lorsqu'elle est appelée, la fonction fork() crée deux processus qui se trouvent au même point d'exécution. L'espace d'adresses du nouveau processus, appelé processus enfant, est une copie complète de l'espace d'adresses du processus parent, à une différence près, dont nous discuterons plus tard.
+
+Il est important de noter que la fonction fork() renvoie deux valeurs différentes selon qu'elle est appelée par le processus parent ou par le processus enfant. Pour le processus parent, elle retourne l'identifiant du processus (PID) de l'enfant, qui est toujours un nombre supérieur à zéro. Pour le processus enfant, elle retourne zéro.
+
+Le code ci-dessus illustre ces concepts. Initialement, nous avons une variable pid qui reçoit la valeur renvoyée par fork(). Si cette valeur est zéro, cela signifie que nous sommes dans le processus enfant, donc le programme imprime les PID du processus parent et de l'enfant. Si la valeur est supérieure à zéro, cela signifie que nous sommes dans le processus parent, et donc le programme imprime les PID du processus parent et de l'enfant. En cas d'échec de la fonction fork(), une chaîne de caractères associée à errno est imprimée. 'errno' est une variable globale qui contient le numéro d'erreur du dernier appel système.
+
+Un point de discussion intéressant est l'ordre d'impression. Comme les deux processus sont indépendants et peuvent être programmés pour s'exécuter à des moments différents par l'ordonnanceur du système d'exploitation, l'ordre d'exécution, et donc l'ordre d'impression, ne peut pas être prédéterminé.
+
+Enfin, la fonction fork() est utilisée pour engendrer un processus enfant. C'est un concept fondamental en systèmes d'exploitation et joue un rôle crucial dans la gestion des processus et des signaux.
+En abordant le concept de création d'un nouveau processus dans les systèmes d'exploitation, nous devons comprendre le rôle de la fonction `fork()`. Cette fonction initie un nouveau Bloc de Contrôle de Processus (PCB) basé sur la valeur du processus parent. Une fois initié, le PCB est ajouté à la file d'attente des processus exécutables. À ce stade, il existe désormais deux processus exécutables, tous deux se trouvant au même point d'exécution.
+
+C'est un détail intéressant de `fork()` que l'espace d'adresse du nouveau processus (l'enfant) est une copie complète de l'espace d'adresse du processus parent, à une exception près. Cette exception est basée sur les valeurs de retour de la fonction `fork()`. Étonnamment, `fork()` renvoie deux fois : une fois pour le processus parent, où le PID (IDentifiant de Processus) est supérieur à 0, et une autre fois pour le processus enfant, où le PID est égal à 0.
+
+Prenons le temps de comprendre ce concept en examinant le code suivant :
+
+```
+int pid = fork();   
+
+if( pid==0 ) {
+    // child       
+    printf(“parent=%d son=%d\n”, getppid(), getpid());   
+}   
+else if( pid > 0 ) {
+    // parent       
+    printf(“parent=%d son=%d\n”, getpid(), pid);   
+}   
+else {
+    // print string associated with errno          
+    perror(“fork() failed”);    
+}
+
+return 0;
+```
+
+Dans ce code, le processus enfant imprime le PID du processus parent et son propre PID. De même, le processus parent imprime son propre PID et le PID de son processus enfant. Si la fonction `fork()` échoue pour une raison quelconque, elle renvoie une valeur négative et le message d'erreur associé à `errno` est affiché.
+
+Une question que vous vous posez peut-être est : dans quel ordre ces messages seront-ils imprimés ? C'est une excellente question qui nous amène à comprendre comment les processus sont programmés et exécutés.
+
+À noter également, `errno` est une variable globale qui conserve le numéro d'erreur du dernier appel système. Cela peut être particulièrement utile pour le débogage des erreurs liées aux appels système.
+
+En conclusion, `fork()` est une fonction essentielle pour la création de nouveaux processus dans un système d'exploitation, en copiant l'espace d'adresse du processus parent et en assignant un nouveau PID au processus enfant.
+Dans le cadre du cours d'OS (234123) sur les processus et les signaux, nous allons examiner de plus près la fonctionnalité du système d'exploitation appelée "fork()". Cette fonction permet de créer un nouveau processus, plus précisément, elle initialise un nouveau bloc de contrôle de processus (PCB). Ce PCB nouvellement créé est basé sur la valeur du processus parent et est ajouté à la file d'attente des processus pouvant être exécutés.
+
+Une fois que la fonction fork() est appelée, il y a maintenant deux processus en existence qui sont au même point d'exécution. Le nouvel espace d'adresse du processus enfant est une copie complète de l'espace du processus parent, avec une différence notable : la fonction fork() retourne deux valeurs différentes. Dans le processus parent, la fonction fork() retourne une valeur de pid supérieure à zéro, tandis que dans le processus enfant, elle retourne une valeur de pid égale à zéro.
+
+Pour illustrer ce concept, considérons le code suivant :
+
+```c
+int pid = fork();
+if( pid == 0 ) {
+   printf(“parent=%d son=%d\n”, getppid(), getpid());
+} else if( pid > 0 ) {
+   printf(“parent=%d son=%d\n”, getpid(), pid);
+} else {
+   perror(“fork() failed”);
+}
+return 0;
+```
+
+Dans ce code, si pid est égal à zéro, alors nous sommes dans le processus enfant et nous imprimons les id du processus parent et du processus enfant. Si pid est supérieur à zéro, alors nous sommes dans le processus parent et nous imprimons les id du processus parent et du processus enfant. Si pid est inférieur à zéro, alors il y a eu une erreur lors de la création du processus enfant, et nous utilisons la fonction perror pour imprimer la chaîne associée à la variable globale errno, qui contient le numéro d'erreur du dernier appel système.
+
+Une question intéressante à poser est : quel est l'ordre d'impression de ces instructions printf ? Cela dépend du système d'exploitation et de la façon dont il gère l'ordonnancement des processus. Enfin, n'oubliez pas que la fonction fork() est un moyen couramment utilisé pour créer un nouveau processus dans un programme.
+Dans ce segment de code, nous introduisons la fonction `fork()`, une fonction essentielle en programmation systèmes qui permet de créer un nouveau processus. En initiant un nouvel appel à `fork()`, une nouvelle structure de contrôle de processus (PCB) est créée. Elle est basée sur la valeur du processus parent et est ajoutée à la file d'attente des processus exécutables. À partir de ce moment, deux processus coexistent : ils se trouvent au même point d'exécution mais disposent de leur propre espace d'adresse.
+
+Le nouvel espace d'adresse du processus enfant est une copie intégrale de l'espace d'adresse du parent, à une différence près : la valeur de retour de `fork()`. En effet, cette fonction présente la particularité de retourner deux valeurs. Au sein du processus parent, `fork()` renvoie l'identifiant du processus (PID) du nouvel enfant, une valeur supérieure à 0. Cependant, dans le processus enfant nouvellement créé, `fork()` renvoie 0. 
+
+Dans le code présenté, nous vérifions cette valeur de retour pour déterminer si le code s'exécute dans le processus parent ou enfant. Si `pid == 0`, nous sommes dans le processus enfant et nous affichons alors les identifiants du processus parent (`getppid()`) et du processus actuel (`getpid()`). Si `pid > 0`, nous sommes dans le processus parent et affichons les identifiants du processus parent et de l'enfant. 
+
+En cas d'échec de `fork()`, `pid` serait inférieur à 0 et une erreur serait générée. Dans ce cas, nous utilisons la fonction `perror()` pour afficher une chaîne de caractères associée à `errno`, une variable globale qui contient le numéro d'erreur du dernier appel système.
+
+Une question intéressante à se poser est la suivante : quel est l'ordre d'impression ? Il n'est pas déterministe car cela dépend de l'ordonnancement des processus par le système d'exploitation. Enfin, il est important de noter que `fork()` est utilisée pour engendrer un processus enfant, un concept clé dans la gestion des processus et des signaux en programmation système.
+Dans le cadre de l'étude des processus et des signaux en systèmes d'exploitation (OS 234123), nous nous intéressons à la fonction `fork()`. Cette fonction est utilisée pour engendrer un nouveau processus, plus précisément, elle initialise un nouveau bloc de contrôle de processus (PCB) basé sur la valeur du processus parent. Une fois initialisé, le nouveau PCB est ajouté à la file d'attente exécutable. 
+
+C'est ainsi que deux processus se retrouvent à un même point d'exécution. Le nouvel espace d'adressage du processus enfant est en fait une copie complète de l'espace du processus parent, à une différence près : la valeur de retour de la fonction `fork()`.
+
+Il est intéressant de noter que la fonction `fork()` renvoie deux fois. Dans le processus parent, elle renvoie une valeur supérieure à zéro, et dans le processus enfant, elle renvoie une valeur égale à zéro. 
+
+Voici un exemple de code qui illustre ce processus : 
+
+```
+int pid = fork();   
+if( pid == 0 ) {     
+    // child       
+    printf("parent=%d son=%d\n", getppid(), getpid());   
+}   
+else if( pid > 0 ) {       
+    // parent       
+    printf("parent=%d son=%d\n", getpid(), pid);   
+}   
+else { 
+    // print string associated with errno          
+    perror("fork() failed");    
+}   
+return 0; 
+```
+
+Dans ce code, le processus parent et le processus enfant impriment leur PID et le PID de leur parent. Si la fonction `fork()` échoue, elle renvoie une valeur négative et l'erreur correspondante est imprimée.
+
+Ainsi se pose la question de l'ordre d'impression. En raison du parallélisme inhérent aux processus, l'ordre d'impression peut varier. 
+
+Enfin, il est important de noter que `errno` est une variable globale qui détient le numéro d'erreur de la dernière fonction système appelée. Si la fonction `fork()` échoue, le message d'erreur correspondant peut être affiché grâce à la fonction `perror()`.
+Dans le contexte de la programmation en C, la fonction fork() initie un nouveau processus en créant un nouveau PCB (Process Control Block). Ce nouveau PCB est basé sur la valeur du processus parent et est ajouté à la file d'attente des processus prêts à être exécutés. Suite à cette action, nous nous retrouvons avec deux processus distincts qui se trouvent au même point d'exécution. 
+
+L'espace d'adressage du nouveau processus enfant est une copie complète de l'espace d'adressage du processus parent, avec une seule différence : la fonction fork() renvoie deux valeurs différentes selon qu'elle est appelée par le processus parent ou enfant. Dans le processus parent, fork() retourne une valeur positive qui est l'ID du processus enfant, tandis que dans le processus enfant, fork() retourne zéro.
+
+Considérons un exemple de code pour illustrer cela :
+
+```c
+int pid = fork();
+  if( pid==0 ) {
+     printf(“parent=%d son=%d\n”,getppid(), getpid());
+  } 
+  else if( pid > 0 ) {
+    printf(“parent=%d son=%d\n”, getpid(), pid);
+  } 
+  else {
+    perror(“fork() failed”);
+  } 
+  return 0; 
+}
+```
+Dans ce code, si la fonction fork() échoue, elle renvoie une valeur négative et le message d'erreur associé à "errno" est imprimé. "Errno" est une variable globale qui contient le numéro d'erreur de la dernière fonction système appelée.
+
+Une question pertinente à se poser ici est de connaître l'ordre d'impression des messages. En effet, comme deux processus sont en exécution au même moment, l'ordre d'exécution des instructions peut varier. L'ordonnanceur du système d'exploitation décide de l'ordre d'exécution des processus, ce qui peut mener à des sorties différentes.
+
+En conclusion, la fonction fork() est utilisée pour créer un nouveau processus, ou plus précisément, pour "engendrer" un processus enfant. C'est une notion fondamentale dans la gestion des processus et des signaux dans les systèmes d'exploitation.
+Dans ce cours, nous allons aborder le concept de la fonction fork() en programmation, qui est utilisée pour créer un nouveau processus, souvent appelé processus enfant. Cette fonction initialise un nouveau Bloc de Contrôle de Processus (PCB), basé sur la valeur du processus parent. Le nouveau PCB est ensuite ajouté à la file d'attente exécutable.
+
+Intéressons-nous à un fragment de code. Nous avons un appel à la fonction fork() qui crée un nouveau processus. Dans ce code, l'identifiant du processus (pid) est défini comme le résultat de l'appel à la fonction fork(). Si le pid est égal à 0, nous sommes dans le processus enfant. À ce moment-là, le code va afficher les identifiants du processus parent et du processus enfant. Si le pid est supérieur à 0, nous sommes dans le processus parent et le code affiche également les identifiants du processus parent et du processus enfant. Cependant, si la fonction fork() échoue pour une raison quelconque, le code affiche une chaîne associée à une variable globale appelée "errno", qui contient le numéro d'erreur de la dernière syscall.
+
+Après l'appel à la fonction fork(), il y a maintenant deux processus à l'endroit même de l'exécution. L'espace d'adresse du nouveau processus enfant est une copie complète de l'espace du processus parent, à une seule différence près. C'est ce que nous allons voir ensuite.
+
+Notez que la fonction fork() renvoie deux fois. Dans le processus parent, elle renvoie un pid supérieur à 0. Dans le processus enfant, elle renvoie un pid égal à 0. Cela peut sembler déroutant, mais c'est une caractéristique essentielle de la manière dont la fonction fork() fonctionne.
+
+Un point intéressant à examiner est l'ordre d'impression. Quel processus affiche ses informations en premier ? Le parent ou l'enfant ? L'ordre d'exécution peut dépendre de plusieurs facteurs, notamment de l'ordonnancement du système d'exploitation.
+
+Enfin, nous avons mentionné la variable 'errno'. C'est une variable globale qui contient le numéro d'erreur de la dernière syscall. Si un appel système échoue, il définit généralement cette variable avec un code d'erreur approprié. Dans notre exemple de code, si l'appel à fork() échoue, la fonction perror() est utilisée pour afficher un message d'erreur associé à 'errno'.
+
+En conclusion, la fonction fork() est une puissante fonction de programmation qui permet de créer des processus enfants, et elle a des implications intéressantes pour l'ordonnancement des processus et la gestion des erreurs.
+Dans le cadre de ce cours universitaire sur les processus et les signaux dans les systèmes d'exploitation, nous allons examiner de près la fonction "fork()". Cette fonction est essentielle pour initialiser un nouveau processus dans le système. Elle crée un nouveau bloc de contrôle de processus (PCB) basé sur la valeur du processus parent, et ajoute ce PCB à la file d'attente des processus exécutables. 
+
+Une fois que la fonction "fork()" a été exécutée, il y a alors deux processus en cours d'exécution à partir du même point d'exécution. Le nouvel espace d'adressage du processus enfant est une copie complète de l'espace du processus parent, avec une différence significative : la fonction "fork()" renvoie deux valeurs différentes. Pour le processus parent, elle renvoie une valeur de pid supérieure à 0, tandis que pour le processus enfant, elle renvoie une valeur de pid de 0.
+
+Pour illustrer cela, examinons le segment de code suivant :
+
+```C
+   int pid = fork();   
+   if( pid==0 ) {  
+      // child       
+      printf(“parent=%d son=%d\n”, getppid(), getpid());   
+   }   
+   else if( pid > 0 ) {   
+      // parent       
+      printf(“parent=%d son=%d\n”, getpid(), pid);   
+   }   
+   else { 
+      // print string associated with errno          
+      perror(“fork() failed”);    
+   }   
+   return 0; 
+}
+```
+
+Dans ce code, si "fork()" échoue pour une raison quelconque, la chaîne associée à la variable globale "errno" est imprimée. Cette variable contient le numéro d'erreur du dernier appel système.
+
+Une question intéressante à se poser est : quel est l'ordre d'impression ? Comme les processus parent et enfant sont exécutés indépendamment, l'ordre d'impression dépend de l'ordonnancement du système d'exploitation, et peut donc varier.
+
+En conclusion, "fork()" est une fonction puissante qui permet de créer de nouveaux processus dans un système d'exploitation. Sa compréhension approfondie peut être essentielle pour travailler efficacement avec les processus et les signaux dans le cadre du développement de logiciels.
+Dans le cadre de ce cours sur les systèmes d'exploitation, nous nous concentrerons sur les concepts de base des processus et des signaux sous l'angle de la fonction fork(). Celle-ci joue un rôle essentiel dans la création de nouveaux processus en initialisant un nouveau Process Control Block (PCB), basé sur la valeur du processus parent. Une fois initialisé, le nouveau PCB est ajouté à la file d'attente des processus prêts à être exécutés.
+
+L'appel de fork() entraîne donc l'existence de deux processus qui se trouvent au même point d'exécution. L'espace d'adressage du processus enfant est une copie complète de l'espace d'adressage du processus parent, à une différence près. C'est un point clé à comprendre pour la gestion des processus.
+
+Un aspect particulier de la fonction fork() est qu'elle retourne deux fois. Dans le processus parent, elle retourne avec pid>0, tandis que dans le processus enfant, elle retourne avec pid=0. C'est un phénomène intéressant qui peut prêter à confusion lors de la première rencontre, mais qui devient intuitif avec un peu de pratique.
+
+Dans le code fourni, nous avons un exemple illustrant l'utilisation de fork(). On crée un processus enfant et on imprime les identifiants du processus parent et de l'processus enfant. Si tout se passe bien, nous aurons deux processus distincts, chacun affichant son identifiant et celui de son parent. Mais dans le cas où fork() échoue, le programme affiche une chaîne associée à 'errno', une variable globale qui contient le numéro d'erreur du dernier appel système.
+
+Une question intéressante qui se pose est de déterminer l'ordre d'affichage des identifiants. C'est un sujet qui peut être exploré plus en détail lors de l'examen de la concurrence et de la planification des processus.
+
+En résumé, la fonction fork() est un outil puissant pour la création de processus dans les systèmes d'exploitation, offrant un contrôle fin sur le déroulement du programme et la gestion des erreurs.
+Dans le cadre de la gestion des processus et des signaux en système d'exploitation (OS), l'appel système 'fork()' est utilisé pour créer un nouveau processus. Cet appel initialise un nouveau Bloc de Contrôle de Processus (PCB) basé sur la valeur du processus parent. Une fois créé, le nouveau PCB est ajouté à la file d'attente des processus prêts à être exécutés. 
+
+Suite à l'appel de 'fork()', deux processus distincts existent désormais à un même point d'exécution. Le nouvel espace d'adresse du processus enfant est une copie complète de l'espace d'adresse du processus parent, avec toutefois une différence notable : la valeur renvoyée par l'appel 'fork()'. 
+
+En effet, 'fork()' a la particularité de renvoyer deux fois. Dans le processus parent, il renvoie une valeur positive correspondant à l'identifiant du processus (pid) de l'enfant, alors que dans le processus enfant nouvellement créé, il renvoie 0. Ces deux valeurs permettent de distinguer le processus parent du processus enfant après l'appel de 'fork()'. 
+
+Un point d'interrogation intéressant concerne l'ordre d'affichage des 'printf()'. On pourrait se demander si le processus parent ou l'enfant afficherait en premier leur message respectif. C'est un sujet qui peut faire l'objet d'un débat intéressant en classe.
+
+Enfin, il est important de noter l'existence de 'errno', une variable globale qui contient le numéro d'erreur du dernier appel système. En cas d'échec de l'appel 'fork()', 'errno' permettra d'afficher la chaîne de caractères associée à l'erreur rencontrée grâce à la fonction 'perror()'. 
+
+Ainsi, l'appel 'fork()' permet de créer un nouveau processus, ou plus précisément, de donner naissance à un processus enfant à partir d'un processus parent. Il s'agit d'une fonctionnalité clé dans la gestion des processus au sein d'un système d'exploitation.
+Dans ce cours, nous allons examiner de plus près le fonctionnement de la fonction `fork()` dans la création d'un processus enfant. Nous commencerons par une démonstration de code. Le code initialise un nouvel identifiant de processus (pid) en utilisant la fonction `fork()`. Si le pid est égal à 0, alors nous nous trouvons dans le processus enfant. Le code affiche alors les pid du processus parent et du processus enfant. Si le pid est supérieur à 0, nous sommes dans le processus parent et le code affiche les pid du processus parent et du processus enfant. Si la fonction `fork()` échoue pour une raison quelconque, elle retournera une valeur négative et le code affichera une erreur.
+
+La fonction `fork()` initialise un nouveau bloc de contrôle de processus (PCB) basé sur la valeur du processus parent. Ce nouveau PCB est ensuite ajouté à la file d'attente exécutable. À ce stade, il y a deux processus au même point d'exécution. Le nouvel espace d'adresse de l'enfant est une copie complète de l'espace du parent, à une différence près. 
+
+Il est intéressant de noter que la fonction `fork()` retourne deux fois. Pour le processus parent, elle retourne avec un pid supérieur à 0 et pour le processus enfant, elle retourne un pid égal à 0. Une question intéressante à poser serait : quel est l'ordre d'impression? 
+
+En cas d'échec de la fonction `fork()`, elle affectera une valeur à `errno`, une variable globale qui contient le numéro d'erreur du dernier appel système. Le code affichera ensuite la chaîne associée à `errno`. En résumé, la fonction `fork()` est un moyen efficace de créer un nouveau processus enfant dans les systèmes d'exploitation.
+Dans le cadre de notre cours sur les systèmes d'exploitation et les signaux (OS 234123), nous allons explorer la fonction "fork()" qui est utilisée pour générer un nouveau processus fils. Pour illustrer ce concept, considérons le code suivant : 
+
+```c
+int pid = fork(); 
+if( pid==0 ) {
+    printf(“parent=%d son=%d\n”, getppid(), getpid()); 
+} 
+else if( pid > 0 ) {
+    printf(“parent=%d son=%d\n”, getpid(), pid); 
+} 
+else {
+    perror(“fork() failed”); 
+}
+return 0; 
+```
+Dans ce code, la fonction fork() initialise un nouveau Bloc de Contrôle de Processus (PCB) basé sur la valeur du processus parent. Ce PCB nouvellement créé est ensuite ajouté à la file d'attente des processus exécutables. Suite à cette opération, il existe maintenant deux processus distincts au même point d'exécution. 
+
+L'espace d'adresse du processus fils est une copie complète de l'espace d'adresse du processus parent, avec une différence notable : la fonction fork() retourne deux valeurs. Dans le processus parent, la valeur de PID (ID du processus) est supérieure à 0, tandis que dans le processus fils, la valeur de PID est égale à 0. 
+
+Un point intéressant à noter est l'ordre d'impression des messages. Comme les deux processus sont indépendants, l'ordre d'exécution et donc d'impression des messages peut varier. 
+
+Finalement, si la fonction fork() échoue pour une raison quelconque, le programme imprime une erreur à l'aide de la fonction perror(). La variable globale 'errno' contient le numéro d'erreur du dernier appel système, fournissant ainsi des informations supplémentaires sur la cause de l'échec de la fonction fork().
+Dans le contexte de la gestion des processus en informatique, la fonction fork() joue un rôle crucial. Lorsqu'elle est invoquée, elle initialise un nouveau Process Control Block (PCB). Le PCB est une structure de données essentielle qui contient les informations nécessaires au système d'exploitation pour gérer un processus. En d'autres termes, chaque fois que l'opération fork() est exécutée, elle donne naissance à un nouveau PCB qui sera utilisé pour gérer et contrôler le processus nouvellement créé. Ainsi, la fonction fork() est au cœur de la gestion des processus dans un système d'exploitation.
+Dans le cadre de l'enseignement universitaire sur les systèmes d'exploitation, un concept fondamental est celui de la fonction fork(). Cette fonction joue un rôle crucial dans la création de nouveaux processus dans un environnement d'exploitation. Plus spécifiquement, lorsqu'elle est invoquée, la fonction fork() initialise une nouvelle structure de contrôle de processus, également connue sous le nom de PCB (Process Control Block). Le PCB est un composant essentiel qui contient les informations nécessaires pour gérer et contrôler un processus spécifique au sein d'un système d'exploitation. Par conséquent, la fonction fork() est un élément clef pour comprendre comment les processus sont créés et gérés dans un système d'exploitation moderne.
+Dans le cadre d'un processus d'exploitation informatique, la fonction fork() joue un rôle crucial. C'est en effet cette fonction qui est responsable de l'initialisation d'un nouveau Process Control Block (PCB). Le PCB est une structure de données essentielle dans la gestion des processus par le système d'exploitation. Lorsque la fonction fork() est appelée, elle crée un nouvel espace dans la mémoire où un PCB est initialisé. Ce nouveau PCB contient toutes les informations nécessaires pour garder une trace du processus en cours d'exécution. En résumé, la fonction fork() est un outil indispensable dans la gestion des processus dans un système d'exploitation, car elle permet l'initialisation de nouveaux PCBs.
+Dans le contexte de l'informatique, lorsque la fonction fork() est appelée, elle initialise un nouveau Process Control Block (PCB). C'est une étape cruciale pour la gestion des processus dans un système d'exploitation. Une fois cette initialisation effectuée, le nombre de processus en cours d'exécution s'accroît pour atteindre deux. Ce doublement résulte de la particularité de la fonction fork(), qui crée un nouveau processus en dupliquant le processus existant. Ainsi, à la suite de l'appel à la fonction fork(), nous nous retrouvons avec deux processus : le processus parent original et le processus enfant nouvellement créé.
+Dans le cadre du fonctionnement du système d'exploitation, la fonction fork() joue un rôle crucial en initialisant un nouveau Process Control Block (PCB). C'est une opération essentielle qui mène à la création d'un nouveau processus. À la suite de cette action, on se retrouve donc avec deux processus distincts. En effet, le système d'exploitation gère maintenant le processus original et le nouveau processus généré par la fonction fork(). Chacun de ces processus est associé à son propre PCB, qui stocke des informations vitales sur le processus, comme son état actuel, son compteur de programme et ses registres.
+Dans le cadre du processus de création d'un nouveau processus dans un système d'exploitation, la fonction fork() joue un rôle crucial en initialisant un nouveau Bloc de Contrôle de Processus (PCB). Dans ce contexte, le PCB est un élément de données qui contient les informations nécessaires pour gérer un processus particulier.
+
+Après l'exécution de la fonction fork(), nous nous retrouvons avec deux processus en fonctionnement. Il est important de noter que ces deux processus ne sont pas identiques. L'un est le processus parent initial, et le nouveau processus créé est appelé le processus enfant.
+
+En ce qui concerne l'espace d'adresse du processus enfant, il est nouvellement créé et distinct de celui du processus parent. C'est une caractéristique essentielle qui permet à chaque processus d'exécuter des tâches indépendamment sans interférer avec les autres processus. Cela garantit la cohérence et l'efficacité dans la gestion des processus par le système d'exploitation.
+Dans le cadre de l'exécution d'un programme, la fonction fork() est utilisée pour initialiser un nouveau bloc de contrôle de processus (PCB). Cette opération crée un nouveau processus, doublant ainsi le nombre de processus existants. À la suite de cette opération, nous avons donc deux processus : le processus parent initial et le nouveau processus enfant.
+
+Le processus enfant qui vient d'être créé se distingue par son nouvel espace d'adressage. Cet espace d'adressage sert à organiser l'information nécessaire à l'exécution du processus enfant et comprend des détails tels que l'état du processus, les détails du compteur de programme, et les registres, entre autres. Il est important de noter que, bien que le processus enfant soit une copie du processus parent, il possède son propre espace d'adressage, ce qui lui fournit un environnement d'exécution distinct.
+Dans le contexte du système d'exploitation, la fonction fork() joue un rôle crucial en initialisant un nouveau Process Control Block (PCB). Cette action est essentielle pour la gestion efficace des processus dans un système d'exploitation. Suite à l'exécution de la fonction fork(), nous nous retrouvons avec deux processus en cours d'exécution. 
+
+Le premier est le processus parent, tandis que le second est le processus enfant, qui est une réplique du processus parent. Cependant, il est important de noter que le processus enfant a son propre espace d'adresse, distinct de celui du processus parent. Cela signifie que toute modification effectuée dans l'espace d'adresse du processus enfant n'affectera pas le processus parent. C'est une caractéristique fondamentale qui assure l'indépendance et la sécurité des processus dans un système d'exploitation.
+Dans le contexte de la programmation, la fonction fork() initie un nouveau Process Control Block (PCB), une structure de données essentielle pour gérer les processus dans un système d'exploitation. Suite à cette initialisation, deux processus sont désormais présents : le processus parent et le processus enfant nouvellement créé.
+
+Le processus enfant se distingue par son nouvel espace d'adressage. Cela signifie que, bien que le processus enfant soit une copie du processus parent, il possède son propre espace mémoire distinct. Ce nouvel espace d'adressage préserve l'indépendance du processus enfant et empêche toute interférence avec le processus parent.
+
+Finalement, il est intéressant de noter que la fonction fork() a la particularité de retourner deux fois. En effet, elle renvoie une fois pour le processus parent, signalant ainsi la création réussie du nouveau processus, et une seconde fois pour le processus enfant, indiquant son PID (ID du processus) qui est généralement zéro. Ce double retour est une caractéristique unique de la fonction fork() qui permet de distinguer les processus parent et enfant.
+Dans le cadre d'un cours universitaire, nous abordons le fonctionnement interne du système d'exploitation, en particulier la création et la gestion des processus. Lorsqu'une fonction fork() est appelée, elle initialise un nouveau Bloc de Contrôle de Processus (PCB), une structure de données essentielle qui contient des informations pertinentes sur un processus particulier.
+
+Suite à cette initialisation, nous nous retrouvons maintenant avec deux processus distincts. Il est important de noter que ces deux processus ne sont pas identiques. Le processus nouvellement créé, que nous appelons l'enfant, se voit attribuer un nouvel espace d'adresse. Cela signifie que le processus enfant a sa propre copie des données et des instructions du programme, indépendante de celles du processus parent.
+
+Un aspect fascinant de la fonction fork() est qu'elle retourne deux fois. En effet, lorsqu'une fonction fork() est appelée, elle retourne une fois dans le processus parent et une autre fois dans le processus enfant. Cette particularité est essentielle pour distinguer le processus parent du processus enfant et pour gérer séparément leurs exécutions.
+Dans le cadre de la gestion des processus au niveau du système d'exploitation, la fonction fork() joue un rôle essentiel. Lorsqu'elle est invoquée, fork() initialise un nouveau Bloc de Contrôle de Processus (PCB). C'est une structure de données essentielle qui permet au système d'exploitation de gérer efficacement tous les processus en cours d'exécution.
+
+Suite à l'appel de la fonction fork(), la quantité de processus en cours s'accroît, passant de un à deux. Ceci est dû au fait que la fonction fork() duplique le processus qui l'appelle, créant ainsi un nouveau processus - le "processus enfant". Ce dernier reçoit une nouvelle espace d'adresse, distinct de celui du processus parent, garantissant l'indépendance de chaque processus et prévenant toute interférence potentiellement nuisible entre eux.
+
+Enfin, il est important de noter que la fonction fork() présente une particularité intéressante : elle retourne deux fois. En effet, une fois que le processus enfant est créé, la fonction fork() retourne une fois dans le processus parent, et une autre fois dans le processus enfant. Cela permet à chaque processus de savoir s’il est le parent ou l’enfant et de se comporter en conséquence.
+Lorsqu'elle est appelée, la fonction fork() initialise un nouveau Process Control Block (PCB), ce qui donne naissance à un nouveau processus. Ainsi, à l'issue de cette opération, nous nous retrouvons avec deux processus en cours d'exécution. Le nouveau processus, appelé "enfant", se distingue notamment par son nouvel espace d'adressage qui lui est propre. 
+
+Il est intéressant de noter que la fonction fork() a la particularité de retourner deux fois. En effet, une fois pour le processus parent et une seconde fois pour le processus enfant. Cela peut avoir des implications sur l'ordre d'impression des processus, qui ne suit pas nécessairement l'ordre d'initialisation. Pour comprendre ce phénomène, il est important de se pencher sur le fonctionnement interne de la fonction fork() et les spécificités du système d'exploitation utilisé.
+L'invocation de la fonction fork() initialise un nouveau Process Control Block (PCB), marquant le début d'un processus distinct dans le système d'exploitation. Après cet appel, deux processus sont maintenant actifs et prêts à être exécutés. Le processus nouvellement créé, appelé processus enfant, se voit attribuer un nouvel espace d'adressage qui distingue clairement son état et ses données de ceux du processus parent.
+
+Il est intéressant de noter que la fonction fork() a la particularité de retourner deux fois. Dans le processus parent, elle retourne l'ID du processus enfant, tandis que dans le processus enfant, elle retourne zéro. Cela permet à chaque processus de savoir dans quel contexte il s'exécute et facilite ainsi la gestion du contrôle de flux du programme.
+
+En ce qui concerne l'ordre d'impression, il est essentiel de comprendre que les deux processus sont exécutés en parallèle, et en fonction de l'ordonnanceur du système d'exploitation, l'ordre spécifique d'exécution et d'impression peut varier. Par conséquent, la prédiction de l'ordre d'impression exacte peut être un défi sans connaître le contexte spécifique du programme et de l'état du système d'exploitation.
+
+Enfin, il convient de mentionner 'errno', une variable globale utilisée dans de nombreux systèmes d'exploitation pour signaler les erreurs. Lorsqu'une fonction système échoue, elle peut définir 'errno' à une valeur spécifique correspondant à l'erreur spécifique rencontrée. Cette variable peut ensuite être consultée par le programme pour déterminer la cause de l'échec et prendre les mesures appropriées.
+La fonction fork() joue un rôle crucial dans la création de nouveaux processus dans un environnement informatique. À chaque exécution, elle initialise un nouveau Bloc de Contrôle de Processus (PCB). Suite à cela, nous nous retrouvons avec deux processus : le processus parent et le processus enfant nouvellement créé. 
+
+Le processus enfant se distingue par son nouvel espace d'adresse qui lui est propre. Une caractéristique unique de la fonction fork() est qu'elle retourne deux fois. La première fois dans le processus parent et la seconde fois dans le processus enfant. Cela peut entraîner une certaine confusion concernant l'ordre d'impression, car les deux processus peuvent s'exécuter indépendamment et dans un ordre non déterminé.
+
+Enfin, il convient de noter l'existence d'une variable globale nommée 'errno'. Cette variable est typiquement utilisée pour indiquer les erreurs qui peuvent survenir lors de l'exécution de diverses fonctions système, y compris fork(). Ainsi, en surveillant la valeur de 'errno', on peut obtenir des informations précieuses sur le déroulement des opérations.
+Dans le cadre du fonctionnement des processus dans un système d'exploitation, la fonction fork() joue un rôle essentiel. Lors de son invocation, elle initialise un nouveau Process Control Block (PCB), une structure de données essentielle qui contient des informations sur le processus. À la suite de cette opération, il y a maintenant deux processus en existence.
+
+Un aspect fascinant de cette opération est la création d'un nouvel espace d'adresse pour le processus enfant. Cet espace d'adresse est distinct de celui du processus parent, assurant ainsi l'indépendance entre les deux processus.
+
+Il est important de noter que la fonction fork() a la particularité de renvoyer deux valeurs. Dans le processus parent, elle renvoie l'identifiant du processus enfant, alors que dans le processus enfant, elle renvoie zéro. C'est ce qui permet de distinguer le processus parent du processus enfant après l'appel à la fonction fork().
+
+Une question intéressante qui se pose souvent est celle de l'ordre d'impression des processus. Il n'y a pas de garantie quant à l'ordre dans lequel le système d'exploitation choisira d'exécuter les processus. Cela dépend de l'ordonnanceur du système d'exploitation.
+
+Enfin, il est essentiel de comprendre le rôle de la variable globale 'errno'. Cette variable est utilisée pour signaler les erreurs qui se produisent lors de l'exécution des appels de système et des fonctions de bibliothèque. Elle contient le code d'erreur de la dernière fonction qui a échoué, fournissant ainsi des informations précieuses pour le débogage et la gestion des erreurs.
+Lors de l'exécution d'une opération de fork(), une nouvelle structure de contrôle de processus, ou PCB, est initialisée. Cela entraîne la création d'un second processus, ce qui signifie que nous avons maintenant deux processus en cours d'exécution. 
+
+Le nouveau processus, appelé processus enfant, est doté d'un nouvel espace d'adressage. C'est une caractéristique essentielle qui distingue le processus enfant du processus parent d'origine. Une caractéristique unique de l'opération de fork() est qu'elle retourne deux fois. Cela peut sembler inhabituel, mais c'est une conséquence directe de la création d'un nouveau processus. 
+
+La question de l'ordre d'impression peut se poser. En effet, étant donné que nous avons maintenant deux processus, l'ordre dans lequel ils impriment leurs sorties peut ne pas être immédiatement évident. Cela dépend d'une variété de facteurs, y compris de la manière dont l'ordonnanceur de processus du système d'exploitation gère les processus multiples. 
+
+Enfin, il est important de mentionner 'errno', qui est une variable globale. Cette variable est utilisée pour signaler les erreurs qui se produisent lors de l'exécution de diverses fonctions système. Chaque fois qu'une erreur se produit, le code d'erreur correspondant est stocké dans 'errno', fournissant ainsi un moyen pour les développeurs de comprendre et de traiter les problèmes qui peuvent survenir.
+Dans le contexte de la programmation systèmes, la fonction fork() joue un rôle crucial dans l'initialisation d'un nouveau Process Control Block (PCB). Ce processus mène à la création de deux processus distincts, originellement identiques. 
+
+Parmi ces deux processus, l'un est le processus parent et l'autre est le nouveau processus - le processus enfant. Ce dernier se distingue par son nouvel espace d'adresse qui lui est propre. 
+
+Un aspect intéressant de la fonction fork() est qu'elle renvoie deux fois. Elle renvoie une fois dans le processus parent et une autre fois dans le processus enfant. Cela conduit à une question intrigante concernant l'ordre d'impression. 
+
+En effet, il peut être difficile de prédire l'ordre exact dans lequel les processus s'exécuteront puisque cela dépend de l'ordonnanceur du système d'exploitation. 
+
+Enfin, un autre point important à noter est ‘errno’, une variable globale. Cette variable est utilisée pour signaler les erreurs des appels système et des fonctions de bibliothèque. Il est important de comprendre comment ‘errno’ fonctionne pour pouvoir gérer correctement les erreurs dans le code.
+\end{document}

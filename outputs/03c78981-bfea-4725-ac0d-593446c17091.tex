@@ -1,0 +1,101 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[hebrew]{babel}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{hebrew}
+\setotherlanguage{english}
+\newfontfamily\hebrewfont[Script=Hebrew]{Noto Sans Hebrew}
+\newfontfamily\englishfont[Script=Latin]{Noto Sans}
+\setmainfont{Noto Sans}
+\setmonofont{Noto Sans Mono}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\graphicspath{{./images/}}
+\title{os}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : os
+  \section{יצירת תהליך וסיום}    \subsection{יצירת תהליך}  \begin{itemize}  \item תהליך אחד (ה"הורה") יכול ליצור תהליך אחר (ה"ילד").  \item נוצר ומאותחל לוח PCB חדש.  \item שיעורי בית: הפעל 'ps auxwww' ב-shell; PPID הוא ה-PID של ההורה.  \end{itemize}    \subsection{ירושה ב-POSIX}  \begin{itemize}  \item ב-POSIX, התהליך הילד מוריש את רוב מאפייני ההורה.  \item UID, קבצים פתוחים (צריך לסגור אם אינם נדרשים; למה?), cwd, וכו'.  \end{itemize}    \subsection{ביצוע תהליך}  \begin{itemize}  \item במהלך הביצוע, PCB מתקדם בין תורים שונים.  \item לפי גרף שינוי מצב.  \item תורים: runnable, sleep/wait for event i (i=1,2,3…).  \end{itemize}    \section{סיום תהליך}    \subsection{תהליך זומבי}  \begin{itemize}  \item לאחר שתהליך מת (exit()s / interrupted), הוא הופך לזומבי.  \item ההורה משתמש בקריאת מערכת wait* כדי למחוק את הזומבי מהמערכת (למה?).  \end{itemize}    \subsection{קריאות מערכת wait}  \begin{itemize}  \item משפחת קריאות המערכת wait: wait, waitpid, waitid, wait3, wait4; לדוגמה:  \end{itemize}    \subsection{המתנה של ההורה}  \begin{itemize}  \item ההורה יכול לישון/להמתין לילד שלו לסיים או לרוץ במקביל.  \item wait*() תחסום אלא אם כן WNOHANG ניתן ב-'options'.  \item שיעורי בית: קרא 'man 2 wait'.  \end{itemize}  
+  \begin{lstlisting}[language=C]  pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);  \end{lstlisting}  
+
+\section{יצירת תהליך עם fork()} 
+
+ בפונקציה fork() מתבצעת יצירה של תהליך חדש. זה מתבצע על ידי הפעלת פונקציה fork() שמקבלת כפרמטרים את הארגומנטים של התהליך. הפונקציה מחזירה את ה-PID של התהליך החדש או 0 אם הפונקציה נקראה מתוך התהליך החדש. 
+
+ במקרה של שגיאה, הפונקציה מחזירה -1 ומעדכנת את המשתנה הגלובלי errno. הפונקציה perror() משמשת להדפסת הודעת השגיאה המתאימה לערך של errno. 
+
+ עכשיו ישנם שני תהליכים שנמצאים באותו נקודת ביצוע, אך עם מרחבי כתובות שונים. מרחב הכתובות של התהליך החדש הוא העתק של מרחב הכתובות של התהליך ההורה, עם הבדל אחד - הערך שהפונקציה fork() מחזירה בכל אחד מהתהליכים. 
+
+ מהו סדר ההדפסה? זה יכול להשתנות מהרצה להרצה, כיוון שלא ניתן לדעת מראש איזה מהתהליכים ירוץ קודם. 
+
+\begin{lstlisting}[language=C]
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf("parent=%d son=%d\n",
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf("parent=%d son=%d\n",
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror("fork() failed"); 
+  }
+  return 0;
+}
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark נקודות מפתח}]
+הפונקציה fork() מאתחלת לוח PCB חדש, המבוסס על הערך של ההורה. לאחר מכן, ה-PCB מתווסף לתור הרצה. כעת ישנם שני תהליכים, שנמצאים באותו נקודת ביצוע. מרחב הכתובות החדש של הילד הוא עותק מלא של מרחב הכתובות של ההורה, עם הבדל אחד - הערך שהפונקציה fork() מחזירה בכל אחד מהתהליכים.
+\end{tcolorbox}
+
+
+\end{document}

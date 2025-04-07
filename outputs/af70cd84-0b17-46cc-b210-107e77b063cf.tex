@@ -1,0 +1,100 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[hebrew]{babel}
+
+\usepackage{polyglossia}
+\setmainlanguage{hebrew}
+\setotherlanguage{english}
+\newfontfamily\hebrewfont[Script=Hebrew]{Arial}
+\newfontfamily\englishfont[Script=Latin]{Arial}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\graphicspath{{./images/}}
+\title{os}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : os
+  \section{יצירת תהליך וסיום}  \begin{itemize}  \item תהליך אחד (ה\"הורה\") יכול ליצור תהליך אחר (ה\"ילד\").  \item ישנה הקצאה ואתחול של PCB חדש.  \item שיעורי בית: הפעלה של 'ps auxwww' ב-shell; PPID הוא ה-PID של ההורה.  \end{itemize}    \section{ב-POSIX, התהליך הילד מיירש את רוב התכונות של ההורה}  \begin{itemize}  \item UID, קבצים פתוחים (יש לסגור אם אינם נדרשים; למה?), cwd, וכו'.  \end{itemize}    \section{בעת ביצוע, ה-PCB מעביר בין תורים שונים}  \begin{itemize}  \item לפי גרף שינוי המצב.  \item תורים: runnable, sleep/wait for event i (i=1,2,3…).  \end{itemize}    \section{לאחר שתהליך מת (exit()s / interrupted), הוא הופך לזומבי}  \begin{itemize}  \item ההורה משתמש בקריאת מערכת wait* כדי לנקות את הזומבי מהמערכת (למה?).  \item משפחת קריאות המערכת wait: wait, waitpid, waitid, wait3, wait4; לדוגמה:  \end{itemize}    \section{ההורה יכול לישון/לחכות לילד שלו לסיים או לרוץ במקביל}  \begin{itemize}  \item wait*() יחסום אלא אם כן ניתן WNOHANG ב-'options'.  \item שיעורי בית: קרא 'man 2 wait'.  \end{itemize}  
+  \begin{lstlisting}[language=C]  pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);  \end{lstlisting}  
+  \begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark נקודות מפתח}]  תהליך יכול ליצור תהליך אחר, והתהליך ה\"ילד\" מיירש את רוב התכונות של התהליך ה\"הורה\". במהלך הביצוע, ה-PCB מתנהל בין תורים שונים. לאחר שתהליך מת, הוא הופך לזומבי, וההורה צריך לנקות אותו מהמערכת באמצעות קריאת מערכת wait*. ההורה יכול להמתין לילד שלו לסיים או לרוץ במקביל.  \end{tcolorbox}  
+
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf(“parent=%d son=%d\n”,
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf(“parent=%d son=%d\n”,
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror(“fork() failed”); 
+  }
+  return 0;
+}
+• fork() initializes a new PCB
+– Based on parent’s value
+– PCB added to runnable queue
+• Now there are 2 processes
+– At same execution point
+• Child’s new address space 
+– Complete copy of parent’s 
+space, with one difference…
+• fork() returns twice
+– At the parent, with pid>0
+– At the child, with pid=0
+• What’s the printing order?
+• ‘errno’ – a global variable
+– Holds error num of last syscall
+OS (234123) - processes & signals
+8
+fork() – spawn a child process
+
+
+\end{document}

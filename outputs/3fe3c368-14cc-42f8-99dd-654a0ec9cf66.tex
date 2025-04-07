@@ -1,0 +1,99 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\graphicspath{{./images/}}
+\title{cours os }
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : cours os 
+\subsection*{Process creation \& termination}
+
+One process, referred to as the parent, has the ability to create another process, known as the child. This process involves the allocation and initialization of a new Process Control Block (PCB). An exercise to understand this better would be to run the command 'ps auxwww' in the shell; the PPID displayed is the parent's PID.
+
+In the POSIX system, the child process inherits most of the parent's attributes. These include the User ID, open files (which should be closed if they are not needed), the current working directory, and so on.
+
+During execution, the PCB moves between different queues according to the state change graph. The queues can be runnable, sleep/wait for event i (where i can be 1, 2, 3, and so on).
+
+After a process dies, either through exit()s or being interrupted, it becomes a zombie. The parent process uses the wait* system call to clear the zombie from the system. The wait system call family includes wait, waitpid, waitid, wait3, and wait4. An example of this is: pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage).
+
+The parent process can either sleep/wait for its child to finish or run in parallel. The wait*() will block unless WNOHANG is given in 'options'. Another exercise would be to read 'man 2 wait'.
+\begin{lstlisting}
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+A process, known as the parent, can create another process, referred to as the child. The child process inherits most of the parent's attributes in POSIX. After a process dies, it becomes a zombie and the parent uses the wait* system call to clear it from the system. The parent can either wait for its child to finish or run in parallel.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]
+The concept of parent and child processes is similar to a parent-child relationship in real life. The parent process creates the child process and has control over it. The child process inherits attributes from the parent process, much like how children inherit traits from their parents. When a process dies, it becomes a 'zombie', and the parent process has to 'clean up' by using a system call.
+\end{tcolorbox}
+
+\subsection*{fork() - spawn a child process}
+
+The function fork() is used to initialize a new Process Control Block (PCB) based on the parent's value. This new PCB is then added to the runnable queue. As a result, there are now two processes at the same execution point. The child's new address space is a complete copy of the parent's space, with one difference - the fork() function returns twice. It returns at the parent with pid>0 and at the child with pid=0. The order in which the parent and child processes print their respective identifiers is not predetermined.
+
+The 'errno' is a global variable that holds the error number of the last system call. If the fork() function fails, the string associated with 'errno' is printed.
+\begin{lstlisting}[language=C]
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf("parent=%d son=%d\n",
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf("parent=%d son=%d\n",
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror("fork() failed"); 
+  }
+  return 0;
+}
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+The function fork() is used to create a new process by initializing a new Process Control Block (PCB) based on the parent's value. The child's new address space is a complete copy of the parent's space, with one difference - the fork() function returns twice. It returns at the parent with pid>0 and at the child with pid=0. The 'errno' is a global variable that holds the error number of the last system call.\end{tcolorbox}
+
+
+\end{document}

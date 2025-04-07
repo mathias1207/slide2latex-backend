@@ -1,0 +1,7 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {0.1}Introduction}{2}{}%
+\contentsline {section}{\numberline {0.2}Création et terminaison des processus}{2}{}%
+\contentsline {subsection}{\numberline {0.2.1}Héritage des attributs du parent par le processus enfant}{2}{}%
+\contentsline {subsection}{\numberline {0.2.2}Mouvement du PCB entre différentes files d'attente}{2}{}%
+\contentsline {section}{\numberline {0.3}Terminaison des processus}{2}{}%
+\contentsline {subsection}{\numberline {0.3.1}Famille de syscall wait}{2}{}%

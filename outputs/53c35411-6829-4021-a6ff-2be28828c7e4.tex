@@ -1,0 +1,106 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[hebrew]{babel}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{hebrew}
+\setotherlanguage{english}
+\newfontfamily\hebrewfont[Script=Hebrew]{Noto Sans Hebrew}
+\newfontfamily\englishfont[Script=Latin]{Noto Sans}
+\setmainfont{Noto Sans}
+\setmonofont{Noto Sans Mono}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\graphicspath{{./images/}}
+\title{os}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : os
+  \section{יצירת תהליך וסיום}  \begin{itemize}  \item תהליך אחד (ה'הורה') יכול ליצור אחר (ה'ילד')  \item לוח בקרה חדש מוקצה ומאותחל  \item שיעורי בית: הרץ 'ps auxwww' ב-shell; PPID הוא PID של ההורה  \end{itemize}    \subsection{POSIX}  \begin{itemize}  \item ב-POSIX, תהליך הילד מיירש את רוב התכונות של ההורה  \item UID, קבצים פתוחים (צריך להיסגר אם אינם נדרשים; למה?), cwd, וכו'.  \end{itemize}    \subsection{ביצוע תהליך}  \begin{itemize}  \item בעת הביצוע, לוח הבקרה מעביר בין תורים שונים  \item לפי גרף שינוי המצב  \item תורים: runnable, sleep/wait for event i (i=1,2,3…)  \end{itemize}    \section{סיום תהליך}  \begin{itemize}  \item לאחר שתהליך מת (exit()s / interrupted), הוא הופך לזומבי  \item ההורה משתמש בקריאת מערכת wait* כדי לנקות את הזומבי מהמערכת (למה?)  \item משפחת קריאות המערכת של wait: wait, waitpid, waitid, wait3, wait4; לדוגמה:  \end{itemize}    \section{המתנה / המשך ריצה של ההורה}  \begin{itemize}  \item ההורה יכול להמתין / להמשיך לרוץ במקביל לילד שלו  \item wait*() יחסום אלא אם כן WNOHANG ניתן ב-'options'  \item שיעורי בית: קרא 'man 2 wait'  \end{itemize}  
+  \begin{lstlisting}[language=C]  pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);  \end{lstlisting}  
+
+\section{יצירת תהליך חדש עם fork()} 
+ פונקציית fork() מאתחלת לוח בקרה חדש (PCB) על פי הערך של ההורה. לאחר מכן, ה-PCB מתווסף לתור הביצועים, וכעת ישנם שני תהליכים שנמצאים באותו נקודת ביצוע. 
+
+ \begin{itemize} 
+ \item מרחב הכתובת החדש של הילד הוא עותק מלא של מרחב הכתובת של ההורה, עם הבדל אחד... 
+ \item fork() מחזירה פעמיים: בהורה, עם pid>0; בילד, עם pid=0. 
+ \item מהו סדר ההדפסה? 
+ \item 'errno' - משתנה גלובלי שמחזיק את מספר השגיאה של הקריאה למערכת האחרונה. 
+ \end{itemize}
+\begin{lstlisting}[language=C] 
+int main(int argc, char *argv[]) 
+{ 
+  int pid = fork(); 
+  if( pid==0 ) { 
+   // 
+   // child 
+      // 
+      printf("parent=%d son=%d\n", 
+             getppid(), getpid()); 
+  } 
+  else if( pid > 0 ) { 
+      // 
+      // parent 
+      // 
+      printf("parent=%d son=%d\n", 
+             getpid(), pid); 
+  } 
+  else { // print string associated 
+         // with errno   
+      perror("fork() failed");  
+  } 
+  return 0; 
+} 
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark נקודות מפתח}] 
+פונקציית fork() מאתחלת לוח בקרה חדש (PCB) על פי הערך של ההורה. לאחר מכן, ה-PCB מתווסף לתור הביצועים, וכעת ישנם שני תהליכים שנמצאים באותו נקודת ביצוע. 
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb אינטואיציה}] 
+פונקציית fork() מאפשרת לנו ליצור תהליך חדש שהוא עותק של התהליך הנוכחי. זה מאפשר לנו להריץ קוד במקביל, ולשתף מידע בין התהליכים. 
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb הסבר פשוט}] 
+פונקציית fork() היא כמו כפתור שמפעיל מכונת העתקה של התהליך הנוכחי. היא מעתיקה את כל המידע של התהליך הנוכחי לתהליך חדש, ומאפשרת לשני התהליכים להמשיך לרוץ במקביל. 
+\end{tcolorbox}
+
+
+\end{document}

@@ -1,0 +1,41 @@
+
+\documentclass[11pt]{article}
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float,listings,algorithm2e,tcolorbox,fontawesome}
+\graphicspath{{./images/}}
+
+\title{Cours}
+\begin{document}
+\maketitle
+
+% Cours : Cours
+Process creation & termination
+• One process (the “parent”) can create another (the “child”)
+– A new PCB is allocated and initialized
+– Homework: run ‘ps auxwww’ in the shell; PPID is the parent’s PID
+• In POSIX, child process inherits most of parent’s attributes
+– UID, open files (should be closed if unneeded; why?), cwd, etc.
+• While executing, PCB moves between different queues
+– According to state change graph 
+– Queues: runnable, sleep/wait for event i (i=1,2,3…)
+• After a process dies (exit()s / interrupted), it becomes a zombie
+– Parent uses wait* syscall to clear zombie from the system (why?)
+– Wait syscall family: wait, waitpid, waitid, wait3, wait4; example:
+– pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage); 
+• Parent can sleep/wait for its child to finish or run in parallel
+– wait*() will block unless WNOHANG given in ‘options’
+– Homework: read ‘man 2 wait’
+OS (234123) - processes & signals
+7
+
+Le programme C présenté ci-dessus illustre l'utilisation de la fonction système 	exttt{fork()} pour créer un nouveau processus. La fonction 	exttt{fork()} initialise un nouveau Bloc de Contrôle de Processus (PCB) basé sur la valeur du processus parent. Ce PCB est ensuite ajouté à la file d'attente des processus prêts à être exécutés. Après l'appel à 	exttt{fork()}, il y a maintenant deux processus au même point d'exécution. L'espace d'adresse du nouveau processus enfant est une copie complète de l'espace du processus parent, à une différence près : la fonction 	exttt{fork()} renvoie deux fois. Dans le processus parent, elle renvoie un pid>0, tandis que dans le processus enfant, elle renvoie un pid=0. La commande 	exttt{printf()} est utilisée pour afficher les pid des processus parent et enfant. En cas d'échec de la fonction 	exttt{fork()}, le message d'erreur associé est affiché grâce à la fonction 	exttt{perror()}. Le programme se termine avec un code de retour 0.
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+La fonction système \texttt{fork()} est utilisée pour créer un nouveau processus. Elle initialise un nouveau Bloc de Contrôle de Processus (PCB) basé sur la valeur du processus parent. Après l'appel à \texttt{fork()}, il y a deux processus au même point d'exécution. Dans le processus parent, \texttt{fork()} renvoie un pid>0, tandis que dans le processus enfant, elle renvoie un pid=0. En cas d'échec de la fonction \texttt{fork()}, un message d'erreur est affiché.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]
+La fonction \texttt{fork()} permet de créer un nouveau processus en dupliquant le processus actuel. C'est comme si vous aviez deux chemins d'exécution identiques qui se séparent à partir du point où \texttt{fork()} est appelé. Le processus parent et le processus enfant continuent à s'exécuter indépendamment l'un de l'autre.
+\end{tcolorbox}
+
+\end{document}

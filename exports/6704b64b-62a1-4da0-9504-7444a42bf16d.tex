@@ -1,0 +1,70 @@
+
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{graphicx}  % Pour inclure des images
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\tcbuselibrary{theorems}
+\usepackage{fontawesome5}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  frame=single,
+  breaklines=true,
+  columns=fullflexible
+}
+
+\begin{document}
+Dans le cadre de la création et de la terminaison de processus, il est important de noter que lorsqu'un processus, appelé le "parent", crée un autre processus, appelé le "enfant", un nouveau PCB (Process Control Block) est alloué et initialisé. Pour mieux comprendre ce concept, je vous recommande de lancer la commande 'ps auxwww' dans le shell lors de vos travaux pratiques ; le PPID (Parent Process ID) représente l'identifiant du processus parent. 
+
+Dans le contexte de POSIX, le processus enfant hérite de la plupart des attributs du processus parent, notamment l'UID (User Identifier), les fichiers ouverts (qui doivent être fermés s'ils ne sont pas nécessaires - pouvez-vous expliquer pourquoi ?), le répertoire de travail courant (cwd), et bien d'autres. 
+
+Au cours de son exécution, le PCB se déplace entre différentes files d'attente en fonction du changement d'état. Ces files d'attente peuvent être : exécutable, en sommeil ou en attente d'un événement i (où i peut prendre les valeurs 1, 2, 3, etc.). 
+
+Lorsqu'un processus meurt, soit par sortie normale soit par interruption, il devient un "zombie". Pour supprimer un zombie du système, le processus parent utilise la famille de systèmes d'appels 'wait*'. Ces appels système incluent : wait, waitpid, waitid, wait3, wait4. Par exemple, la fonction wait4 possède la signature suivante : pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage). 
+
+Il est à noter que le processus parent peut soit attendre que son enfant termine, soit s'exécuter en parallèle. L'appel système 'wait*()' bloque l'exécution à moins que l'option 'WNOHANG' ne soit fournie. Pour comprendre davantage ce concept, je vous conseille de lire le manuel 'man 2 wait' pour votre travail pratique. 
+
+En résumé, la compréhension des processus et des signaux est essentielle dans le contexte du système d'exploitation, comme illustré dans le module OS (234123).
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, sharp corners, boxrule=0.8mm]
+\textbf{À retenir}
+% À compléter
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!80!black, sharp corners, boxrule=0.8mm]
+\textbf{Intuition}
+% Ajouter l'intuition ici
+\end{tcolorbox}
+
+Dans ce cours sur les systèmes d'exploitation et les signaux de processus, nous allons examiner une fonction particulièrement importante, la fonction fork(). Cette fonction est utilisée pour créer un nouveau processus, appelé processus enfant, à partir d'un processus existant, appelé processus parent.
+
+Dans le code présenté, la fonction main commence par appeler fork(). Cette fonction initialise un nouveau bloc de contrôle de processus (PCB), basé sur les valeurs du processus parent. Ce nouveau PCB est ensuite ajouté à la file d'attente des processus prêts à être exécutés.
+
+À ce stade, nous nous retrouvons donc avec deux processus : le processus parent et le processus enfant. Ces deux processus sont au même point d'exécution dans le programme. Cependant, l'espace d'adresse du processus enfant est une copie complète de l'espace d'adresse du processus parent, avec une différence notable : la valeur que renvoie la fonction fork().
+
+La particularité de la fonction fork() est qu'elle renvoie deux fois. Dans le processus parent, elle renvoie l'identifiant du processus (PID) de l'enfant, une valeur supérieure à zéro. Dans le processus enfant, elle renvoie zéro. 
+
+Dans notre exemple, le processus parent et le processus enfant impriment tous deux leurs PID respectifs et celui de l'autre processus. Cependant, l'ordre d'impression n'est pas déterminé, car les deux processus sont indépendants et peuvent s'exécuter dans un ordre quelconque.
+
+En cas d'échec de la fonction fork(), elle renvoie une valeur négative. Dans ce cas, le programme imprime une chaîne associée à la variable globale errno. Cette variable contient le numéro d'erreur du dernier appel système.
+
+En résumé, la fonction fork() est un outil puissant pour créer de nouveaux processus dans un système d'exploitation. Elle est fondamentale pour la gestion des processus et des signaux, un sujet clé dans le cours OS (234123).
+\begin{algorithm}[H]
+\caption{Exemple d'algorithme}
+\begin{algorithmic}
+    \STATE int main(int argc, char *argv[])\newline{\newline  int pid = fork();\newline  if( pid==0 ) { \newline   //\newline   // child\newline      //\newline      printf(“parent=\%d son=\%d\n”,\newline             getppid(), getpid());\newline  }\newline  else if( pid > 0 ) {\newline      //\newline      // parent\newline      //\newline      printf(“parent=\%d son=\%d\n”,\newline             getpid(), pid);\newline  }\newline  else { // print string associated\newline         // with errno   \newline      perror(“fork() failed”); \newline  }\newline  return 0;\newline}\newline• fork() initializes a new PCB\newline– Based on parent’s value\newline– PCB added to runnable queue\newline• Now there are 2 processes\newline– At same execution point\newline• Child’s new address space \newline– Complete copy of parent’s \newlinespace, with one difference…\newline• fork() returns twice\newline– At the parent, with pid>0\newline– At the child, with pid=0\newline• What’s the printing order?\newline• ‘errno’ – a global variable\newline– Holds error num of last syscall\newlineOS (234123) - processes \& signals\newline8\newlinefork() – spawn a child process
+\end{algorithmic}
+\end{algorithm}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, sharp corners, boxrule=0.8mm]
+\textbf{À retenir}
+% À compléter
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!80!black, sharp corners, boxrule=0.8mm]
+\textbf{Intuition}
+% Ajouter l'intuition ici
+\end{tcolorbox}
+
+\end{document}

@@ -1,0 +1,94 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+\graphicspath{{./images/}}
+\title{os}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : os
+\subsection{Création et terminaison des processus}
+Un processus (le « parent ») peut en créer un autre (le « enfant »). Un nouveau bloc de contrôle de processus (PCB) est alloué et initialisé. Pour comprendre cela, vous pouvez exécuter la commande 'ps auxwww' dans le shell ; PPID est l'identifiant du processus parent. Dans POSIX, le processus enfant hérite de la plupart des attributs du parent, tels que l'UID, les fichiers ouverts (qui devraient être fermés s'ils ne sont pas nécessaires), le répertoire de travail actuel, etc. Pendant son exécution, le PCB se déplace entre différentes files d'attente, conformément au graphique de changement d'état. Ces files d'attente peuvent être : exécutable, sommeil/attente d'un événement i (i=1,2,3…). Après la mort d'un processus (qu'il se termine ou soit interrompu), il devient un zombie. Le parent utilise la syscall wait* pour effacer le zombie du système. La famille de syscall wait comprend : wait, waitpid, waitid, wait3, wait4. Par exemple, la fonction wait4 a la signature suivante : pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage). Le processus parent peut dormir/attendre que son enfant termine ou s'exécuter en parallèle. La fonction wait*() bloquera à moins que WNOHANG ne soit donné dans 'options'. Pour plus d'informations, vous pouvez lire 'man 2 wait'.
+\begin{lstlisting}[language=C]
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+Un processus parent peut créer un processus enfant, qui hérite de la plupart des attributs du parent. Pendant son exécution, le processus peut passer d'une file d'attente à une autre selon son état. Lorsqu'un processus meurt, il devient un zombie et doit être nettoyé par le processus parent à l'aide de la syscall wait*. Le processus parent peut choisir d'attendre que son enfant termine ou de s'exécuter en parallèle.
+\end{tcolorbox}
+
+\subsection{Fonctionnement de fork()} 
+ La fonction fork() initialise un nouveau Bloc de Contrôle de Processus (PCB) basé sur la valeur du processus parent. Le PCB est ensuite ajouté à la file d'exécution. À ce stade, il y a deux processus au même point d'exécution. L'espace d'adressage du processus enfant est une copie complète de l'espace du processus parent, avec une différence : la fonction fork() retourne deux fois. Elle retourne au processus parent avec un pid>0 et au processus enfant avec un pid=0. 
+
+ Une question se pose alors : quel est l'ordre d'impression ? 
+
+ En outre, 'errno' est une variable globale qui contient le numéro d'erreur de la dernière syscall. 
+
+ La fonction fork() est utilisée pour engendrer un processus enfant.
+\begin{lstlisting}[language=C]
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf("parent=%d son=%d\n",
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf("parent=%d son=%d\n",
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror("fork() failed"); 
+  }
+  return 0;
+}
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+La fonction fork() initialise un nouveau PCB basé sur la valeur du processus parent. Elle retourne deux fois : au processus parent avec un pid>0 et au processus enfant avec un pid=0. 'errno' est une variable globale qui contient le numéro d'erreur de la dernière syscall.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]
+La fonction fork() crée une nouvelle instance de processus qui est une copie du processus parent, mais avec un identifiant de processus unique. C'est comme si vous aviez cloné un processus en cours d'exécution pour qu'il puisse continuer à partir du même point mais avec une nouvelle identité.
+\end{tcolorbox}
+
+
+\end{document}
