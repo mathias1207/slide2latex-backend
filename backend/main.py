@@ -1,10 +1,11 @@
 # backend/main.py
 
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse, FileResponse
 import shutil
 import uuid
 import os
+import asyncio
 from backend.course_generator import generate_course_latex
 from backend.compile_latex import compile_latex
 from dotenv import load_dotenv
@@ -23,6 +24,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Configuration des timeouts
+PROCESS_TIMEOUT = 300  # 5 minutes
+DOWNLOAD_TIMEOUT = 60  # 1 minute
 
 # Définition des langues supportées
 class Language(str, Enum):
@@ -58,33 +63,70 @@ async def process(
     target_language: Language = Form(Language.FRENCH),
     vulgarization_level: VulgarizationLevel = Form(VulgarizationLevel.NONE)
 ):
-    file_id = str(uuid.uuid4())
-    upload_path = f"{UPLOAD_DIR}/{file_id}.pdf"
-    tex_path = f"{OUTPUT_DIR}/{file_id}.tex"
-    
-    with open(upload_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    try:
+        # Vérifier la taille du fichier (max 10MB)
+        if file.size > 10 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Le fichier est trop volumineux (max 10MB)")
 
-    # Génération du contenu LaTeX complet à partir du PDF
-    complete_latex = generate_course_latex(
-        upload_path, 
-        course_title, 
-        source_language=source_language,
-        target_language=target_language,
-        vulgarization_level=vulgarization_level
-    )
+        file_id = str(uuid.uuid4())
+        upload_path = f"{UPLOAD_DIR}/{file_id}.pdf"
+        tex_path = f"{OUTPUT_DIR}/{file_id}.tex"
+        
+        # Sauvegarder le fichier avec timeout
+        try:
+            with open(upload_path, "wb") as buffer:
+                await asyncio.wait_for(
+                    asyncio.to_thread(shutil.copyfileobj, file.file, buffer),
+                    timeout=PROCESS_TIMEOUT
+                )
+        except asyncio.TimeoutError:
+            raise HTTPException(status_code=408, detail="Timeout lors de la sauvegarde du fichier")
 
-    # Sauvegarde du fichier .tex
-    with open(tex_path, "w", encoding="utf-8") as f:
-        f.write(complete_latex)
+        # Générer le LaTeX avec timeout
+        try:
+            complete_latex = await asyncio.wait_for(
+                asyncio.to_thread(
+                    generate_course_latex,
+                    upload_path,
+                    course_title,
+                    source_language=source_language,
+                    target_language=target_language,
+                    vulgarization_level=vulgarization_level
+                ),
+                timeout=PROCESS_TIMEOUT
+            )
+        except asyncio.TimeoutError:
+            raise HTTPException(status_code=408, detail="Timeout lors de la génération du LaTeX")
 
-    return JSONResponse(content={
-        "file_id": file_id, 
-        "tex_path": tex_path,
-        "source_language": source_language,
-        "target_language": target_language,
-        "vulgarization_level": vulgarization_level
-    })
+        # Sauvegarder le fichier .tex
+        try:
+            with open(tex_path, "w", encoding="utf-8") as f:
+                await asyncio.wait_for(
+                    asyncio.to_thread(f.write, complete_latex),
+                    timeout=PROCESS_TIMEOUT
+                )
+        except asyncio.TimeoutError:
+            raise HTTPException(status_code=408, detail="Timeout lors de la sauvegarde du fichier .tex")
+
+        return JSONResponse(content={
+            "file_id": file_id,
+            "tex_path": tex_path,
+            "source_language": source_language,
+            "target_language": target_language,
+            "vulgarization_level": vulgarization_level
+        })
+
+    except Exception as e:
+        # Nettoyer les fichiers en cas d'erreur
+        if 'upload_path' in locals() and os.path.exists(upload_path):
+            os.remove(upload_path)
+        if 'tex_path' in locals() and os.path.exists(tex_path):
+            os.remove(tex_path)
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"Une erreur est survenue lors du traitement : {str(e)}"
+        )
 
 @app.get("/download/{file_id}")
 async def download_file(file_id: str):
