@@ -1,6 +1,6 @@
 fastapi==0.115.1
 uvicorn==0.23.2
-openai==1.14.2
+openai>=1.0.0,<2.0.0
 python-dotenv
 PyMuPDF==1.25.5
 langdetect==1.0.9
