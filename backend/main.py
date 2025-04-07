@@ -18,7 +18,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # pour l’instant, tout est autorisé (sécurise ça plus tard)
+    allow_origins=["*"],  # pour l'instant, tout est autorisé (sécurise ça plus tard)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,6 +44,11 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 print(os.environ['PATH'])
+
+@app.get("/health")
+async def health_check():
+    """Endpoint de vérification de l'état du serveur"""
+    return {"status": "ok"}
 
 @app.post("/process/")
 async def process(
