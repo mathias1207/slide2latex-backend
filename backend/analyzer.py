@@ -26,8 +26,13 @@ def analyze_slide(
     context: CourseContext, 
     source_language: str = "french",
     target_language: str = "french", 
+    include_intuition: bool = False,
+    include_retenir: bool = False,
+    include_vulgarisation: bool = False,
+    include_recap: bool = False,
+    box_styles: dict = None,
     vulgarization_level: int = 0,
-    box_styles: dict = None
+    boxOptions: dict = None
 ) -> dict:
     # Si la slide est vide, renvoyer des champs vides
     if not slide_text.strip():
@@ -43,9 +48,43 @@ def analyze_slide(
     # Styles par défaut si non spécifiés
     if box_styles is None:
         box_styles = {
-            "aretenir": "yellow",
             "intuition": "green",
-            "vulgarisation": "blue"
+            "retenir": "yellow",
+            "vulgarisation": "blue",
+            "recap": "purple"
+        }
+    
+    # Options de boîtes par défaut si non spécifiées
+    if boxOptions is None:
+        boxOptions = {
+            "retenir": {
+                "titleFont": "lmr",
+                "contentFont": "lmr",
+                "icon": "\\faBookmark",
+                "border": "boxrule=1pt",
+                "background": ""
+            },
+            "intuition": {
+                "titleFont": "lmr",
+                "contentFont": "lmr",
+                "icon": "\\faLightbulb",
+                "border": "boxrule=1pt",
+                "background": ""
+            },
+            "vulgarisation": {
+                "titleFont": "lmr",
+                "contentFont": "lmr",
+                "icon": "\\faComment",
+                "border": "boxrule=1pt",
+                "background": ""
+            },
+            "recap": {
+                "titleFont": "lmr",
+                "contentFont": "lmr",
+                "icon": "\\faClipboardList",
+                "border": "boxrule=1pt",
+                "background": ""
+            }
         }
     
     # Détecter la langue d'origine si non spécifiée
@@ -53,6 +92,10 @@ def analyze_slide(
         source_language = detect_language(slide_text)
     print(f"Langue source : {source_language}")
     print(f"Langue cible : {target_language}")
+    print(f"Inclure intuition : {include_intuition}")
+    print(f"Inclure à retenir : {include_retenir}")
+    print(f"Inclure vulgarisation : {include_vulgarisation}")
+    print(f"Inclure fiche récap : {include_recap}")
     print(f"Niveau de vulgarisation : {vulgarization_level}")
     print(f"Styles des boîtes : {box_styles}")
     
@@ -90,7 +133,7 @@ def analyze_slide(
     
     # Définir le niveau de vulgarisation dans le prompt
     vulgarization_instruction = ""
-    if vulgarization_level > 0:
+    if include_vulgarisation and vulgarization_level > 0:
         vulgarization_instruction = f"""
 Niveau de vulgarisation demandé : {vulgarization_level}/5
 - Niveau 1 : Explications minimales, termes techniques conservés
@@ -101,22 +144,68 @@ Niveau de vulgarisation demandé : {vulgarization_level}/5
 """
     
     # Définir les styles de boîtes
-    box_style_instructions = f"""
+    box_style_instructions = ""
+    if include_retenir:
+        box_style_instructions += f"""
 5. Pour les points clés, utilise :
-   \\begin{{tcolorbox}}[colback={box_styles['aretenir']}!5, colframe={box_styles['aretenir']}!80!black, title={{\\faBookmark {lang_titles['aretenir']}}}]
-   ... contenu ...
-   \\end{{tcolorbox}}
-
-6. Pour les intuitions, utilise :
-   \\begin{{tcolorbox}}[colback={box_styles['intuition']}!5, colframe={box_styles['intuition']}!75!black, title={{\\faLightbulb {lang_titles['intuition']}}}]
+   \\begin{{tcolorbox}}[
+     colback={box_styles['retenir']}!10,
+     colframe={box_styles['retenir']},
+     title={{\\fontfamily{{{boxOptions['retenir']['titleFont']}}}\\selectfont {boxOptions['retenir']['icon']}\\ {lang_titles['aretenir']}}},
+     fonttitle=\\bfseries,
+     fontupper=\\fontfamily{{{boxOptions['retenir']['contentFont']}}}\\selectfont,
+     {boxOptions['retenir']['border']},
+     sharp corners,
+     {f"interior style={boxOptions['retenir']['background']}" if boxOptions['retenir']['background'] else ""}
+   ]
    ... contenu ...
    \\end{{tcolorbox}}
 """
-
-    if vulgarization_level > 0:
+    if include_intuition:
+        box_style_instructions += f"""
+6. Pour les intuitions, utilise :
+   \\begin{{tcolorbox}}[
+     colback={box_styles['intuition']}!10,
+     colframe={box_styles['intuition']},
+     title={{\\fontfamily{{{boxOptions['intuition']['titleFont']}}}\\selectfont {boxOptions['intuition']['icon']}\\ {lang_titles['intuition']}}},
+     fonttitle=\\bfseries,
+     fontupper=\\fontfamily{{{boxOptions['intuition']['contentFont']}}}\\selectfont,
+     {boxOptions['intuition']['border']},
+     sharp corners,
+     {f"interior style={boxOptions['intuition']['background']}" if boxOptions['intuition']['background'] else ""}
+   ]
+   ... contenu ...
+   \\end{{tcolorbox}}
+"""
+    if include_vulgarisation:
         box_style_instructions += f"""
 7. Pour les vulgarisations, utilise :
-   \\begin{{tcolorbox}}[colback={box_styles['vulgarisation']}!5, colframe={box_styles['vulgarisation']}!75!black, title={{\\faLightbulb {lang_titles['vulgarisation']}}}]
+   \\begin{{tcolorbox}}[
+     colback={box_styles['vulgarisation']}!10,
+     colframe={box_styles['vulgarisation']},
+     title={{\\fontfamily{{{boxOptions['vulgarisation']['titleFont']}}}\\selectfont {boxOptions['vulgarisation']['icon']}\\ {lang_titles['vulgarisation']}}},
+     fonttitle=\\bfseries,
+     fontupper=\\fontfamily{{{boxOptions['vulgarisation']['contentFont']}}}\\selectfont,
+     {boxOptions['vulgarisation']['border']},
+     sharp corners,
+     {f"interior style={boxOptions['vulgarisation']['background']}" if boxOptions['vulgarisation']['background'] else ""}
+   ]
+   ... contenu ...
+   \\end{{tcolorbox}}
+"""
+    if include_recap:
+        box_style_instructions += f"""
+8. Pour les fiches récapitulatives, utilise :
+   \\begin{{tcolorbox}}[
+     colback={box_styles['recap']}!10,
+     colframe={box_styles['recap']},
+     title={{\\fontfamily{{{boxOptions['recap']['titleFont']}}}\\selectfont {boxOptions['recap']['icon']}\\ Fiche Récapitulative}},
+     fonttitle=\\bfseries,
+     fontupper=\\fontfamily{{{boxOptions['recap']['contentFont']}}}\\selectfont,
+     {boxOptions['recap']['border']},
+     sharp corners,
+     {f"interior style={boxOptions['recap']['background']}" if boxOptions['recap']['background'] else ""}
+   ]
    ... contenu ...
    \\end{{tcolorbox}}
 """

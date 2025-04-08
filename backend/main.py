@@ -62,9 +62,12 @@ async def process(
     course_title: str = Form(...),
     source_language: Language = Form(Language.FRENCH),
     target_language: Language = Form(Language.FRENCH),
-    vulgarization_level: VulgarizationLevel = Form(VulgarizationLevel.NONE),
+    include_intuition: bool = Form(False),
+    include_retenir: bool = Form(False),
+    include_vulgarisation: bool = Form(False),
     include_recap: bool = Form(False),
-    box_styles: str = Form("{}")
+    box_styles: str = Form("{}"),
+    vulgarization_level: int = Form(0)
 ):
     try:
         print(f"Répertoire OUTPUT_DIR : {OUTPUT_DIR}")
@@ -102,9 +105,12 @@ async def process(
                     course_title,
                     source_language=source_language,
                     target_language=target_language,
-                    vulgarization_level=vulgarization_level,
+                    include_intuition=include_intuition,
+                    include_retenir=include_retenir,
+                    include_vulgarisation=include_vulgarisation,
                     include_recap=include_recap,
-                    box_styles=json.loads(box_styles)
+                    box_styles=json.loads(box_styles),
+                    vulgarization_level=vulgarization_level
                 ),
                 timeout=PROCESS_TIMEOUT
             )

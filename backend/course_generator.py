@@ -10,15 +10,23 @@ def generate_course_latex(
     course_title: str, 
     source_language: str = "french",
     target_language: str = "french",
-    vulgarization_level: int = 0,
-    include_recap: bool = False
+    include_intuition: bool = False,
+    include_retenir: bool = False,
+    include_vulgarisation: bool = False,
+    include_recap: bool = False,
+    box_styles: dict = None,
+    vulgarization_level: int = 0
 ) -> str:
     slides = extract_text_slides(pdf_path)
     print(f"Nombre de slides extraites : {len(slides)}")
     print(f"Langue source : {source_language}")
     print(f"Langue cible : {target_language}")
+    print(f"Inclure intuition : {include_intuition}")
+    print(f"Inclure à retenir : {include_retenir}")
+    print(f"Inclure vulgarisation : {include_vulgarisation}")
+    print(f"Inclure fiche récap : {include_recap}")
     print(f"Niveau de vulgarisation : {vulgarization_level}")
-    print(f"Inclure fiche récapitulative : {include_recap}")
+    print(f"Styles des boîtes : {box_styles}")
     
     context = CourseContext(course_title)
     latex_parts = [f"% Cours : {course_title}"]
@@ -53,6 +61,11 @@ Format : Utilise le même format que les autres blocs avec tcolorbox.
                     context,
                     source_language=source_language,
                     target_language=target_language,
+                    include_intuition=include_intuition,
+                    include_retenir=include_retenir,
+                    include_vulgarisation=include_vulgarisation,
+                    include_recap=include_recap,
+                    box_styles=box_styles,
                     vulgarization_level=vulgarization_level
                 )
                 if recap_result["content"]:
@@ -67,20 +80,25 @@ Format : Utilise le même format que les autres blocs avec tcolorbox.
             context, 
             source_language=source_language,
             target_language=target_language,
+            include_intuition=include_intuition,
+            include_retenir=include_retenir,
+            include_vulgarisation=include_vulgarisation,
+            include_recap=include_recap,
+            box_styles=box_styles,
             vulgarization_level=vulgarization_level
         )
 
         # On ajoute les blocs dans l'ordre souhaité
-        if result["intuition"]:
+        if include_intuition and result["intuition"]:
             latex_parts.append(result["intuition"])
-        if vulgarization_level > 0 and result["vulgarisation"]:
+        if include_vulgarisation and result["vulgarisation"]:
             latex_parts.append(result["vulgarisation"])
         if result["content"]:
             latex_parts.append(result["content"])
             chapter_content.append(result["content"])
         if result["algorithm"]:
             latex_parts.append(result["algorithm"])
-        if result["aretenir"]:
+        if include_retenir and result["aretenir"]:
             latex_parts.append(result["aretenir"])
 
         latex_parts.append("")  # Saut de ligne pour séparer les slides
@@ -107,6 +125,11 @@ Format : Utilise le même format que les autres blocs avec tcolorbox.
             context,
             source_language=source_language,
             target_language=target_language,
+            include_intuition=include_intuition,
+            include_retenir=include_retenir,
+            include_vulgarisation=include_vulgarisation,
+            include_recap=include_recap,
+            box_styles=box_styles,
             vulgarization_level=vulgarization_level
         )
         if recap_result["content"]:
