@@ -61,9 +61,13 @@ async def process(
     course_title: str = Form(...),
     source_language: Language = Form(Language.FRENCH),
     target_language: Language = Form(Language.FRENCH),
-    vulgarization_level: VulgarizationLevel = Form(VulgarizationLevel.NONE)
+    vulgarization_level: VulgarizationLevel = Form(VulgarizationLevel.NONE),
+    include_recap: bool = Form(False)
 ):
     try:
+        print(f"Répertoire OUTPUT_DIR : {OUTPUT_DIR}")
+        print(f"OUTPUT_DIR existe : {os.path.exists(OUTPUT_DIR)}")
+        
         # Vérifier la taille du fichier (max 10MB)
         if file.size > 10 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Le fichier est trop volumineux (max 10MB)")
@@ -72,6 +76,10 @@ async def process(
         upload_path = f"{UPLOAD_DIR}/{file_id}.pdf"
         tex_path = f"{OUTPUT_DIR}/{file_id}.tex"
         
+        print(f"Chemins des fichiers :")
+        print(f"- upload_path : {upload_path}")
+        print(f"- tex_path : {tex_path}")
+        
         # Sauvegarder le fichier avec timeout
         try:
             with open(upload_path, "wb") as buffer:
@@ -79,6 +87,7 @@ async def process(
                     asyncio.to_thread(shutil.copyfileobj, file.file, buffer),
                     timeout=PROCESS_TIMEOUT
                 )
+            print(f"Fichier PDF sauvegardé avec succès : {upload_path}")
         except asyncio.TimeoutError:
             raise HTTPException(status_code=408, detail="Timeout lors de la sauvegarde du fichier")
 
@@ -91,10 +100,12 @@ async def process(
                     course_title,
                     source_language=source_language,
                     target_language=target_language,
-                    vulgarization_level=vulgarization_level
+                    vulgarization_level=vulgarization_level,
+                    include_recap=include_recap
                 ),
                 timeout=PROCESS_TIMEOUT
             )
+            print("LaTeX généré avec succès")
         except asyncio.TimeoutError:
             raise HTTPException(status_code=408, detail="Timeout lors de la génération du LaTeX")
 
@@ -105,6 +116,8 @@ async def process(
                     asyncio.to_thread(f.write, complete_latex),
                     timeout=PROCESS_TIMEOUT
                 )
+            print(f"Fichier .tex sauvegardé avec succès : {tex_path}")
+            print(f"Le fichier .tex existe maintenant : {os.path.exists(tex_path)}")
         except asyncio.TimeoutError:
             raise HTTPException(status_code=408, detail="Timeout lors de la sauvegarde du fichier .tex")
 
@@ -117,6 +130,7 @@ async def process(
         })
 
     except Exception as e:
+        print(f"Erreur lors du traitement : {str(e)}")
         # Nettoyer les fichiers en cas d'erreur
         if 'upload_path' in locals() and os.path.exists(upload_path):
             os.remove(upload_path)
@@ -130,14 +144,28 @@ async def process(
 
 @app.get("/download/{file_id}")
 async def download_file(file_id: str):
-    pdf_path = f"{OUTPUT_DIR}/{file_id}.pdf"
-    if os.path.exists(pdf_path):
-        return FileResponse(
-            pdf_path,
-            media_type="application/pdf",
-            filename=f"{file_id}.pdf"
+    tex_path = f"{OUTPUT_DIR}/{file_id}.tex"
+    print(f"Tentative de téléchargement du fichier : {tex_path}")
+    print(f"Le répertoire OUTPUT_DIR existe : {os.path.exists(OUTPUT_DIR)}")
+    print(f"Le fichier .tex existe : {os.path.exists(tex_path)}")
+    
+    if not os.path.exists(tex_path):
+        print(f"Erreur : Le fichier {tex_path} n'existe pas")
+        return JSONResponse(
+            status_code=404,
+            content={"error": "Fichier .tex non trouvé"}
         )
-    return JSONResponse(
-        status_code=404,
-        content={"error": "Fichier non trouvé"}
-    )
+    
+    try:
+        print(f"Tentative d'envoi du fichier {tex_path}")
+        return FileResponse(
+            tex_path,
+            media_type="text/plain",
+            filename=f"{file_id}.tex"
+        )
+    except Exception as e:
+        print(f"Erreur lors du téléchargement : {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Erreur lors du téléchargement : {str(e)}"}
+        )

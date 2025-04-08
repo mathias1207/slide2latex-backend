@@ -1,0 +1,99 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{os}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : os
+\section{Création et terminaison de processus}Dans un ordinateur, un processus (que nous appellerons le « parent ») peut créer un autre processus (que nous appellerons le « enfant »). C'est un peu comme si une maman robot construisait un bébé robot. Pour cela, un nouveau PCB (Bloc de Contrôle de Processus) est alloué et initialisé. Vous pouvez voir cela en action en exécutant la commande 'ps auxwww' dans le terminal ; PPID est l'identifiant du processus parent.\subsection{Héritage des attributs du parent par l'enfant}Dans le système POSIX, le processus enfant hérite de la plupart des attributs du processus parent, comme l'UID, les fichiers ouverts (qui devraient être fermés s'ils ne sont pas nécessaires ; pourquoi pensez-vous ?), le répertoire de travail courant, etc.\subsection{Exécution et mouvement du PCB}Pendant l'exécution, le PCB se déplace entre différentes files d'attente, en fonction du graphique de changement d'état. Ces files d'attente peuvent être : exécutable, sommeil/attente pour l'événement i (i=1,2,3…).\subsection{Terminaison d'un processus}Après qu'un processus meurt (se termine / est interrompu), il devient un zombie. Le processus parent utilise l'appel système wait* pour éliminer le zombie du système (pourquoi pensez-vous ?). Il existe plusieurs appels système wait : wait, waitpid, waitid, wait3, wait4. Par exemple, voici comment on pourrait utiliser wait4 :\begin{lstlisting}[language=C]pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);\end{lstlisting}Le processus parent peut attendre que son enfant termine ou s'exécuter en parallèle. L'appel système wait*() bloquera sauf si WNOHANG est donné dans 'options'. Pour en savoir plus, vous pouvez lire 'man 2 wait'.
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]Un processus parent peut créer un processus enfant. Le processus enfant hérite de la plupart des attributs du processus parent. Pendant son exécution, le processus se déplace entre différentes files d'attente. Lorsqu'un processus meurt, il devient un zombie et doit être éliminé du système par le processus parent.\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb Vulgarisation simple}]Pensez à un processus comme à un robot. Un robot (le processus parent) peut construire un autre robot (le processus enfant). Le robot enfant hérite de certaines caractéristiques du robot parent, comme son identifiant unique ou les outils qu'il utilise (fichiers ouverts). Pendant qu'il travaille, le robot peut passer d'une tâche à une autre (changer de file d'attente). Lorsqu'un robot a terminé son travail (meurt), il devient un robot zombie et le robot parent doit le nettoyer du système.\end{tcolorbox}
+
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf(“parent=%d son=%d\n”,
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf(“parent=%d son=%d\n”,
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror(“fork() failed”); 
+  }
+  return 0;
+}
+• fork() initializes a new PCB
+– Based on parent’s value
+– PCB added to runnable queue
+• Now there are 2 processes
+– At same execution point
+• Child’s new address space 
+– Complete copy of parent’s 
+space, with one difference…
+• fork() returns twice
+– At the parent, with pid>0
+– At the child, with pid=0
+• What’s the printing order?
+• ‘errno’ – a global variable
+– Holds error num of last syscall
+OS (234123) - processes & signals
+8
+fork() – spawn a child process
+
+
+\end{document}

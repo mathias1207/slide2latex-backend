@@ -1,0 +1,132 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{os}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : os
+\section{Création et terminaison de processus}
+
+Un processus (le « parent ») peut créer un autre processus (le « enfant »). Un nouveau PCB (Process Control Block) est alloué et initialisé. Dans le cadre de POSIX, le processus enfant hérite de la plupart des attributs du parent, tels que l'UID, les fichiers ouverts (qui devraient être fermés si inutiles), le répertoire de travail courant (cwd), etc.
+
+\subsection{État d'exécution et files d'attente}
+
+Lors de l'exécution, le PCB se déplace entre différentes files d'attente en fonction du graphique de changement d'état. Ces files peuvent être : exécutable, en sommeil / en attente d'un événement i (i = 1, 2, 3...).
+
+\subsection{Processus zombie}
+
+Après la mort d'un processus (exit()s / interrompu), il devient un zombie. Le parent utilise la syscall wait* pour effacer le zombie du système.
+
+\subsection{Attente ou exécution parallèle}
+
+Le processus parent peut soit attendre que son enfant termine (sleep/wait), soit s'exécuter en parallèle. La fonction wait*() bloquera à moins que WNOHANG ne soit donné dans les 'options'.
+\begin{lstlisting}[language=C]
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+Un processus parent peut créer un processus enfant, qui hérite de la plupart des attributs du parent. Lors de l'exécution, le PCB du processus se déplace entre différentes files d'attente. Un processus peut devenir un zombie après sa mort, et doit être effacé du système par le processus parent. Le processus parent peut attendre que son enfant termine ou s'exécuter en parallèle.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]
+Imaginez le processus parent comme un chef d'orchestre qui peut créer de nouveaux musiciens (processus enfants) pour jouer une symphonie. Chaque musicien a ses propres partitions (attributs), mais ils sont initialement basés sur celles du chef d'orchestre. Lors de la symphonie, les musiciens peuvent passer d'un morceau à l'autre (changer de file d'attente). Si un musicien arrête de jouer (devient un zombie), le chef d'orchestre doit s'assurer qu'il quitte la scène (efface le zombie du système). Le chef d'orchestre peut attendre que tous les musiciens aient fini de jouer ou commencer à jouer un autre morceau en parallèle.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb Vulgarisation simple}]
+Un processus parent peut créer un processus enfant, un peu comme une maman kangourou qui a un bébé dans sa poche. Le bébé kangourou hérite de certaines caractéristiques de sa maman, comme sa couleur ou sa taille. Pendant qu'ils sautent (s'exécutent), ils peuvent changer de direction (passer d'une file d'attente à une autre). Si le bébé kangourou s'endort (devient un zombie), la maman doit le réveiller (effacer le zombie du système). La maman kangourou peut attendre que son bébé ait fini de sauter ou commencer à sauter dans une autre direction en parallèle.
+\end{tcolorbox}
+
+\section{Création d'un processus enfant avec fork()} 
+
+ La fonction fork() est utilisée pour créer un nouveau processus, appelé processus enfant, qui est une copie du processus qui l'a appelé, le processus parent. Cette fonction initialise un nouveau Bloc de Contrôle de Processus (PCB) basé sur la valeur du processus parent. Ce PCB est ensuite ajouté à la file d'exécution. 
+
+ Après l'appel à fork(), il y a maintenant deux processus en exécution au même point d'exécution. L'espace d'adressage du processus enfant est une copie complète de l'espace d'adressage du parent, avec une seule différence : la valeur de retour de fork(). 
+
+ En effet, fork() retourne deux fois : une fois dans le processus parent avec une valeur supérieure à zéro (le PID du processus enfant), et une fois dans le processus enfant avec une valeur de zéro. 
+
+ L'ordre d'impression des processus n'est pas déterminé et peut varier. En cas d'échec de fork(), la variable globale 'errno' contient le numéro d'erreur de la dernière syscall. 
+
+
+\begin{lstlisting}[language=C]
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf("parent=%d son=%d\n",
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf("parent=%d son=%d\n",
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror("fork() failed"); 
+  }
+  return 0;
+}
+\end{lstlisting}
+
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+La fonction fork() crée un nouveau processus enfant qui est une copie du processus parent. Elle retourne deux fois : une fois dans le processus parent avec le PID du processus enfant, et une fois dans le processus enfant avec une valeur de zéro. En cas d'échec, la variable globale 'errno' contient le numéro d'erreur de la dernière syscall.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]
+On peut imaginer la fonction fork() comme une usine de duplication qui produit une copie exacte d'un processus, avec juste une petite différence dans le numéro d'identification.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb Vulgarisation simple}]
+La fonction fork() est comme une machine à cloner dans un film de science-fiction. Elle prend un processus (le parent) et crée une copie exacte (l'enfant). La seule différence entre les deux est leur numéro d'identification. Si la machine à cloner rencontre un problème, elle affiche un message d'erreur.
+\end{tcolorbox}
+
+
+
+\end{document}

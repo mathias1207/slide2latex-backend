@@ -1,0 +1,135 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{os}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : os
+\section{Création et terminaison des processus}
+
+Un processus, que nous appellerons le \textit{parent}, peut créer un autre processus, appelé le \textit{enfant}. Pour cela, un nouveau Bloc de Contrôle de Processus (PCB) est alloué et initialisé. Pour mieux comprendre, vous pouvez essayer de lancer la commande 'ps auxwww' dans le terminal; PPID est l'identifiant du processus parent.
+
+\subsection{Héritage des attributs}
+
+Dans le système POSIX, le processus enfant hérite de la plupart des attributs du processus parent. Cela inclut l'identifiant d'utilisateur (UID), les fichiers ouverts (qui devraient être fermés s'ils ne sont pas nécessaires; pourquoi?), le répertoire de travail actuel (cwd), etc.
+
+\subsection{Exécution des processus}
+
+Pendant l'exécution, le PCB se déplace entre différentes files d'attente, en fonction du graphique de changement d'état. Ces files d'attente peuvent être : exécutable, sommeil/attente pour l'événement i (i=1,2,3...).
+
+\subsection{Terminaison des processus}
+
+Après qu'un processus meurt (soit par une sortie normale, soit par une interruption), il devient un \textit{zombie}. Le processus parent utilise l'appel système wait* pour effacer le zombie du système (pourquoi?). La famille d'appels système wait comprend : wait, waitpid, waitid, wait3, wait4. Par exemple, l'appel système wait4 a la signature suivante :
+
+\begin{lstlisting}[language=C]
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+\end{lstlisting}
+
+Le processus parent peut soit attendre que son enfant termine, soit exécuter en parallèle. L'appel système wait*() bloquera sauf si l'option WNOHANG est donnée dans 'options'. Pour plus d'informations, vous pouvez lire la page de manuel 'man 2 wait'.
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+Un processus parent peut créer un processus enfant. Le processus enfant hérite de la plupart des attributs du processus parent. Pendant son exécution, le processus se déplace entre différentes files d'attente. Lorsqu'un processus meurt, il devient un zombie et doit être nettoyé par le processus parent.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]
+Imaginez un processus comme une tâche que votre ordinateur doit accomplir. Le processus parent est comme le chef de projet qui délègue certaines tâches (les processus enfants) à ses subordonnés. Lorsqu'une tâche est terminée, elle doit être marquée comme telle (c'est-à-dire, nettoyée) afin de ne pas encombrer le système.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb Vulgarisation simple}]
+Un processus parent qui crée un processus enfant, c'est comme une maman canard qui a un petit caneton. Le petit caneton suit toujours sa maman et fait presque tout comme elle. Quand le petit caneton a fini de faire ce qu'il avait à faire, la maman canard doit s'assurer qu'il est bien rentré à la maison pour ne pas le perdre.
+\end{tcolorbox}
+
+\section{Création d'un processus enfant avec fork()} 
+
+ Pour créer un nouveau processus, nous utilisons une fonction spéciale appelée fork(). Cette fonction crée une copie du processus qui l'appelle, appelée processus enfant. Le processus qui appelle fork() est appelé processus parent. 
+
+ \subsection{Comment fonctionne fork()} 
+
+ Lorsque fork() est appelé, un nouveau Bloc de Contrôle de Processus (PCB) est créé. Ce PCB est une copie de celui du processus parent, mais il a une différence : la valeur de retour de fork(). Pour le processus parent, fork() renvoie l'identifiant du processus enfant, tandis que pour le processus enfant, fork() renvoie 0. 
+
+ \subsection{Gestion des erreurs avec fork()} 
+
+ Si fork() échoue pour une raison quelconque, il renvoie une valeur négative. Dans ce cas, nous pouvons utiliser une variable spéciale appelée 'errno' pour savoir quel était le problème. 'errno' est une variable globale qui contient le numéro d'erreur de la dernière fonction système appelée. 
+
+ \subsection{Ordre d'exécution des processus} 
+
+ Une fois que fork() a été appelé et que le nouveau processus a été créé, nous avons deux processus qui peuvent s'exécuter. Le système d'exploitation décide lequel exécuter en premier. Il n'y a pas de garantie sur l'ordre d'exécution.
+\begin{lstlisting}[language=C]
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf("parent=%d son=%d\n",
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf("parent=%d son=%d\n",
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror("fork() failed"); 
+  }
+  return 0;
+}
+\end{lstlisting}
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!80!black, title={\faBookmark À retenir}]
+La fonction fork() est utilisée pour créer un nouveau processus. Elle renvoie deux valeurs : l'identifiant du processus enfant pour le processus parent, et 0 pour le processus enfant. Si fork() échoue, elle renvoie une valeur négative et 'errno' contient le numéro d'erreur de la dernière fonction système appelée.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5, colframe=green!75!black, title={\faLightbulb Intuition}]
+Pensez à fork() comme à une machine à cloner qui crée une copie exacte du processus parent. Cette copie, le processus enfant, peut ensuite être modifiée indépendamment du processus parent.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5, colframe=blue!75!black, title={\faLightbulb Vulgarisation simple}]
+Imaginez que vous êtes en train de jouer à un jeu vidéo et que vous voulez créer un double de votre personnage. Vous utilisez une fonction spéciale (comme fork()) pour faire une copie exacte de votre personnage. Maintenant, vous avez deux personnages qui peuvent faire des choses différentes. Mais comment savoir lequel est l'original et lequel est la copie ? C'est là que la valeur de retour de la fonction de clonage entre en jeu. Pour l'original, la fonction renvoie l'identifiant de la copie. Pour la copie, la fonction renvoie 0. Et si quelque chose se passe mal pendant le clonage, la fonction renvoie un code d'erreur.
+\end{tcolorbox}
+
+
+\end{document}
