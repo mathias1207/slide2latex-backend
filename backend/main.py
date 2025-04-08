@@ -11,6 +11,7 @@ from backend.compile_latex import compile_latex
 from dotenv import load_dotenv
 from enum import Enum
 from fastapi.middleware.cors import CORSMiddleware
+import json
 
 load_dotenv()
 
@@ -62,7 +63,8 @@ async def process(
     source_language: Language = Form(Language.FRENCH),
     target_language: Language = Form(Language.FRENCH),
     vulgarization_level: VulgarizationLevel = Form(VulgarizationLevel.NONE),
-    include_recap: bool = Form(False)
+    include_recap: bool = Form(False),
+    box_styles: str = Form("{}")
 ):
     try:
         print(f"Répertoire OUTPUT_DIR : {OUTPUT_DIR}")
@@ -101,7 +103,8 @@ async def process(
                     source_language=source_language,
                     target_language=target_language,
                     vulgarization_level=vulgarization_level,
-                    include_recap=include_recap
+                    include_recap=include_recap,
+                    box_styles=json.loads(box_styles)
                 ),
                 timeout=PROCESS_TIMEOUT
             )

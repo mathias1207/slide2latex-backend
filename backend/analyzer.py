@@ -26,7 +26,8 @@ def analyze_slide(
     context: CourseContext, 
     source_language: str = "french",
     target_language: str = "french", 
-    vulgarization_level: int = 0
+    vulgarization_level: int = 0,
+    box_styles: dict = None
 ) -> dict:
     # Si la slide est vide, renvoyer des champs vides
     if not slide_text.strip():
@@ -39,12 +40,21 @@ def analyze_slide(
             "vulgarisation": ""
         }
     
+    # Styles par défaut si non spécifiés
+    if box_styles is None:
+        box_styles = {
+            "aretenir": "yellow",
+            "intuition": "green",
+            "vulgarisation": "blue"
+        }
+    
     # Détecter la langue d'origine si non spécifiée
     if source_language == "auto":
         source_language = detect_language(slide_text)
     print(f"Langue source : {source_language}")
     print(f"Langue cible : {target_language}")
     print(f"Niveau de vulgarisation : {vulgarization_level}")
+    print(f"Styles des boîtes : {box_styles}")
     
     # Définir les titres en fonction de la langue cible
     titles = {
@@ -90,6 +100,27 @@ Niveau de vulgarisation demandé : {vulgarization_level}/5
 - Niveau 5 : Explications maximales, analogies enfantines, vocabulaire très simple
 """
     
+    # Définir les styles de boîtes
+    box_style_instructions = f"""
+5. Pour les points clés, utilise :
+   \\begin{{tcolorbox}}[colback={box_styles['aretenir']}!5, colframe={box_styles['aretenir']}!80!black, title={{\\faBookmark {lang_titles['aretenir']}}}]
+   ... contenu ...
+   \\end{{tcolorbox}}
+
+6. Pour les intuitions, utilise :
+   \\begin{{tcolorbox}}[colback={box_styles['intuition']}!5, colframe={box_styles['intuition']}!75!black, title={{\\faLightbulb {lang_titles['intuition']}}}]
+   ... contenu ...
+   \\end{{tcolorbox}}
+"""
+
+    if vulgarization_level > 0:
+        box_style_instructions += f"""
+7. Pour les vulgarisations, utilise :
+   \\begin{{tcolorbox}}[colback={box_styles['vulgarisation']}!5, colframe={box_styles['vulgarisation']}!75!black, title={{\\faLightbulb {lang_titles['vulgarisation']}}}]
+   ... contenu ...
+   \\end{{tcolorbox}}
+"""
+    
     prompt = rf"""
 Tu es un assistant pédagogique expert en création de polycopiés en LaTeX.
 Le cours s'appelle : {context.course_title}
@@ -123,20 +154,8 @@ Respecte les consignes suivantes :
    - Ajoute une ligne vide avant et après le bloc de code
    - Assure-toi que le code est correctement indenté
    - Remplace les guillemets courbes par des guillemets droits
-5. Pour les points clés, utilise :
-   \begin{{tcolorbox}}[colback=yellow!5, colframe=yellow!80!black, title={{\faBookmark {lang_titles['aretenir']}}}]
-   ... contenu ...
-   \end{{tcolorbox}}
-6. Pour les intuitions, utilise :
-   \begin{{tcolorbox}}[colback=green!5, colframe=green!75!black, title={{\faLightbulb {lang_titles['intuition']}}}]
-   ... contenu ...
-   \end{{tcolorbox}}
-""" + (f"""
-7. Pour les vulgarisations, utilise :
-   \\begin{{tcolorbox}}[colback=blue!5, colframe=blue!75!black, title={{\\faLightbulb {lang_titles['vulgarisation']}}}]
-   ... contenu ...
-   \\end{{tcolorbox}}
-""" if vulgarization_level > 0 else "") + r"""
+
+{box_style_instructions}
 
 IMPORTANT :
 - Ne crée jamais d'encadrés imbriqués
