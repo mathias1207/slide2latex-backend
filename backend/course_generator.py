@@ -33,17 +33,17 @@ def generate_course_latex(
             vulgarization_level=vulgarization_level
         )
 
-        # On ajoute directement les blocs retournés par GPT
+        # On ajoute les blocs dans l'ordre souhaité
+        if result["intuition"]:
+            latex_parts.append(result["intuition"])
+        if vulgarization_level > 0 and result["vulgarisation"]:
+            latex_parts.append(result["vulgarisation"])
         if result["content"]:
             latex_parts.append(result["content"])
         if result["algorithm"]:
             latex_parts.append(result["algorithm"])
         if result["aretenir"]:
             latex_parts.append(result["aretenir"])
-        if result["intuition"]:
-            latex_parts.append(result["intuition"])
-        if vulgarization_level > 0 and result["vulgarisation"]:
-            latex_parts.append(result["vulgarisation"])
 
         latex_parts.append("")  # Saut de ligne pour séparer les slides
 
