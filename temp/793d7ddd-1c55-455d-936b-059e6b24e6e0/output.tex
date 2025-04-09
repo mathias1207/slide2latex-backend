@@ -1,0 +1,152 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    tabsize=4
+}
+
+% Configuration simplifiée des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Protection des underscores dans le texte
+\usepackage{underscore}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{osj}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : osj
+\section{Création et terminaison des processus}
+
+Un processus, appelé le « parent », peut en créer un autre, appelé le « enfant ». Un nouveau PCB (Process Control Block) est alloué et initialisé. Le processus enfant hérite de la plupart des attributs du processus parent dans POSIX, tels que l'UID, les fichiers ouverts (qui doivent être fermés s'ils ne sont pas nécessaires), le répertoire de travail courant, etc.
+
+\subsection{Exécution du processus}
+
+Lors de son exécution, le PCB se déplace entre différentes files d'attente en fonction du graphique de changement d'état. Ces files d'attente peuvent être : exécutable, sommeil/attente pour l'événement i (i=1,2,3…).
+
+\subsection{Terminaison du processus}
+
+Après qu'un processus meurt (soit par une sortie, soit par une interruption), il devient un zombie. Le parent utilise l'appel système wait* pour effacer le zombie du système.
+
+Le parent peut dormir/attendre que son enfant termine ou s'exécute en parallèle. L'appel système wait*() bloquera à moins que WNOHANG ne soit donné dans les 'options'.
+
+\section{OS (234123) - processus et signaux}
+
+Cette section traite des processus et des signaux dans le système d'exploitation.
+\begin{lstlisting}
+
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+
+\end{lstlisting}
+
+\section{Création d'un processus enfant avec fork()} 
+
+La fonction fork() est utilisée pour créer un nouveau processus, appelé processus enfant, à partir du processus actuel, appelé processus parent. Cette fonction initialise un nouveau Bloc de Contrôle de Processus (PCB) basé sur la valeur du processus parent. Le PCB est ensuite ajouté à la file d'exécution. 
+
+Il y a maintenant deux processus en exécution au même point d'exécution. L'espace d'adressage du processus enfant est une copie complète de l'espace d'adressage du processus parent, à une différence près : la fonction fork() renvoie deux valeurs. 
+
+Dans le processus parent, fork() renvoie un pid > 0, tandis que dans le processus enfant, fork() renvoie un pid = 0. 
+
+La variable globale 'errno' contient le numéro d'erreur du dernier appel système. 
+
+L'ordre d'impression n'est pas déterminé et peut varier. 
+
+
+\begin{lstlisting}
+
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf("parent=%d son=%d\n",
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf("parent=%d son=%d\n",
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror("fork() failed"); 
+  }
+  return 0;
+}
+
+\end{lstlisting}
+
+
+\section*{Fiche Récapitulative}
+\section{Création et terminaison des processus}
+
+Un processus, appelé le « parent », peut en créer un autre, appelé le « enfant ». Un nouveau Bloc de Contrôle de Processus (PCB) est alloué et initialisé. Le processus enfant hérite de la plupart des attributs du processus parent dans POSIX, tels que l'UID, les fichiers ouverts (qui doivent être fermés s'ils ne sont pas nécessaires), le répertoire de travail courant, etc.
+
+\subsection{Exécution du processus}
+
+Lors de son exécution, le PCB se déplace entre différentes files d'attente en fonction du graphique de changement d'état. Ces files d'attente peuvent être : exécutable, sommeil/attente pour l'événement i (i=1,2,3…).
+
+\subsection{Terminaison du processus}
+
+Après qu'un processus meurt (soit par une sortie, soit par une interruption), il devient un zombie. Le parent utilise l'appel système wait* pour effacer le zombie du système.
+
+Le parent peut dormir/attendre que son enfant termine ou s'exécute en parallèle. L'appel système wait*() bloquera à moins que WNOHANG ne soit donné dans les 'options'.
+
+\section{OS (234123) - processus et signaux}
+
+Cette section traite des processus et des signaux dans le système d'exploitation.
+
+\section{Création d'un processus enfant avec fork()}
+
+La fonction fork() est utilisée pour créer un nouveau processus, appelé processus enfant, à partir du processus actuel, appelé processus parent. Cette fonction initialise un nouveau Bloc de Contrôle de Processus (PCB) basé sur la valeur du processus parent. Le PCB est ensuite ajouté à la file d'exécution.
+
+Il y a maintenant deux processus en exécution au même point d'exécution. L'espace d'adressage du processus enfant est une copie complète de l'espace d'adressage du processus parent, à une différence près : la fonction fork() renvoie deux valeurs.
+
+Dans le processus parent, fork() renvoie un pid > 0, tandis que dans le processus enfant, fork() renvoie un pid = 0.
+
+La variable globale 'errno' contient le numéro d'erreur du dernier appel système.
+
+L'ordre d'impression n'est pas déterminé et peut varier.
+
+\end{document}

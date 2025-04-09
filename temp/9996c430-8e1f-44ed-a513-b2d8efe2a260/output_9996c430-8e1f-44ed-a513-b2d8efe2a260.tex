@@ -1,0 +1,188 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage[version=4]{mhchem}
+\usepackage{stmaryrd}
+\graphicspath{ {./images/} }
+\usepackage{float}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{amsthm}
+\usepackage{pifont}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+\usepackage{hyperref}
+\usepackage[french]{babel}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{PIF}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction au traitement et à la représentation des données}
+
+\subsection{Traitement du signal}
+
+Le traitement du signal consiste à prendre un "signal" et à effectuer une opération intelligente dessus. Cela peut concerner un signal unique comme une image, un ensemble de signaux donnés comme des données, ou encore une distribution de signaux aléatoires. Les applications typiques incluent le débruitage, le défloutage, le sous-échantillonnage ou sur-échantillonnage, la classification et la régression.
+
+\begin{tcolorbox}[title={Intuition}]
+Le secret d'un bon traitement du signal réside dans la recherche d'une bonne représentation du signal.
+\end{tcolorbox}
+
+\subsection{Exemples dans ce cours}
+
+Dans ce cours, nous nous concentrerons sur le défloutage et le débruitage. L'objectif est de récupérer le signal propre en minimisant une certaine erreur.
+
+% FIGURE: Exemple de signaux dégradés et récupérés
+
+\subsection{Modélisation}
+
+Le modèle de traitement du signal peut être décrit par les étapes suivantes :
+\begin{align*}
+\varphi & \quad \text{Signal original} \\
+H\varphi & \quad \text{Dégradation linéaire (ex. flou)} \\
+\varphi_{\text{data}} = H\varphi + n & \quad \text{Ajout de bruit aléatoire} \\
+\hat{\varphi} = M\varphi_{\text{data}} & \quad \text{Reconstruction linéaire}
+\end{align*}
+
+Différentes hypothèses sur le signal conduiront à différentes approches de résolution.
+
+\begin{tcolorbox}[colback=red!5!white, colframe=red!75!black, title={\faBookmark\hspace{0.5em}Fiche Récapitulative}]
+  
+\textbf{Objectif :} Résumer le concept principal de cette section.
+  
+\textbf{Principe central :} Expliquer l'idée fondamentale.
+  
+\vspace{0.4em}
+\textbf{Points essentiels :}  
+- Dégradation linéaire
+- Ajout de bruit
+- Reconstruction linéaire
+  
+\vspace{0.4em}
+\textbf{Formules clés :}  
+\begin{itemize}
+\item $\varphi_{\text{data}} = H\varphi + n$
+\item $\hat{\varphi} = M\varphi_{\text{data}}$
+\end{itemize}
+  
+\end{tcolorbox}
+
+\section{Filtrage pseudo-inverse}
+
+\subsection{Modèle déterministe sans bruit}
+
+Dans un modèle déterministe sans bruit, nous avons :
+\begin{align*}
+\varphi_{\text{data}} &= H\varphi \\
+\hat{\varphi} &= M\varphi_{\text{data}}
+\end{align*}
+
+L'opérateur de dégradation linéaire $H$ est connu, et l'objectif est de trouver $\hat{\varphi} \approx \varphi$.
+
+\subsection{Monde idéal}
+
+Dans un monde idéal où $H$ est inversible, nous avons :
+\begin{align*}
+M &= H^{-1} \\
+\hat{\varphi} &= M\varphi_{\text{data}} = H^{-1}H\varphi = \varphi
+\end{align*}
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+Dans un monde parfait, nous pourrions simplement inverser l'opération de dégradation pour récupérer le signal original sans perte.
+\end{tcolorbox}
+
+\subsection{Monde réel}
+
+Dans le monde réel, $H$ n'est pas inversible, ce qui entraîne une perte d'information. La question devient alors : comment concevoir $M$ pour approcher au mieux $\varphi$ ?
+
+\subsection{Hypothèse 1 : $H$ est diagonalisable dans une base unitaire}
+
+Nous supposons que $H$ peut être exprimé comme $H = U\Lambda U^*$, où les colonnes de $U$ forment une base orthonormale.
+
+\begin{align*}
+x &= \begin{pmatrix} x_1 \\ \vdots \\ x_n \end{pmatrix} \quad \text{Coefficients dans la base originale} \\
+x^U &= \begin{pmatrix} x^U_1 \\ \vdots \\ x^U_n \end{pmatrix} = U^*x \quad \text{Coefficients dans la base $U$}
+\end{align*}
+
+\subsection{Hypothèse 2 : $M$ est diagonalisable dans la même base}
+
+Sous cette hypothèse, nous avons :
+\begin{align*}
+\varphi_{\text{data}} &= H\varphi = U\Lambda U^*\varphi \\
+\hat{\varphi} &= M\varphi_{\text{data}} = U\Sigma U^*\varphi_{\text{data}}
+\end{align*}
+
+Les coefficients du signal restauré satisfont :
+\begin{align*}
+\hat{\varphi}^U_i &= \sigma_i \lambda_i \varphi^U_i
+\end{align*}
+
+\begin{tcolorbox}[title={À retenir}]
+Pour une récupération parfaite des coefficients, nous choisissons $\sigma_i = \frac{1}{\lambda_i}$ lorsque $\lambda_i \neq 0$.
+\end{tcolorbox}
+
+\subsection{Erreur de reconstruction}
+
+L'erreur de reconstruction est donnée par :
+\begin{align*}
+\|\varphi - \hat{\varphi}\|_2^2 &= \sum_i |\varphi^U_i - \hat{\varphi}^U_i|^2 \\
+&= \sum_{i \text{ s.t. } \lambda_i = 0} |\varphi^U_i|^2
+\end{align*}
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+L'énergie du signal dans le noyau de $H$ ne peut pas être récupérée, ce qui entraîne une perte d'information.
+\end{tcolorbox}
+
+\subsection{Filtrage pseudo-inverse avec des a priori}
+
+Les filtres pseudo-inverses apparaissent en utilisant des a priori sur la solution. Par exemple, en minimisant la norme $L^2$ de la solution sous la contrainte $H\hat{\varphi} = \varphi_{\text{data}}$, nous obtenons le filtre pseudo-inverse.
+
+\begin{align*}
+M\begin{cases}
+\lambda_i \neq 0 & \Rightarrow \sigma_i = \frac{1}{\lambda_i} \\
+\lambda_i = 0 & \Rightarrow \sigma_i = 0
+\end{cases}
+\end{align*}
+
+\begin{tcolorbox}[title={Intuition}]
+L'utilisation d'un a priori permet de guider la reconstruction du signal en l'absence d'information complète.
+\end{tcolorbox}
+
+\end{document}

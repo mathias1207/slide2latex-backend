@@ -1,0 +1,186 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{datta}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\sub\section{Objectif : Digitalisation}
+
+Vous avez un signal réel et vous souhaitez l'adapter à un ordinateur. Cependant, il existe des contraintes. Le nombre de valeurs pour représenter l'ensemble du signal est fini, noté $N$. Chaque valeur ne peut pas prendre n'importe quelle valeur réelle, mais seulement l'une des $k$ valeurs quantifiées fixes, où $b = \log_2(k)$.
+
+\begin{tcolorbox}[title={Intuition}]
+La digitalisation consiste à convertir un signal continu en une représentation discrète qui peut être traitée par un ordinateur. Imaginez une peinture transformée en pixels, puis en niveaux de couleur limités.
+\end{tcolorbox}
+
+% FIGURE: Illustration de la digitalisation avec la Mona Lisa
+
+\newpage
+
+\section{Échantillonnage}
+
+\sub\section{Concept de l'échantillonnage}
+
+Le signal $\varphi(x)$ est décrit par ses valeurs pour tous les $x$. Cela nécessite une infinité de valeurs pour représenter $\varphi$. L'objectif est de trouver un ensemble fini de nombres $\hat{\varphi}_1, \ldots, \hat{\varphi}_N$ pour représenter approximativement $\varphi$.
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+L'échantillonnage est comme prendre des photos à intervalles réguliers d'un film continu pour créer une version simplifiée.
+\end{tcolorbox}
+
+% FIGURE: Illustration de l'échantillonnage
+
+\sub\section{Stratégies d'échantillonnage}
+
+Il n'y a pas d'unicité dans les stratégies d'échantillonnage et de reconstruction. Étant donné une stratégie de reconstruction et un critère de "meilleur", il faut trouver les "meilleurs" $\hat{\varphi}_1, \ldots, \hat{\varphi}_N$.
+
+\begin{tcolorbox}[title={Fiche Récapitulative}]
+\textbf{Objectif :} Représenter un signal continu par un ensemble fini de valeurs.
+
+\textbf{Principe central :} Échantillonnage et quantification.
+
+\vspace{0.4em}
+\textbf{Points essentiels :}  
+- Trouver un ensemble fini de valeurs $\hat{\varphi}_1, \ldots, \hat{\varphi}_N$
+- Stratégies d'échantillonnage et de reconstruction
+- Importance des critères d'optimisation
+
+\vspace{0.4em}
+\textbf{À retenir :}  
+- Utiliser des tirets pour les listes au lieu de \begin{itemize}
+- Insérer des \vspace{0.4em} entre les \sections pour l'espacement
+- Mettre en gras (\textbf) les titres des \sections
+\end{tcolorbox}
+
+\newpage
+
+\section{Critère $L^2$}
+
+\sub\section{Erreur quadratique moyenne}
+
+L'erreur quadratique moyenne totale (MSE) est définie par :
+
+\begin{equation}
+MSE = \int_0^1 (\varphi(x) - \hat{\varphi}(x))^2 dx
+\end{equation}
+
+L'erreur quadratique moyenne locale est donnée par :
+
+\begin{equation}
+MSE_i = \frac{1}{\Delta} \int_{I_i} (\varphi(x) - \hat{\varphi}_i)^2 dx
+\end{equation}
+
+\begin{tcolorbox}[title={Intuition}]
+Le critère $L^2$ mesure la différence quadratique entre le signal original et le signal échantillonné, favorisant les petites erreurs.
+\end{tcolorbox}
+
+\newpage
+
+\section{Critère $L^1$}
+
+\sub\section{Déviation absolue moyenne}
+
+La déviation absolue moyenne totale (MAD) est définie par :
+
+\begin{equation}
+MAD = \int_0^1 |\varphi(x) - \hat{\varphi}(x)| dx
+\end{equation}
+
+La déviation absolue moyenne locale est donnée par :
+
+\begin{equation}
+MAD_i = \frac{1}{\Delta} \int_{I_i} |\varphi(x) - \hat{\varphi}_i| dx
+\end{equation}
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+Le critère $L^1$ se concentre sur la somme des différences absolues, ce qui est plus robuste aux grandes erreurs que le critère $L^2$.
+\end{tcolorbox}
+
+\newpage
+
+\section{Exemples}
+
+\sub\section{Exemple 1}
+
+Pour $\varphi(x) = x$, l'échantillonnage $L^2$ et $L^1$ donne des résultats différents en termes de MSE et MAD.
+
+% FIGURE: Graphique de l'exemple 1
+
+\sub\section{Exemple 2}
+
+Pour un signal défini par morceaux, les valeurs de MSE et MAD sont calculées pour $N = 2$ échantillons.
+
+% FIGURE: Graphique de l'exemple 2
+
+\begin{tcolorbox}[title={Fiche Récapitulative}]
+\textbf{Objectif :} Comparer les critères $L^2$ et $L^1$ à travers des exemples.
+
+\textbf{Principe central :} Différences entre les erreurs quadratiques et absolues.
+
+\vspace{0.4em}
+\textbf{Points essentiels :}  
+- Calcul des erreurs pour différents types de signaux
+- Importance du choix du critère selon le contexte
+
+\vspace{0.4em}
+\textbf{À retenir :}  
+- Utiliser des tirets pour les listes au lieu de \begin{itemize}
+- Insérer des \vspace{0.4em} entre les \sections pour l'espacement
+- Mettre en gras (\textbf) les titres des \sections
+\end{tcolorbox}
+
+\newpage
+
+\section{Échantillonnage dans le Monde Discret}
+
+Il est possible de sous-échantillonner en passant de $N$ à $M$ échantillons. Les échantillons optimaux sont les moyennes sur les intervalles discrets.
+
+% FIGURE: Illustration de l'échantillonnage dans le monde discret
+
+\begin{tcolorbox}[title={Intuition}]
+Dans le monde discret, l'échantillonnage est comme réduire la résolution d'une image tout en conservant l'essentiel de l'information.
+\end{tcolorbox}
+\end{itemize}}
+
+\end{document}

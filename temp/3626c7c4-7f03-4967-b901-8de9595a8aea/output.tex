@@ -1,0 +1,131 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+\% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+\% Configuration minimale des listings
+\lstset{
+    breaklines=true, 
+    basicstyle=\ttfamily\small,
+    inputencoding=utf8,
+    extendedchars=true,
+    literate={á}{\'a}1 {é}{\'e}1 {í}{\'i}1 {ó}{\'o}1 {ú}{\'u}1
+             {à}{\`a}1 {è}{\`e}1 {ì}{\`i}1 {ò}{\`o}1 {ù}{\`u}1
+             {ä}{\"a}1 {ë}{\"e}1 {ï}{\"i}1 {ö}{\"o}1 {ü}{\"u}1
+             {â}{\^a}1 {ê}{\^e}1 {î}{\^i}1 {ô}{\^o}1 {û}{\^u}1
+             {ç}{\c c}1
+}
+
+\% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{osj}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\% Cours : osj
+\section{Processus de création et de terminaison}\subsection{Création et terminaison de processus}\begin{itemize}\item Un processus (le "parent") peut créer un autre (l'enfant)\item Un nouveau PCB est alloué et initialisé\item Devoir : exécuter 'ps auxwww' dans le shell ; PPID est le PID du parent\end{itemize}\subsection{Héritage des attributs du processus enfant}\begin{itemize}\item En POSIX, le processus enfant hérite de la plupart des attributs du parent\item UID, fichiers ouverts (doivent être fermés s'ils ne sont pas nécessaires ; pourquoi ?), cwd, etc.\end{itemize}\subsection{Déplacement du PCB entre les files d'attente}\begin{itemize}\item Pendant l'exécution, le PCB se déplace entre différentes files d'attente\item Selon le graphe de changement d'état\item Files d'attente : prêt, sommeil/en attente d'un événement i (i=1,2,3...)\end{itemize}\subsection{Processus zombie}\begin{itemize}\item Après la mort d'un processus (exit() / interrompu), il devient un zombie\item Le parent utilise l'appel système wait* pour supprimer le zombie du système (pourquoi ?)\item Famille d'appels système wait : wait, waitpid, waitid, wait3, wait4 ; exemple :\item pid\_t wait4(pid\_t, int *wstatus, int options, struct rusage *rusage);\end{itemize}\subsection{Attente du parent pour le processus enfant}\begin{itemize}\item Le parent peut attendre que son enfant termine ou s'exécute en parallèle\item wait*() bloquera sauf si WNOHANG est donné dans 'options'\item Devoir : lire 'man 2 wait'\end{itemize}
+
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf(“parent=\%d son=\%d\n”,
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf(“parent=\%d son=\%d\n”,
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror(“fork() failed”); 
+  }
+  return 0;
+}
+• fork() initializes a new PCB
+– Based on parent’s value
+– PCB added to runnable queue
+• Now there are 2 processes
+– At same execution point
+• Child’s new address space 
+– Complete copy of parent’s 
+space, with one difference…
+• fork() returns twice
+– At the parent, with pid>0
+– At the child, with pid=0
+• What’s the printing order?
+• ‘errno’ – a global variable
+– Holds error num of last syscall
+OS (234123) - processes \& signals
+8
+fork() – spawn a child process
+
+
+\section*{Fiche Récapitulative}
+\section{Processus de création et de terminaison}
+
+\subsection{Création et terminaison de processus}
+\begin{itemize}
+\item Un processus (le "parent") peut créer un autre (l'enfant)
+\item Un nouveau PCB est alloué et initialisé
+\item Devoir : exécuter 'ps auxwww' dans le shell ; PPID est le PID du parent
+\end{itemize}
+
+\subsection{Héritage des attributs du processus enfant}
+\begin{itemize}
+\item En POSIX, le processus enfant hérite de la plupart des attributs du parent
+\item UID, fichiers ouverts (doivent être fermés s'ils ne sont pas nécessaires ; pourquoi ?), cwd, etc.
+\end{itemize}
+
+\subsection{Déplacement du PCB entre les files d'attente}
+\begin{itemize}
+\item Pendant l'exécution, le PCB se déplace entre différentes files d'attente
+\item Selon le graphe de changement d'état
+\item Files d'attente : prêt, sommeil/en attente d'un événement i (i=1,2,3...)
+\end{itemize}
+
+\subsection{Processus zombie}
+\begin{itemize}
+\item Après la mort d'un processus (exit() / interrompu), il devient un zombie
+\item Le parent utilise l'appel système wait* pour supprimer le zombie du système (pourquoi ?)
+\item Famille d'appels système wait : wait, waitpid, waitid, wait3, wait4 ; exemple :
+\item pid\_t wait4(pid\_t, int *wstatus, int options, struct rusage *rusage);
+\end{itemize}
+
+\subsection{Attente du parent pour le processus enfant}
+\begin{itemize}
+\item Le parent peut attendre que son enfant termine ou s'exécute en parallèle
+\item wait*() bloquera sauf si WNOHANG est donné dans 'options'
+\item Devoir : lire 'man 2 wait'
+\end{itemize}
+
+\begin{tcolorbox}[title={title={Fiche Récapitulative}]
+Le contenu des fiches récapitulatives ici...
+\end{tcolorbox}
+
+\end{document}

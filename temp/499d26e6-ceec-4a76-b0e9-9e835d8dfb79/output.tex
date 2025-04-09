@@ -1,0 +1,85 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+
+\% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+\% Configuration minimale des listings
+\lstset{breaklines=true, basicstyle=\ttfamily\small}
+
+\% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{osj}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\% Cours : osj
+Process creation \& termination
+• One process (the “parent”) can create another (the “child”)
+– A new PCB is allocated and initialized
+– Homework: run ‘ps auxwww’ in the shell; PPID is the parent’s PID
+• In POSIX, child process inherits most of parent’s attributes
+– UID, open files (should be closed if unneeded; why?), cwd, etc.
+• While executing, PCB moves between different queues
+– According to state change graph 
+– Queues: runnable, sleep/wait for event i (i=1,2,3…)
+• After a process dies (exit()s / interrupted), it becomes a zombie
+– Parent uses wait* syscall to clear zombie from the system (why?)
+– Wait syscall family: wait, waitpid, waitid, wait3, wait4; example:
+– pid\_t wait4(pid\_t, int *wstatus, int options, struct rusage *rusage); 
+• Parent can sleep/wait for its child to finish or run in parallel
+– wait*() will block unless WNOHANG given in ‘options’
+– Homework: read ‘man 2 wait’
+OS (234123) - processes \& signals
+7
+
+\begin{lstlisting}
+
+
+\section*{Fiche Récapitulative}
+\section{Process creation \& termination}
+\subsection{Contenu du chapitre}
+\begin{itemize}
+\item Process creation \& termination
+\item One process (the 'parent') can create another (the 'child')
+\begin{itemize}
+\item A new PCB is allocated and initialized
+\item Homework: run 'ps auxwww' in the shell; PPID is the parent's PID
+\end{itemize}
+\item In POSIX, child process inherits most of parent's attributes
+\begin{itemize}
+\item UID, open files (should be closed if unneeded; why?), cwd, etc.
+\end{itemize}
+\item While executing, PCB moves between different queues
+\begin{itemize}
+\item According to state change graph
+\item Queues: runnable, sleep/wait for event i (i=1,2,3...)
+\end{itemize}
+\item After a process dies (exit()s / interrupted), it becomes a zombie
+\begin{itemize}
+\item Parent uses wait* syscall to clear zombie from the system (why?)
+\item Wait syscall family: wait, waitpid, waitid, wait3, wait4; example:
+\item pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+\end{itemize}
+\item Parent can sleep/wait for its child to finish or run in parallel
+\begin{itemize}
+\item wait*() will block unless WNOHANG given in 'options'
+\item Homework: read 'man 2 wait'
+\end{itemize}
+\end{itemize}
+
+\end{document}

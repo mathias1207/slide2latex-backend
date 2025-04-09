@@ -1,0 +1,99 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{osj}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : osj
+  \section{Process Creation and Termination}  In an operating system, one process, referred to as the 'parent', can create another process, known as the 'child'. This creation involves the allocation and initialization of a new Process Control Block (PCB). A practical example of this can be seen by running the command 'ps auxwww' in the shell, where PPID represents the parent's PID.    \subsection{Inheritance in POSIX}  In POSIX, a child process inherits most of the parent's attributes. These attributes include the User ID (UID), open files, current working directory (cwd), and others. It is important to note that open files should be closed if they are not needed.     \subsection{Process Control Block (PCB) Execution}  While a process is executing, its PCB moves between different queues according to the state change graph. These queues include the runnable queue and the sleep/wait for event i queue (where i can be any integer).    \subsection{Process Termination}  After a process terminates (either through an exit or interruption), it becomes a 'zombie'. The parent process uses the wait* system call to clear the zombie from the system. The wait system call family includes wait, waitpid, waitid, wait3, and wait4. An example of this is the wait4 system call: pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage).     The parent process can either sleep/wait for its child process to finish or run in parallel. The wait*() system call will block unless WNOHANG is given in 'options'. For further understanding, it is recommended to read 'man 2 wait'.  
+  \begin{lstlisting}[language=C]  pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);  \end{lstlisting}  
+
+\section{Création d'un processus enfant avec fork()} 
+
+La fonction fork() est utilisée pour créer un nouveau processus, appelé processus enfant, qui est une copie du processus qui a appelé fork(), appelé processus parent. Lorsqu'un processus appelle fork(), un nouveau Bloc de Contrôle de Processus (PCB) est initialisé basé sur la valeur du processus parent et ajouté à la file d'attente exécutable. À ce stade, deux processus existent au même point d'exécution. 
+
+\subsection{Espace d'adresse du processus enfant} 
+
+L'espace d'adresse du nouveau processus enfant est une copie complète de l'espace d'adresse du processus parent, avec une différence : fork() renvoie deux fois. Dans le processus parent, fork() renvoie un pid>0, tandis que dans le processus enfant, fork() renvoie pid=0. 
+
+\subsection{Ordre d'impression} 
+
+L'ordre d'impression n'est pas déterminé et dépend de l'ordonnanceur du système d'exploitation. 
+
+\subsection{Gestion des erreurs} 
+
+'errno' est une variable globale qui contient le numéro d'erreur du dernier appel système. Si fork() échoue, 'errno' contiendra le numéro d'erreur correspondant. 
+
+\begin{lstlisting}[language=C] 
+int main(int argc, char *argv[]) 
+{ 
+  int pid = fork(); 
+  if( pid==0 ) { 
+   // 
+   // child 
+      // 
+      printf("parent=%d son=%d\n", 
+             getppid(), getpid()); 
+  } 
+  else if( pid > 0 ) { 
+      // 
+      // parent 
+      // 
+      printf("parent=%d son=%d\n", 
+             getpid(), pid); 
+  } 
+  else { // print string associated 
+         // with errno   
+      perror("fork() failed");  
+  } 
+  return 0; 
+} 
+\end{lstlisting}
+
+
+\end{document}

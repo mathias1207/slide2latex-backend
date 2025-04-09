@@ -1,0 +1,128 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    tabsize=4
+}
+
+% Configuration simplifiée des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Protection des underscores dans le texte
+\usepackage{underscore}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{osj}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : osj
+\section{Création et terminaison de processus}
+
+Un processus (le « parent ») peut créer un autre processus (le « enfant »). Un nouveau PCB est alloué et initialisé. Dans POSIX, le processus enfant hérite de la plupart des attributs du parent, tels que l'UID, les fichiers ouverts (qui devraient être fermés si inutiles ; pourquoi ?), le répertoire de travail courant, etc.
+
+\subsection{Mouvement du PCB}
+
+Lors de l'exécution, le PCB se déplace entre différentes files d'attente, en fonction du graphique de changement d'état. Ces files d'attente peuvent être : exécutable, sommeil/attente pour l'événement i (i=1,2,3…).
+
+\subsection{Processus zombie}
+
+Après qu'un processus meurt (exit()s / interrompu), il devient un zombie. Le parent utilise le syscall wait* pour effacer le zombie du système (pourquoi ?). La famille de syscall wait comprend : wait, waitpid, waitid, wait3, wait4. Par exemple :
+
+\begin{lstlisting}
+
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+
+\end{lstlisting}
+
+Le parent peut dormir/attendre que son enfant termine ou s'exécute en parallèle. wait*() bloquera à moins que WNOHANG ne soit donné dans 'options'.
+
+\section{OS (234123) - processus et signaux}
+
+C'est le septième cours de la série sur les systèmes d'exploitation et les signaux.
+\begin{lstlisting}
+
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+
+\end{lstlisting}
+
+\section{Fork - Création d'un processus enfant}
+
+La fonction \texttt{fork()} est utilisée pour initialiser un nouveau PCB (Process Control Block) basé sur la valeur du processus parent. Une fois que le PCB est ajouté à la file d'exécution, il y a maintenant deux processus au même point d'exécution.
+
+L'espace d'adresse du processus enfant est une copie complète de l'espace du processus parent, avec une différence : la fonction \texttt{fork()} retourne deux fois. Chez le parent, avec \texttt{pid > 0} et chez l'enfant, avec \texttt{pid = 0}.
+
+La variable globale \texttt{'errno'} contient le numéro d'erreur du dernier appel système.
+
+Il est important de noter que l'ordre d'impression n'est pas déterminé et peut varier.
+
+\begin{lstlisting}
+
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf("parent=%d son=%d\n",
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf("parent=%d son=%d\n",
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror("fork() failed"); 
+  }
+  return 0;
+}
+
+\end{lstlisting}
+
+
+\section*{Fiche Récapitulative}
+\begin{lstlisting}
+
+
+\end{document}

@@ -1,0 +1,11 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Fourier Family}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Orthonormality Check}{2}{subsection.1.1}%
+\contentsline {section}{\numberline {2}Signal Representation}{3}{section.2}%
+\contentsline {section}{\numberline {3}Conjugate-Symmetry of Representation}{4}{section.3}%
+\contentsline {section}{\numberline {4}Fourier Family}{5}{section.4}%
+\contentsline {section}{\numberline {5}Example}{6}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Optimal Coefficient Calculation}{7}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Show the Optimal Coefficient}{7}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Show the Series Result}{8}{subsection.5.3}%
+\contentsline {section}{\numberline {6}Fourier Transformation}{9}{section.6}%

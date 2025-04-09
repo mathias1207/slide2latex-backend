@@ -1,0 +1,117 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{OS test}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : OS test
+\begin{tcolorbox}[     colback=blue!10,     colframe=blue,     title={\fontfamily{lmr}\selectfont \faComment\ Vulgarisation simple},     fonttitle=\bfseries,     fontupper=\fontfamily{lmr}\selectfont,     boxrule=1pt,     sharp corners,        ]Imaginez que vous êtes un chef d'entreprise (le processus parent) et que vous embauchez un nouvel employé (le processus enfant). Lorsque l'employé commence à travailler, il reçoit un ensemble d'outils et de responsabilités (les attributs) de l'entreprise. Pendant son travail, l'employé peut passer d'un projet à un autre (les différentes files d'attente). Lorsque l'employé quitte l'entreprise (meurt), il doit rendre tous ses outils et responsabilités (devient un zombie), et le chef d'entreprise doit s'assurer que tout est bien rangé (appel système wait*).\end{tcolorbox}  
+\section{Création et terminaison des processus}Un processus, que nous appellerons le \textit{parent}, peut en créer un autre, que nous appellerons l'\textit{enfant}. Lors de cette création, un nouveau Bloc de Contrôle de Processus (PCB) est alloué et initialisé. Pour mieux comprendre, vous pouvez exécuter la commande 'ps auxwww' dans le terminal ; PPID est l'ID du processus parent.\subsection{Héritage des attributs}Dans le standard POSIX, le processus enfant hérite de la plupart des attributs du processus parent. Cela inclut l'ID utilisateur (UID), les fichiers ouverts (qui devraient être fermés s'ils ne sont pas nécessaires ; pourquoi ?), le répertoire de travail courant (cwd), etc.\subsection{Exécution et mouvement des PCB}Pendant l'exécution, le PCB se déplace entre différentes files d'attente, en fonction du graphique de changement d'état. Ces files d'attente peuvent être : exécutable, sommeil/attente pour l'événement i (i=1,2,3…).\subsection{Terminaison d'un processus}Après qu'un processus meurt (soit par une sortie normale, soit par une interruption), il devient un \textit{zombie}. Le processus parent utilise l'appel système wait* pour effacer le zombie du système (pourquoi ?). La famille d'appels système wait comprend : wait, waitpid, waitid, wait3, wait4. Par exemple, la syntaxe de wait4 est la suivante :\begin{lstlisting}[language=C]pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);\end{lstlisting}Le processus parent peut soit attendre que son enfant termine, soit s'exécuter en parallèle. L'appel système wait*() bloquera à moins que WNOHANG ne soit donné dans 'options'. Pour plus d'informations, vous pouvez consuliter la page de manuel 'man 2 wait'.  
+
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf(“parent=%d son=%d\n”,
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf(“parent=%d son=%d\n”,
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror(“fork() failed”); 
+  }
+  return 0;
+}
+• fork() initializes a new PCB
+– Based on parent’s value
+– PCB added to runnable queue
+• Now there are 2 processes
+– At same execution point
+• Child’s new address space 
+– Complete copy of parent’s 
+space, with one difference…
+• fork() returns twice
+– At the parent, with pid>0
+– At the child, with pid=0
+• What’s the printing order?
+• ‘errno’ – a global variable
+– Holds error num of last syscall
+OS (234123) - processes & signals
+8
+fork() – spawn a child process
+
+
+\section*{Fiche Récapitulative}
+\section{Création et terminaison des processus}
+
+Dans un système d'exploitation, un processus, que nous appellerons le \textit{parent}, peut en créer un autre, que nous appellerons l'\textit{enfant}. Lors de cette création, un nouveau Bloc de Contrôle de Processus (PCB) est alloué et initialisé. Pour mieux comprendre, vous pouvez exécuter la commande 'ps auxwww' dans le terminal ; PPID est l'ID du processus parent.
+
+\subsection{Héritage des attributs}
+
+Dans le standard POSIX, le processus enfant hérite de la plupart des attributs du processus parent. Cela inclut l'ID utilisateur (UID), les fichiers ouverts (qui devraient être fermés s'ils ne sont pas nécessaires ; pourquoi ?), le répertoire de travail courant (cwd), etc.
+
+\subsection{Exécution et mouvement des PCB}
+
+Pendant l'exécution, le PCB se déplace entre différentes files d'attente, en fonction du graphique de changement d'état. Ces files d'attente peuvent être : exécutable, sommeil/attente pour l'événement i (i=1,2,3…).
+
+\subsection{Terminaison d'un processus}
+
+Après qu'un processus meurt (soit par une sortie normale, soit par une interruption), il devient un \textit{zombie}. Le processus parent utilise l'appel système wait* pour effacer le zombie du système (pourquoi ?). La famille d'appels système wait comprend : wait, waitpid, waitid, wait3, wait4. Par exemple, la syntaxe de wait4 est la suivante :
+
+Le processus parent peut soit attendre que son enfant termine, soit s'exécuter en parallèle. L'appel système wait*() bloquera à moins que WNOHANG ne soit donné dans 'options'. Pour plus d'informations, vous pouvez consulter la page de manuel 'man 2 wait'.
+
+\end{document}

@@ -1,0 +1,176 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{saea}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\subsection{Objectif : Digitalisation}
+
+Vous disposez d'un signal réel et souhaitez le représenter dans un ordinateur. Cela implique certaines contraintes, notamment un nombre fini de valeurs pour représenter l'ensemble du signal $N$. Chaque valeur ne peut pas prendre n'importe quelle valeur réelle, mais doit être l'une des $k$ valeurs quantifiées fixes, où $b = \log_2(k)$.
+
+% FIGURE: Illustration de la digitalisation avec des images de la Mona Lisa
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+Imaginez que vous essayez de dessiner un tableau célèbre avec un nombre limité de couleurs et de pixels. Plus vous avez de pixels et de nuances, plus votre représentation sera fidèle à l'original.
+\end{tcolorbox}
+
+\subsection{Processus de Digitalisation}
+
+Le processus de digitalisation peut être illustré par trois étapes : le signal continu, le signal échantillonné et le signal digitalisé (échantillonné et quantifié).
+
+% FIGURE: Illustration du processus de digitalisation avec des graphiques 3D
+
+\subsection{Échantillonnage et Quantification}
+
+L'échantillonnage consiste à prendre des valeurs discrètes d'un signal continu, tandis que la quantification consiste à limiter ces valeurs à un ensemble fini de niveaux.
+
+% FIGURE: Illustration de l'échantillonnage et de la quantification
+
+\section{Échantillonnage}
+
+\subsection{Concept d'Échantillonnage}
+
+Le signal $\varphi(x)$ est décrit par ses valeurs pour tous les $x$. Cependant, représenter $\varphi$ nécessite une infinité de valeurs $\varphi(x)$. L'objectif est de trouver un ensemble fini de nombres $\hat{\varphi}_1, \ldots, \hat{\varphi}_N$ pour représenter approximativement $\varphi$.
+
+\begin{tcolorbox}[colback=red!5!white, colframe=red!75!black, title={\faBookmark\hspace{0.5em}Fiche Récapitulative}]
+\textbf{Objectif :} Résumer le concept principal de l'échantillonnage.
+
+\textbf{Principe central :} Trouver un ensemble fini de valeurs pour représenter un signal continu.
+
+\vspace{0.4em}
+\textbf{Points essentiels :}  
+- Échantillonnage du signal
+- Quantification des valeurs
+- Représentation discrète
+
+\vspace{0.4em}
+\textbf{Formules clés :}  
+\begin{itemize}
+\item $\hat{\varphi}_i = \text{valeurs échantillonnées}$
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Stratégies d'Échantillonnage}
+
+Il n'existe pas d'unicité dans les stratégies d'échantillonnage et de reconstruction. Une stratégie courante consiste à mailler le domaine et à effectuer une reconstruction constante par morceaux.
+
+% FIGURE: Illustration de la stratégie d'échantillonnage avec un maillage et une reconstruction
+
+\subsection{Choix dans ce Tutoriel}
+
+Dans ce tutoriel, nous fixons la grille 1D pour un échantillonnage uniforme et la stratégie de reconstruction constante par intervalle de grille.
+
+\section{Critère $L^2$}
+
+\subsection{Erreur Quadratique Moyenne (MSE)}
+
+Le MSE total est défini par :
+
+\begin{equation}
+MSE = \int_0^1 (\varphi(x) - \hat{\varphi}(x))^2 dx
+\end{equation}
+
+Le MSE local est donné par :
+
+\begin{equation}
+MSE_i = \frac{1}{\Delta} \int_{I_i} (\varphi(x) - \hat{\varphi}_i)^2 dx
+\end{equation}
+
+\subsection{Condition d'Optimalité}
+
+La différenciation du MSE par rapport à $\hat{\varphi}_i$ donne la condition d'optimalité :
+
+\begin{equation}
+\frac{\partial}{\partial \hat{\varphi}_i} MSE = 0 \implies \hat{\varphi}_i = \frac{1}{\Delta} \int_{(i-1)\Delta}^{i\Delta} \varphi(x) dx
+\end{equation}
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+Pour minimiser l'erreur, il faut choisir les valeurs échantillonnées comme la moyenne locale du signal sur chaque intervalle d'échantillonnage.
+\end{tcolorbox}
+
+\section{Critère $L^1$}
+
+\subsection{Déviation Absolue Moyenne (MAD)}
+
+Le MAD total est défini par :
+
+\begin{equation}
+MAD = \int_0^1 |\varphi(x) - \hat{\varphi}(x)| dx
+\end{equation}
+
+\subsection{Condition d'Optimalité}
+
+La condition d'optimalité pour le MAD implique l'utilisation de sous-différentiels :
+
+\begin{equation}
+\exists s, \frac{\partial}{\partial \hat{\varphi}_i} MAD = 0 \iff \exists s, \int_{I_i} \varphi(x) < \hat{\varphi}_i \, dx = \int_{I_i} \varphi(x) > \hat{\varphi}_i \, dx + s \int_{I_i} \varphi(x) = \hat{\varphi}_i \, dx
+\end{equation}
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+Pour minimiser la déviation absolue, les échantillons optimaux sont les médianes locales sur chaque intervalle d'échantillonnage.
+\end{tcolorbox}
+
+\section{Exemples}
+
+\subsection{Exemple 1}
+
+Pour $\varphi(x) = x$, l'échantillonnage $L^2$ et $L^1$ donne des résultats différents en termes de MSE et MAD.
+
+% FIGURE: Illustration de l'exemple 1 avec calculs
+
+\subsection{Exemple 2}
+
+Pour une fonction définie par morceaux, les résultats de l'échantillonnage $L^2$ et $L^1$ sont comparés.
+
+% FIGURE: Illustration de l'exemple 2 avec calculs
+
+\section{Échantillonnage dans le Monde Discret}
+
+L'échantillonnage dans le monde discret est possible par sous-échantillonnage, où les échantillons optimaux sont les moyennes sur les intervalles discrets.
+
+% FIGURE: Illustration de l'échantillonnage dans le monde discret
+
+\end{document}

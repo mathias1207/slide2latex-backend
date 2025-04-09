@@ -1,0 +1,224 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{fourier}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\subsection{Signals and Systems in Continuous Time}
+
+\begin{center}
+% FIGURE: Diagram of a system with input $x(t)$ and output $y(t)$
+\end{center}
+
+The input signal $x(t)$ is defined for $t \in (-\infty, \infty)$ and is a periodic extension of a signal defined over a limited interval with period $T$. The output signal $y(t) = \mathcal{H} \circ x(t)$ is also defined for $t \in (-\infty, \infty)$.
+
+\subsection{Properties of Systems}
+
+The system $\mathcal{H}$ is said to be \textit{linear} if:
+
+\begin{equation}
+\mathcal{H}(k_1 x_1(t) + k_2 x_2(t)) = k_1 \mathcal{H}(x_1(t)) + k_2 \mathcal{H}(x_2(t)) = k_1 y_1(t) + k_2 y_2(t)
+\end{equation}
+
+The system $\mathcal{H}$ is said to be \textit{shift-invariant} if:
+
+\begin{equation}
+\mathcal{H}(\mathcal{T}_{t_0}(x(t))) = \mathcal{T}_{t_0}(y(t)) \quad \text{where} \quad \mathcal{T}_{t_0}(x(t)) = x(t - t_0)
+\end{equation}
+
+\subsection{Examples}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+System & Linear & Shift-Invariant \\
+\hline
+$y(t) = x^2(t)$ &  &  \\
+$y(t) = x(t) + a$ &  &  \\
+$y(t) = ax(t)$ & \checkmark & \checkmark \\
+Optimal sampling &  &  \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Linear Shift-Invariant Systems}
+
+\subsection{Input Signal and System}
+
+The input signal $x(t)$ is defined for $t \in (-\infty, \infty)$ and is a periodic extension of a signal defined over a limited interval with period 1.
+
+\begin{center}
+% FIGURE: Diagram of a system with input $x(t)$ and output $y(t)$
+\end{center}
+
+The system $\mathcal{H}$ has an impulse response $\tilde{h}(t)$ with a basic period such that $\tilde{h} : [0,1) \rightarrow \mathbb{R}$. This impulse response is periodically extended into $h(t)$.
+
+\section{Convolution Systems}
+
+Consider an input signal $x(t)$ defined for $t \in [0,1]$. The convolution system is given by:
+
+\begin{equation}
+y(t) = \int_0^1 x(\tau) h(t - \tau) d\tau
+\end{equation}
+
+We use here the orthonormal family of Fourier functions, defined over $[0,1)$ for $k \in \mathbb{Z}$:
+
+\begin{equation}
+\beta_k^F(t) = \exp(i2\pi kt)
+\end{equation}
+
+\section{Fourier-based Analysis of Systems}
+
+Using the Fourier family, the representations are:
+
+\begin{align}
+x(t) &= \sum_{k=-\infty}^{\infty} a_k \beta_k^F(t) \\
+a_k &= \langle \beta_k^F, x \rangle = \int_0^1 x(t) \exp(-i2\pi kt) dt
+\end{align}
+
+\begin{align}
+h(t) &= \sum_{k=-\infty}^{\infty} b_k \beta_k^F(t) \\
+b_k &= \langle \beta_k^F, h \rangle = \int_0^1 h(t) \exp(-i2\pi kt) dt
+\end{align}
+
+\subsection{Convolution Systems}
+
+The convolution system is expressed as:
+
+\begin{align}
+y(t) &= \int_0^1 x(\tau) h(t - \tau) d\tau \\
+&= \sum_{k=-\infty}^{\infty} a_k b_k \beta_k^F(t)
+\end{align}
+
+\begin{equation}
+c_k = a_k b_k
+\end{equation}
+
+\section{Derivation System}
+
+Consider an input signal $x(t)$ defined for $t \in [0,1]$. The derivation system is:
+
+\begin{equation}
+y(t) = \frac{d}{dt} x(t)
+\end{equation}
+
+with boundary values obeying the cyclic continuity: $x(0) = x(1)$.
+
+\begin{equation}
+c_k = i2\pi k a_k
+\end{equation}
+
+\section{DFT}
+
+The Discrete Fourier Transform (DFT) matrix is given by:
+
+\begin{equation}
+[\text{DFT}] = \frac{1}{\sqrt{N}}
+\begin{bmatrix}
+W^{*0 \cdot 0} & W^{*1 \cdot 0} & \cdots & W^{*(N-1) \cdot 0} \\
+W^{*0 \cdot 1} & W^{*1 \cdot 1} & \cdots & W^{*(N-1) \cdot 1} \\
+\vdots & \vdots & \ddots & \vdots \\
+W^{*0 \cdot (N-1)} & W^{*1 \cdot (N-1)} & \cdots & W^{*(N-1) \cdot (N-1)}
+\end{bmatrix}
+\end{equation}
+
+where $W = \exp\left(\frac{i2\pi}{N}\right)$. Note that the DFT matrix is symmetric and unitary.
+
+\section{Representation of a Discrete Signal in the DFT Domain}
+
+The representation of the discrete signal $\phi \in \mathbb{R}^N$ is:
+
+\begin{equation}
+\phi^F = [\text{DFT}] \phi
+\end{equation}
+
+Observe that:
+
+\begin{align}
+[\text{DFT}]^* \phi^F &= [\text{DFT}]^* [\text{DFT}] \phi \\
+[\text{DFT}]^* \phi^F &= \phi
+\end{align}
+
+Above is the inverse DFT procedure.
+
+\section{Example}
+
+Consider the following discrete signal of $N$ samples:
+
+For $n = 0, 1, 2, \ldots, (N-1)$, $\phi(n) = \cos\left(\frac{2\pi k_0}{N} n\right)$ where $k_0 \in \{0, 1, 2, \ldots, (N-1)\}$.
+
+The $k^{th}$ component of the DFT-domain representation of the above signal is:
+
+\begin{align}
+\phi^F(k) &= \frac{1}{\sqrt{N}} \sum_{n=0}^{N-1} W^{*k \cdot n} \phi(n) \\
+&= \frac{1}{\sqrt{N}} \left(\frac{1}{2} \sum_{n=0}^{N-1} W^{*k \cdot n} (W^{k_0 \cdot n} + W^{-k_0 \cdot n})\right)
+\end{align}
+
+When $k = k_0$:
+
+\begin{equation}
+\sum_{n=0}^{N-1} W^{*k \cdot n} (W^{k_0 \cdot n}) = N
+\end{equation}
+
+When $k \neq k_0$:
+
+\begin{equation}
+\sum_{n=0}^{N-1} W^{*k \cdot n} (W^{k_0 \cdot n}) = \frac{(W^{-(k-k_0)})^N - 1}{W^{-(k-k_0)} - 1} = 0
+\end{equation}
+
+Similarly:
+
+\begin{equation}
+\phi^F(k) = \frac{1}{\sqrt{N}} \left(\frac{\sqrt{N}}{2} (\delta_{k,k_0} + \delta_{k,-k_0})\right)
+\end{equation}
+
+For example, for $N = 9$ and $k_0 = 3$, the vector of DFT coefficients is:
+
+\begin{equation}
+\left[0, 0, 0, \frac{3}{2}, 0, 0, \frac{3}{2}, 0, 0\right]^\top
+\end{equation}
+
+\end{document}

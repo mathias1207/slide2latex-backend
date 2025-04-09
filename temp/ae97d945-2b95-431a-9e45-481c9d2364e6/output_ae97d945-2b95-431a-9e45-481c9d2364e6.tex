@@ -1,0 +1,111 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{lam}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+sub\section{Bienvenue au cours IML@2025w}
+
+Le personnel du cours est composé de plusieurs membres clés. Le conférencier principal est Yonatan Belinkov, assisté par le chef des assistants Arkadi Piven. Les assistants pédagogiques incluent Edan Kinderman, Yonatan Elul et Eden Nagar. Les correcteurs sont également présents pour soutenir le cours.
+
+\textbf{Ressources du cours :}
+\begin{itemize}
+    item \textbf{Site web :} url{https://webcourse.cs.technion.ac.il/236756/}
+    item \textbf{Piazza :} url{http://piazza.com/technion.ac.il/winter2025/236766}
+    item \textbf{Email du cours :} h\ref{mailto:236756ML@gmail.com}{236756ML@gmail.com}
+\end{itemize}
+
+sub\section{Assistance}
+
+Pour les étudiants en service de réserve (Miluim), il est conseillé de contacter rapidement le personnel du cours à l'adresse h\ref{mailto:236756ML@gmail.com}{236756ML@gmail.com} et le département (mazkirut). Si vous avez besoin d'aide pour d'autres raisons, n'hésitez pas à nous contacter.
+
+\section{Structure du cours}
+
+sub\section{Enseignement}
+
+Le cours est structuré autour de plusieurs éléments clés :
+\begin{itemize}
+    item \textbf{Cours (שיעור) :} hebdomadaire, 2 heures (en ligne jusqu'à nouvel ordre)
+    item \textbf{Tutoriel (תרגול) :} hebdomadaire, 2 heures (quatre groupes, en ligne jusqu'à nouvel ordre)
+\end{itemize}
+
+Cette année, une heure de tutorat supplémentaire est ajoutée pour offrir plus d'explications, d'exercices et de questions d'examen, sans introduire de nouveau matériel.
+
+sub\section{Devoirs et Examens}
+
+Les devoirs sont divisés en deux catégories :
+\begin{itemize}
+    item \textbf{Exercices pratiques :} 3 au total
+    item \textbf{Exercices théoriques :} 4 au total
+\end{itemize}
+
+\textbf{Politique de notation :}
+\begin{itemize}
+    item \textbf{Exercices pratiques :} 18\% de la note finale (6\% chacun), obligatoires, réalisés en binôme
+    item \textbf{Exercices théoriques :} 8\% de la note finale, obligatoires, réalisés individuellement
+    item \textbf{Examen :} 74\% de la note finale, un score minimum de 55 est requis pour réussir le cours
+\end{itemize}
+
+\section{Format}
+
+Conformément aux directives actuelles du Technion, le cours sera dispensé en ligne jusqu'à nouvel ordre. Les cours seront enregistrés, mais le matériel de cours obligatoire est celui donné dans les cours et les récitations actuels. Nous vous encourageons fortement à assister régulièrement aux cours, car cela apporte une valeur ajoutée qui ne peut être obtenue autrement, même virtuellement.
+
+\section{Vue d'ensemble}
+
+L'apprentissage automatique est un domaine passionnant et très compétitif. Il ne suffit pas de connaître le matériel théorique, une compréhension approfondie de son fonctionnement est essentielle. Notre cours mis à jour est à la fois théorique et appliqué, s'appuyant sur des connaissances préalables en probabilité et en algèbre linéaire. Il cible les fondamentaux de l'apprentissage automatique, conçu pour vous donner un avantage.
+
+sub\section{Objectifs}
+
+Nos objectifs pour les étudiants incluent une compréhension approfondie de l'apprentissage, la connaissance du fonctionnement des choses, et la capacité à anticiper et déboguer. Il est crucial de comprendre les hypothèses, les nécessités, les pouvoirs et les limitations. Le domaine de l'apprentissage automatique évolue rapidement, soyez toujours en avance !
+
+\begin{tcolorbox}[title={À retenir}]
+L'apprentissage automatique est un domaine en pleine croissance qui nécessite une compréhension approfondie et une adaptation continue.
+\end{tcolorbox}
+
+% FIGURE: Image des fondations conceptuelles
+% FIGURE: Image d'un étudiant concentré
+
+\end{document}

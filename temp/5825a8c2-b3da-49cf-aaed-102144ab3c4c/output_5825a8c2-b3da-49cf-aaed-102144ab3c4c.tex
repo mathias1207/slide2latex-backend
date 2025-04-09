@@ -1,0 +1,91 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{osjpm}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+section{Processus de Création et de Terminaison}
+
+Un processus, appelé le "parent", peut en créer un autre, appelé l'"enfant". Lors de cette création, un nouveau PCB (Process Control Block) est alloué et initialisé. Par exemple, vous pouvez exécuter la commande \texttt{ps auxwww} dans le shell pour voir que le PPID est l'identifiant du processus parent.
+
+En POSIX, le processus enfant hérite de la plupart des attributs du parent, tels que l'UID, les fichiers ouverts (qui devraient être fermés si inutiles), le répertoire de travail courant, etc.
+
+Pendant l'exécution, le PCB se déplace entre différentes files d'attente selon le graphe de changement d'état. Les files d'attente incluent les états exécutable, en sommeil/attente pour un événement i (i=1,2,3...).
+
+Après la mort d'un processus (par \texttt{exit()} ou interruption), il devient un zombie. Le parent utilise l'appel système \texttt{wait*} pour nettoyer le zombie du système. La famille d'appels système \texttt{wait} inclut \texttt{wait}, \texttt{waitpid}, \texttt{waitid}, \texttt{wait3}, et \texttt{wait4}. Par exemple :
+
+\begin{lstlisting}
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+\end{lstlisting}
+
+Le parent peut dormir/attendre que son enfant termine ou s'exécute en parallèle. L'appel \texttt{wait*()} bloquera sauf si \texttt{WNOHANG} est donné dans les options. Pour approfondir, consultez \texttt{man 2 wait}.
+
+section{texttt{fork()} - Génération d'un Processus Enfant}
+
+La fonction \texttt{fork()} initialise un nouveau PCB basé sur la valeur du parent, et le PCB est ajouté à la file d'attente des processus exécutables. À ce stade, il y a deux processus au même point d'exécution.
+
+L'espace d'adressage du nouvel enfant est une copie complète de celui du parent, avec une différence notable. La fonction \texttt{fork()} retourne deux fois : une fois au parent avec un \texttt{pid} supérieur à zéro, et une fois à l'enfant avec un \texttt{pid} égal à zéro.
+
+textbf{Quel est l'ordre d'impression ?} La variable globale \texttt{errno} contient le numéro d'erreur de la dernière appel système.
+
+\begin{lstlisting}
+int main(int argc, char *argv[])
+{
+    int pid = fork();
+    if( pid==0 ) {
+        // Enfant
+        printf("parent=%d son=%dn", getppid(), getpid());
+    }
+    else if( pid > 0 ) {
+        // Parent
+        printf("parent=%d son=%dn", getpid(), pid);
+    }
+    else { // Afficher la chaine associee a errno
+        perror("fork() failed");
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\end{document}

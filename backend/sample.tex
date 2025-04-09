@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+
+% Configuration simplifiée des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration de tcolorbox
+\tcbuselibrary{most}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{Document de test}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+Ceci est un document de test pour vérifier que la compilation LaTeX fonctionne correctement.
+
+\begin{tcolorbox}[title={Test de boîte}]
+Contenu de la boîte de test.
+\end{tcolorbox}
+
+\section{Formules mathématiques}
+\begin{equation}
+E = mc^2
+\end{equation}
+
+\section{Code}
+\begin{lstlisting}
+// Test de code
+function test() {
+    console.log("Hello, world!");
+}
+\end{lstlisting}
+
+\end{document} 

@@ -1,0 +1,9 @@
+\babel@toc {english}{}\relax 
+\contentsline {section}{\numberline {0.1}Introduction}{2}{}%
+\contentsline {section}{\numberline {0.2}Process Creation and Termination}{2}{}%
+\contentsline {subsection}{\numberline {0.2.1}Inheritance in POSIX}{2}{}%
+\contentsline {subsection}{\numberline {0.2.2}Process Execution and State Changes}{2}{}%
+\contentsline {subsection}{\numberline {0.2.3}Process Termination}{2}{}%
+\contentsline {section}{\numberline {0.3}Création d'un processus enfant avec fork()}{3}{}%
+\contentsline {subsection}{\numberline {0.3.1}Fonctionnement de fork()}{3}{}%
+\contentsline {subsection}{\numberline {0.3.2}Gestion des erreurs avec errno}{3}{}%

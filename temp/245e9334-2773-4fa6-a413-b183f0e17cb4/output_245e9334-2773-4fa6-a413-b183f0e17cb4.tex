@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage[version=4]{mhchem}
+\usepackage{stmaryrd}
+\graphicspath{ {./images/} }
+\usepackage{float}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{amsthm}
+\usepackage{pifont}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+\usepackage{hyperref}
+\usepackage[french]{babel}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Preuve de \(\delta(g(t)) = \frac{\delta(t)}{|g'(0)|}\)}
+
+\textbf{Preuve.} Par définition, nous avons que
+\begin{equation}
+\int_{\mathbb{R}} \delta(t)f(t)dt = f(0).
+\end{equation}
+
+Sans perte de généralité, supposons que \(g(0) = 0\) et que \(g\) est localement lisse. Ensuite, soit \(t = g(v)\), alors \(\frac{\partial t}{\partial v} = g'(v)\), et \(dt = |g'(v)|dv\), où nous avons supposé sans perte de généralité la monotonie autour de 0. En changeant \(t\) pour \(v\) dans l'équation \eqref{1}, nous avons
+
+\begin{align}
+\int_{\mathbb{R}} \delta(g(v))f(v)dv &= \int_{g(\mathbb{R})} \delta(t)f(g^{-1}(t))dg^{-1}(t) \\
+&= \int_{g(\mathbb{R})} \frac{\delta(t)}{|g'(g^{-1}(t))|} dt \\
+&= \frac{f(0)}{|g'(0)|} \\
+&= \int_{\mathbb{R}} \frac{\delta(t)}{|g'(0)|} f(v)dv
+\end{align}
+
+Ainsi, \(\delta(g(v)) = \frac{\delta(t)}{|g'(0)|}\).
+\hfill \qedsymbol
+
+\end{document}

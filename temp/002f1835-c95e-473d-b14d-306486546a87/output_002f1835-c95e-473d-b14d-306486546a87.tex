@@ -1,0 +1,364 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[version=4]{mhchem}
+\usepackage{hyperref}
+\usepackage{stmaryrd}
+\graphicspath{ {./images/} }
+\usepackage{float}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{fontawesome}
+\usepackage{amsthm}
+\usepackage{pifont}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+\usepackage[french]{babel}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{fmf}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Fourier Family}
+
+Consider the Fourier family of orthonormal functions:
+
+\[
+\{\ldots, \beta_{-2}^F(t), \beta_{-1}^F(t), \beta_0^F(t), \beta_1^F(t), \beta_2^F(t), \ldots\}
+\]
+
+where for \( k \in \mathbb{Z} \):
+
+\[
+\beta_k^F(t) := \exp(i2\pi kt) \quad \text{for } t \in [0,1].
+\]
+
+Recall that \( i^2 := -1 \) and that 
+
+\[
+\exp(i2\pi kt) = e^{i2\pi kt} = \cos(2\pi kt) + i \sin(2\pi kt).
+\]
+
+Are the functions orthonormal?
+
+\subsection{Orthonormality Check}
+
+Note that the inner-product is defined as:
+
+\[
+\langle \beta_k^F, \beta_l^F \rangle = \int_0^1 \beta_k^{F*}(t) \beta_l^F(t) \, dt
+\]
+
+When \( k = l \):
+
+\[
+\langle \beta_k^F, \beta_l^F \rangle = \int_0^1 \beta_k^{F*}(t) \beta_k^F(t) \, dt = \int_0^1 e^{-i2\pi kt} e^{i2\pi kt} \, dt = \int_0^1 \exp(0) \, dt = 1
+\]
+
+When \( k \neq l \):
+
+\[
+\langle \beta_k^F, \beta_l^F \rangle = \int_0^1 e^{-i2\pi kt} e^{i2\pi lt} \, dt = \int_0^1 e^{i2\pi (l-k)t} \, dt
+\]
+
+\[
+= \int_0^1 \cos(2\pi (l-k)t) + i \sin(2\pi (l-k)t) \, dt = 0
+\]
+
+\begin{tcolorbox}[title={À retenir}]
+Les fonctions de la famille de Fourier sont orthonormales si et seulement si:
+
+\[
+\langle \beta_k^F(t), \beta_l^F(t) \rangle = \delta_{k,l} = 
+\begin{cases} 
+1, & k = l \\ 
+0, & \text{sinon.}
+\end{cases}
+\]
+\end{tcolorbox}
+
+\newpage
+
+\section{Signal Representation}
+
+Consider a function \( \phi : [0,1) \rightarrow \mathbb{R} \).
+
+Its optimal representation using the Fourier family is given by:
+
+\[
+\hat{\phi}^F(t) = \sum_{k=-N}^{N} \tilde{\phi}_k^F \beta_k^F(t)
+\]
+
+The corresponding optimal coefficients (in the sense of minimal MSE) are:
+
+\[
+\tilde{\phi}_k^F = \langle \beta_k^F, \phi \rangle = \int_0^1 \phi(t) e^{-i2\pi kt} \, dt
+\]
+
+The error term is defined by:
+
+\[
+\mathcal{E}(t) = \phi(t) - \hat{\phi}^F(t)
+\]
+
+The MSE is defined as:
+
+\[
+\|\mathcal{E}(t)\|^2 = \langle \mathcal{E}(t), \mathcal{E}(t) \rangle = \int_0^1 \left( \phi(t) - \hat{\phi}^F(t) \right) \left( \phi(t) - \hat{\phi}^F(t) \right)^* \, dt
+\]
+
+The minimal MSE obtained using the optimal coefficients is (prove!):
+
+\[
+\|\mathcal{E}(t)\|^2 = \int_0^1 \phi^2(t) \, dt - \sum_{k=-N}^{N} |\tilde{\phi}_k^F|^2
+\]
+
+\begin{tcolorbox}[colback=red!5!white, colframe=red!75!black, title={\faBookmark\hspace{0.5em}Fiche Récapitulative}]
+  
+\textbf{Objectif :} Résumer la représentation optimale d'un signal.
+
+\textbf{Principe central :} Utiliser la famille de Fourier pour représenter un signal de manière optimale.
+
+\vspace{0.4em}
+\textbf{Points essentiels :}  
+- Représentation optimale avec la famille de Fourier
+- Coefficients optimaux pour minimiser l'erreur quadratique moyenne
+- Définition de l'erreur et du MSE
+
+\vspace{0.4em}
+\textbf{Formules clés :}  
+\begin{itemize}
+\item \(\hat{\phi}^F(t) = \sum_{k=-N}^{N} \tilde{\phi}_k^F \beta_k^F(t)\)
+\item \(\tilde{\phi}_k^F = \int_0^1 \phi(t) e^{-i2\pi kt} \, dt\)
+\end{itemize}
+  
+\end{tcolorbox}
+
+\newpage
+
+\section{Conjugate-Symmetry of Representation}
+
+Note that we consider a function \( \phi : [0,1) \rightarrow \mathbb{R} \).
+
+The \( k \)-th coefficient:
+
+\[
+\tilde{\phi}_k^F = \langle \beta_k^F, \phi \rangle = \int_0^1 \phi(t) e^{-i2\pi kt} \, dt
+\]
+
+The \((-k)\)-th coefficient:
+
+\[
+\tilde{\phi}_{-k}^F = \langle \beta_{-k}^F, \phi \rangle = \int_0^1 \phi(t) e^{i2\pi kt} \, dt
+\]
+
+\[
+\tilde{\phi}_k^F = (\tilde{\phi}_{-k}^F)^*
+\]
+
+\newpage
+
+\section{Fourier Family}
+
+In general, the Fourier family of orthonormal functions is:
+
+\[
+\{\ldots, \alpha_{-2}^F(t), \alpha_{-1}^F(t), \alpha_0^F(t), \alpha_1^F(t), \alpha_2^F(t), \ldots\}
+\]
+
+where for \( k \in \mathbb{Z} \):
+
+\[
+\alpha_k^F(t) := \exp\left(\frac{i2\pi kt}{T}\right) \quad \text{for } t \in [0,T].
+\]
+
+Its optimal representation using the Fourier family is given by:
+
+\[
+\hat{\phi}^F(t) = \sum_{k=-N}^{N} \tilde{\phi}_k^F \alpha_k^F(t)
+\]
+
+\[
+\tilde{\phi}_k^F = \frac{1}{T} \int_0^T \phi(t) e^{-\frac{i2\pi kt}{T}} \, dt
+\]
+
+\newpage
+
+\section{Example}
+
+Consider Fourier family of orthonormal functions:
+
+\[
+\{\ldots, \alpha_{-2}^F(t), \alpha_{-1}^F(t), \alpha_0^F(t), \alpha_1^F(t), \alpha_2^F(t), \ldots\}
+\]
+
+where for \( k \in \mathbb{Z} \):
+
+\[
+\alpha_k^F(t) := \exp\left(\frac{i2\pi kt}{2}\right) \quad \text{for } t \in [0,2].
+\]
+
+Consider a real-valued signal \( \phi(t) = t^2 \) defined for \( t = [0,2) \).
+
+Its optimal representation using the Fourier family is given by:
+
+\[
+\hat{\phi}^F(t) = \sum_{k=-\infty}^{\infty} \tilde{\phi}_k^F \alpha_k^F(t)
+\]
+
+Assume the error signal is zero:
+
+\[
+\phi(t) = t^2 = \hat{\phi}^F(t) = \sum_{k=-\infty}^{\infty} \tilde{\phi}_k^F \alpha_k^F(t) \quad \text{for } t \in [0,2)
+\]
+
+What is the optimal coefficient \( \tilde{\phi}_0^F \)?
+
+Show that the optimal coefficient:
+
+\[
+\tilde{\phi}_k^F = \frac{2(1 + i\pi k)}{\pi^2 k^2} \quad \text{for } k \in \mathbb{Z} \text{ and } k \neq 0.
+\]
+
+Show that:
+
+\[
+\sum_{k=1}^{\infty} \frac{(-1)^{k+1}}{k^2} = \frac{\pi^2}{12}
+\]
+
+\newpage
+
+\subsection{Optimal Coefficient Calculation}
+
+What is the optimal coefficient \( \tilde{\phi}_0^F \)?
+
+\[
+\tilde{\phi}_0^F = \frac{1}{2} \int_0^2 \phi(t) e^{-\frac{i2\pi 0 t}{2}} \, dt
+\]
+
+\[
+= \frac{1}{2} \int_0^2 \phi(t) \, dt = \frac{1}{2} \int_0^2 t^2 \, dt = \frac{4}{3}
+\]
+
+\subsection{Show the Optimal Coefficient}
+
+Show that the optimal coefficient:
+
+\[
+\tilde{\phi}_k^F = \frac{2(1 + i\pi k)}{\pi^2 k^2} \quad \text{for } k \in \mathbb{Z} \text{ and } k \neq 0.
+\]
+
+\[
+\tilde{\phi}_k^F = \frac{1}{2} \int_0^2 \phi(t) e^{-\frac{i2\pi kt}{2}} \, dt = \frac{1}{2} \int_0^2 t^2 e^{-i\pi kt} \, dt
+\]
+
+\[
+= \frac{1}{2} \left( \left[ \frac{t^2 e^{-i\pi kt}}{-i\pi k} \right]_0^2 - \int_0^2 \frac{2}{-i\pi k} t e^{-i\pi kt} \, dt \right)
+\]
+
+\[
+= \frac{1}{2} \left( \frac{4}{-i\pi k} + \frac{2}{i\pi k} \frac{-2}{i\pi k} \right) = \frac{2(1 + i\pi k)}{\pi^2 k^2}
+\]
+
+\newpage
+
+\subsection{Show the Series Result}
+
+Show that:
+
+\[
+\sum_{k=1}^{\infty} \frac{(-1)^{k+1}}{k^2} = \frac{\pi^2}{12}
+\]
+
+Recall that the error signal is zero:
+
+\[
+\phi(t) = t^2 = \hat{\phi}^F(t) = \sum_{k=-\infty}^{\infty} \tilde{\phi}_k^F \alpha_k^F(t) \quad \text{for } t \in [0,2)
+\]
+
+Observe when \( t = 1 \):
+
+\[
+1 = \frac{4}{3} + \sum_{k=1}^{\infty} \frac{2(1 + i\pi k)}{\pi^2 k^2} e^{i\pi k} + \sum_{k=-\infty}^{-1} \frac{2(1 + i\pi k)}{\pi^2 k^2} e^{i\pi k}
+\]
+
+\[
+= \frac{4}{3} + \sum_{k=1}^{\infty} \frac{2(1 + i\pi k)}{\pi^2 k^2} (-1)^k + \sum_{k=1}^{\infty} \frac{2(1 - i\pi k)}{\pi^2 k^2} (-1)^k
+\]
+
+\[
+= \frac{4}{3} + \sum_{k=1}^{\infty} \frac{4}{\pi^2 k^2} (-1)^k
+\]
+
+\[
+\sum_{k=1}^{\infty} \frac{4}{\pi^2 k^2} (-1)^k = -\frac{1}{3}
+\]
+
+\[
+\sum_{k=1}^{\infty} \frac{4}{\pi^2 k^2} (-1)^{k+1} = \frac{1}{3}
+\]
+
+\[
+\sum_{k=1}^{\infty} \frac{(-1)^{k+1}}{k^2} = \frac{\pi^2}{12}
+\]
+
+\newpage
+
+\section{Fourier Transformation}
+
+\[
+\tilde{\phi}_k^F = \frac{1}{T} \int_0^T \phi(t) e^{-\frac{i2\pi kt}{T}} \, dt
+\]
+
+\begin{tabular}{|c|c|}
+\hline
+Signal & Fourier representation \\
+\hline
+\(\phi(t)\) & \(\tilde{\phi}_k^F\) \\
+\hline
+\(f(t) = \phi(t-a)\) & \(\tilde{f}_k^F = ?\) \\
+\hline
+\(g(t) = \phi(at)\) & \(\tilde{g}_k^F = ?\) \\
+\hline
+\(h(t) = \phi(t)\exp(iat)\) & \(\tilde{h}_k^F = ?\) \\
+\hline
+\end{tabular}
+
+\end{document}

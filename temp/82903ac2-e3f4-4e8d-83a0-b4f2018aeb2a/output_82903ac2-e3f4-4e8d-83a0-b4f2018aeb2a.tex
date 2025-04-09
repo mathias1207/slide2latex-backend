@@ -1,0 +1,159 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{pca}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction à l'analyse en composantes principales (PCA)}
+
+\subsection{Qu'est-ce que la PCA ?}
+
+L'analyse en composantes principales (PCA) est une méthode statistique qui permet de transformer des données en un ensemble de valeurs de variables non corrélées appelées composantes principales. Elle est utilisée pour réduire la dimensionnalité des données tout en préservant autant que possible la variance présente dans les données d'origine.
+
+\begin{tcolorbox}[title={Intuition}]
+La PCA peut être vue comme une méthode pour identifier les directions principales dans lesquelles les données varient le plus. Cela permet de simplifier les données tout en conservant leur structure essentielle.
+\end{tcolorbox}
+
+\subsection{Historique}
+
+La PCA a été inventée en 1901 par Karl Pearson comme une analogie du théorème de l'axe principal en mécanique. Elle a été développée indépendamment et nommée par Harold Hotelling dans les années 1930. Selon le domaine d'application, elle est également appelée transformation discrète de Karhunen-Loève, transformation de Hotelling, décomposition orthogonale propre, décomposition en valeurs singulières, et bien d'autres.
+
+\begin{tcolorbox}[colback=red!5!white, colframe=red!75!black, title={\faBookmark\hspace{0.5em}Fiche Récapitulative}]
+  
+\textbf{Objectif :} Résumer le concept principal de la PCA.
+
+\textbf{Principe central :} Réduire la dimensionnalité des données tout en préservant la variance.
+
+\vspace{0.4em}
+\textbf{Points essentiels :}  
+- Réduction de dimension
+- Préservation de la variance
+- Transformation des données
+
+\vspace{0.4em}
+\textbf{Formules clés :}  
+\begin{itemize}
+\item $X = U \Sigma V^T$
+\item $C = U \Lambda U^T$
+\end{itemize}
+  
+\end{tcolorbox}
+
+\subsection{Perspective géométrique}
+
+L'objectif est de trouver les directions principales intrinsèques des données. Cela implique de trouver une base orthonormale le long des directions principales.
+
+% FIGURE: Distribution des données et directions principales
+
+\begin{tcolorbox}[title={Intuition}]
+Iterativement, on cherche la direction principale de "dispersion" des données.
+\end{tcolorbox}
+
+\subsection{Perspective algorithmique}
+
+L'algorithme commun de la PCA commence par des données $X \in \mathbb{R}^D$ prises d'une distribution avec des statistiques d'ordre connues. Les directions principales sont les vecteurs propres triés de la matrice de covariance.
+
+\begin{align}
+E(X) &= \mu \\
+E((X - \mu)(X - \mu)^T) &= C
+\end{align}
+
+\begin{tcolorbox}[title={À retenir}]
+Les directions principales sont obtenues par la décomposition spectrale de la matrice de covariance.
+\end{tcolorbox}
+
+\section{Transformation PCA}
+
+Réécrire les données dans la nouvelle base PCA implique un changement de base :
+
+\begin{equation}
+Y = U^T (X - \mu)
+\end{equation}
+
+% FIGURE: Transformation des données dans la base PCA
+
+\section{PCA et réduction de dimensionnalité}
+
+La PCA est une approximation à k termes dans la base PCA. Le choix de $d$ peut être basé sur la couverture de la variance ou une sélection fixe pour les visualisations.
+
+\begin{align}
+Y_d &= U_d^T (X - \mu) \\
+d &= \min_k \left( \frac{\sum_{i=1}^{k} \lambda_i}{\sum_{i=1}^{D} \lambda_i} \geq \alpha \right)
+\end{align}
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+La PCA permet de simplifier les données en réduisant le nombre de dimensions tout en conservant l'essentiel de l'information.
+\end{tcolorbox}
+
+\section{Exercices}
+
+\subsection{Exercice 1}
+
+Considérons un signal aléatoire $\varphi \in \mathbb{R}^3$ avec une matrice d'autocorrélation :
+
+\begin{equation}
+R_\varphi = \begin{pmatrix}
+1 - \alpha & -\frac{\alpha}{2} & -\frac{\alpha}{2} \\
+-\frac{\alpha}{2} & 1 - \alpha & -\frac{\alpha}{2} \\
+-\frac{\alpha}{2} & -\frac{\alpha}{2} & 1 - \alpha
+\end{pmatrix}
+\end{equation}
+
+\subsection{Exercice 2}
+
+Considérons un signal aléatoire $\varphi \in \mathbb{R}^3$ avec une matrice d'autocorrélation :
+
+\begin{equation}
+R_\varphi = \begin{pmatrix}
+1 - \alpha & -\alpha & 0 \\
+-\alpha & 1 & -\alpha \\
+0 & -\alpha & 1 - \alpha
+\end{pmatrix}
+\end{equation}
+
+\begin{tcolorbox}[title={À retenir}]
+Les matrices d'autocorrélation peuvent être utilisées pour déterminer la décomposition PCA d'un signal.
+\end{tcolorbox}
+
+\end{document}

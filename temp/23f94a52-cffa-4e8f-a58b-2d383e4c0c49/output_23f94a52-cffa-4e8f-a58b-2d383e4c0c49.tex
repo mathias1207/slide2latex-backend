@@ -1,0 +1,98 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{lam}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+sub\section{Bienvenue au cours IML@2025w}
+
+Le personnel du cours est composé de plusieurs membres clés. Le conférencier principal est Yonatan Belinkov, assisté par Arkadi Piven en tant qu'assistant principal. Les assistants pédagogiques incluent Edan Kinderman, Yonatan Elul et Eden Nagar. Les correcteurs seront annoncés ultérieurement.
+
+Le site web du cours est accessible à l'adresse suivante : url{https://webcourse.cs.technion.ac.il/236756/}. Pour les questions académiques, veuillez utiliser Piazza : url{http://piazza.com/technion.ac.il/winter2025/236766}. Pour toute question personnelle, contactez-nous par email à url{236756ML@gmail.com}.
+
+sub\section{Assistance}
+
+Si vous avez besoin d'aide, notamment pour le service de réserve (Miluim), contactez dès que possible le personnel du cours à url{236756ML@gmail.com} et le département (mazkirut). Pour toute autre aide liée à la guerre ou pour toute autre raison, n'hésitez pas à nous contacter.
+
+\section{Structure du cours}
+
+sub\section{Enseignement}
+
+Le cours comprend des classes hebdomadaires de 2 heures, actuellement en ligne jusqu'à nouvel ordre. Les tutoriels, également hebdomadaires et d'une durée de 2 heures, sont divisés en quatre groupes et se déroulent en ligne jusqu'à nouvel avis. Cette année, une heure de tutorat supplémentaire est ajoutée pour offrir plus d'explications, d'exercices et de questions d'examen, sans nouveau matériel.
+
+sub\section{Devoirs et Examens}
+
+Les exercices pratiques (wet exercises) représentent 18\% de la note finale, répartis sur trois exercices de programmation obligatoires à réaliser en binôme. Les exercices théoriques (dry exercises) comptent pour 8\% de la note finale, avec quatre devoirs à réaliser individuellement. L'examen final constitue 74\% de la note, avec une note minimale de 55 pour réussir le cours.
+
+\section{Format}
+
+Conformément aux directives actuelles du Technion, le cours est dispensé en ligne jusqu'à nouvel ordre. Les cours seront enregistrés, mais le matériel de cours obligatoire est celui présenté lors des cours et des récitations actuels. Nous vous encourageons vivement à assister régulièrement aux cours, car cela apporte une valeur ajoutée qui ne peut être obtenue autrement, même virtuellement.
+
+\section{Aperçu}
+
+sub\section{Importance de l'apprentissage automatique}
+
+L'apprentissage automatique est un domaine passionnant et hautement compétitif. Une simple connaissance théorique ne suffit pas ; une compréhension approfondie de son fonctionnement est essentielle. Notre cours actualisé est à la fois théorique et appliqué, s'appuyant sur des connaissances préalables en probabilité et en algèbre linéaire. Il vise à vous donner un avantage en ciblant les fondamentaux de l'apprentissage automatique.
+
+sub\section{Exigences du cours}
+
+Ce cours n'est pas facile : il est intensif et rapide, utilise et combine divers outils, propose des devoirs exigeants et nécessite une adaptation à une certaine façon de penser. Pour réussir, assistez aux cours si possible, faites vos devoirs pratiques et théoriques, concentrez-vous sur la compréhension et évitez les raccourcis.
+
+\section{Objectifs}
+
+sub\section{Objectifs pour les étudiants}
+
+Nos objectifs pour les étudiants incluent la compréhension approfondie de l'apprentissage, le fonctionnement des concepts et la création d'un modèle mental clair pour planifier, anticiper et déboguer. Il est crucial de comprendre les hypothèses, leur nécessité, leur puissance et leurs limitations, sans se laisser éblouir par le battage médiatique. L'apprentissage automatique est un domaine en rapide évolution, soyez toujours en avance !
+
+sub\section{Développement des fondations}
+
+Notre objectif principal est de développer des fondations solides, comprenant un cadre conceptuel, des méthodes et des outils.
+
+% FIGURE: Image des fondations conceptuelles
+
+% FIGURE: Image de différenciation
+
+\end{document}

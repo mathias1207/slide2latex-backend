@@ -1,0 +1,108 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+              {\_}{\_}1
+              {-}{-}1,
+    escapechar=@,
+    texcl=true
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Protection des underscores dans le texte
+\usepackage{underscore}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{osj}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : osj
+  \section{Process Creation and Termination}    One process, referred to as the parent, can create another process, referred to as the child. This is achieved through the allocation and initialization of a new Process Control Block (PCB). As a homework assignment, you can run the command \texttt{'ps auxwww'} in the shell to see this in action. The PPID displayed is the parent's PID.    \subsection{Inheritance in POSIX}    In POSIX, a child process inherits most of the parent's attributes. These include the User ID (UID), open files, and the current working directory (cwd), among others. It is important to close any unneeded open files. Can you think of why this might be necessary?    \subsection{PCB Movement}    While a process is executing, its PCB moves between different queues. This movement is according to the state change graph. The queues include the runnable queue and the sleep/wait for event i queue, where i can be any integer.    \subsection{Process Termination}    After a process dies, either through calling exit() or being interrupted, it becomes a zombie. The parent process uses the wait* syscall to clear the zombie from the system. Do you know why this is necessary? The wait syscall family includes wait, waitpid, waitid, wait3, and wait4. Here is an example of how to use wait4:    \begin{lstlisting}  pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);  \end{lstlisting}    The parent process can either sleep/wait for its child process to finish or run in parallel. The wait*() function will block unless WNOHANG is given in 'options'. For your homework, read 'man 2 wait'.    \section{OS (234123) - Processes and Signals}  
+
+\begin{tcolorbox}[ 
+  colback=green!10, 
+  colframe=green, 
+  title={\fontfamily{lmr}\selectfont \faLightbulb Intuition}, 
+  fonttitle=\bfseries, 
+  fontupper=\fontfamily{lmr}\selectfont, 
+  boxrule=1pt, 
+  sharp corners, 
+] 
+ La fonction fork() crée un nouveau processus en dupliquant le processus existant. Le processus enfant obtient une copie exacte de tous les segments de mémoire du processus parent. Cependant, le processus enfant a son propre espace d'adressage et ne partage pas la mémoire avec le processus parent. 
+\end{tcolorbox}
+\section{Création d'un processus enfant avec fork()} 
+ La fonction fork() est utilisée pour créer un nouveau processus, appelé processus enfant, en initialisant un nouveau Bloc de Contrôle de Processus (PCB). Le PCB est basé sur la valeur du processus parent et est ajouté à la file d'attente exécutable. 
+ 
+ Après l'appel de fork(), il y a maintenant deux processus au même point d'exécution. Le nouvel espace d'adresse de l'enfant est une copie complète de l'espace du parent, avec une différence : fork() retourne deux fois. Dans le processus parent, il retourne avec pid>0 et dans le processus enfant, il retourne avec pid=0. 
+ 
+ 'errno' est une variable globale qui contient le numéro d'erreur du dernier appel système. Si fork() échoue, une chaîne associée à 'errno' est imprimée. 
+ 
+ Un point d'interrogation demeure : quel est l'ordre d'impression ?
+\begin{lstlisting} 
+ int main(int argc, char *argv[]) 
+ { 
+   int pid = fork(); 
+   if( pid==0 ) { 
+    // 
+    // child 
+       // 
+       printf("parent=%d son=%d\n", 
+              getppid(), getpid()); 
+   } 
+   else if( pid > 0 ) { 
+       // 
+       // parent 
+       // 
+       printf("parent=%d son=%d\n", 
+              getpid(), pid); 
+   } 
+   else { // print string associated 
+          // with errno    
+       perror("fork() failed");  
+   } 
+   return 0; 
+ } 
+\end{lstlisting}
+
+
+\end{document}

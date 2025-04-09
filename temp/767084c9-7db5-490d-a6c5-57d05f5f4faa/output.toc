@@ -1,0 +1,10 @@
+\babel@toc {english}{}\relax 
+\contentsline {section}{\numberline {0.1}Introduction}{2}{}%
+\contentsline {section}{\numberline {0.2}Process Creation and Termination}{2}{}%
+\contentsline {subsection}{\numberline {0.2.1}Inheritance in POSIX}{2}{}%
+\contentsline {subsection}{\numberline {0.2.2}Process Control Block (PCB) Execution}{2}{}%
+\contentsline {subsection}{\numberline {0.2.3}Process Termination}{2}{}%
+\contentsline {section}{\numberline {0.3}Création d'un processus enfant avec fork()}{2}{}%
+\contentsline {subsection}{\numberline {0.3.1}Espace d'adresse du processus enfant}{2}{}%
+\contentsline {subsection}{\numberline {0.3.2}Ordre d'impression}{3}{}%
+\contentsline {subsection}{\numberline {0.3.3}Gestion des erreurs}{3}{}%

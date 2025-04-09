@@ -1,0 +1,72 @@
+documentclass[12pt]{article}
+usepackage[utf8]{inputenc}
+usepackage[T1]{fontenc}
+usepackage[french]{babel}
+usepackage{tcolorbox}
+usepackage{fontawesome5}
+usepackage{listings}
+usepackage{amsmath}
+usepackage{xcolor}
+usepackage{geometry}
+usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+\lstset{
+    basicstyle=ttfamilysmall,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=tinycolor{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+tcbuselibrary{most}
+newcommand{escapesym}[1]{texttt{textbackslash{}#1}}
+\geometry{margin=2.5cm}
+title{osj}
+author{}
+date{}
+begin{document}
+\maketitle
+tableofcontents
+newpage
+section{Création et terminaison des processus}
+Un processus, appelé le "parent", peut en créer un autre, le "fils". Lors de cette création, un nouveau bloc de contrôle de processus (PCB) est alloué et initialisé. Pour observer cela, vous pouvez exécuter la commande texttt{ps auxwww} dans le shell, où le PPID est l'identifiant du processus parent.
+Dans le système POSIX, le processus fils hérite de la plupart des attributs du parent, tels que l'UID, les fichiers ouverts (qui devraient être fermés si inutiles), et le répertoire de travail courant.
+Pendant son exécution, le PCB se déplace entre différentes files d'attente, selon le graphe de changement d'état. Ces files d'attente incluent les processus exécutables, ceux en attente de sommeil, ou en attente d'un événement spécifique.
+Lorsqu'un processus meurt (par texttt{exit()} ou interruption), il devient un zombie. Le parent utilise l'appel système texttt{wait*} pour nettoyer le zombie du système. La famille d'appels système texttt{wait} inclut texttt{wait}, texttt{waitpid}, texttt{wait3}, et texttt{wait4}. Par exemple:
+begin{lstlisting}
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+end{lstlisting}
+Le parent peut dormir ou attendre que son enfant se termine ou s'exécute en parallèle. L'appel texttt{wait*()} bloquera à moins que l'option texttt{WNOHANG} ne soit spécifiée.
+begin{tcolorbox}[title={Fiche Récapitulative}]
+Un processus parent peut créer un processus fils, qui hérite de nombreux attributs. Les processus passent par différents états et files d'attente. Lorsqu'un processus meurt, il devient un zombie jusqu'à ce que le parent le nettoie avec texttt{wait*}.
+end{tcolorbox}
+newpage
+section{fork() - Création d'un processus fils}
+La fonction texttt{fork()} initialise un nouveau PCB basé sur la valeur du parent et ajoute le PCB à la file d'attente des processus exécutables. Ainsi, deux processus existent au même point d'exécution.
+L'espace d'adressage du fils est une copie complète de celui du parent, avec une différence notable. La fonction texttt{fork()} retourne deux fois : une fois au parent avec un texttt{pid} supérieur à zéro, et une fois au fils avec un texttt{pid} égal à zéro.
+begin{lstlisting}
+int main(int argc, char *argv[]) {
+    int pid = fork();
+    if (pid == 0) {
+        // child
+        printf("parent=% d son=% dn", getppid(), getpid());
+    } else if (pid > 0) {
+        // parent
+        printf("parent=% d son=% dn", getpid(), pid);
+    } else {
+        // print string associated with errno
+        perror("fork() failed");
+    }
+    return 0;
+}
+end{lstlisting}
+L'ordre d'impression dépend de l'ordonnancement du système. La variable globale texttt{errno} contient le numéro d'erreur de la dernière fonction système appelée.
+begin{tcolorbox}[title={Fiche Récapitulative}]
+La fonction texttt{fork()} crée un processus fils en dupliquant l'espace d'adressage du parent. Elle retourne deux fois, permettant au parent et au fils de continuer leur exécution respective.
+end{tcolorbox}
+end{document}

@@ -1,0 +1,116 @@
+documentclass[12pt]{article}
+usepackage[utf8]{inputenc}
+usepackage[T1]{fontenc}
+usepackage[french]{babel}
+
+usepackage{tcolorbox}
+usepackage{fontawesome5}
+usepackage{listings}
+usepackage{amsmath}
+usepackage{xcolor}
+usepackage{geometry}
+usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=ttfamilysmall,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=tinycolor{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+newcommand{escapesym}[1]{texttt{textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+title{osj}
+author{}
+date{}
+
+begin{document}
+\maketitle
+tableofcontents
+newpage
+
+section{Création et terminaison de processus}
+
+Un processus, appelé le "parent", peut en créer un autre, appelé le "fils". Lors de cette création, un nouveau bloc de contrôle de processus (PCB) est alloué et initialisé. Pour observer cela, vous pouvez exécuter la commande texttt{ps auxwww} dans le terminal, où le PPID représente l'identifiant du processus parent.
+
+begin{tcolorbox}[title={Vulgarisation simple}]
+Imaginez un chef d'orchestre (le parent) qui peut créer de nouveaux musiciens (les enfants) pour jouer dans son orchestre. Chaque musicien a une fiche (PCB) qui décrit son rôle et ses tâches.
+end{tcolorbox}
+
+En POSIX, le processus fils hérite de la plupart des attributs du parent, tels que l'UID, les fichiers ouverts (qui devraient être fermés s'ils ne sont pas nécessaires) et le répertoire de travail courant.
+
+Pendant son exécution, le PCB d'un processus se déplace entre différentes files d'attente, selon le graphe de changement d'état. Ces files d'attente incluent les états exécutable, en sommeil ou en attente d'un événement.
+
+Lorsqu'un processus meurt (par texttt{exit()} ou interruption), il devient un zombie. Le parent utilise l'appel système texttt{wait*} pour nettoyer le zombie du système. Les appels système de la famille texttt{wait} incluent texttt{wait}, texttt{waitpid}, texttt{wait3}, et texttt{wait4}. Par exemple :
+
+begin{lstlisting}
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+end{lstlisting}
+
+Le parent peut dormir ou attendre que son enfant se termine ou s'exécute en parallèle. L'appel texttt{wait*()} bloquera sauf si l'option texttt{WNOHANG} est spécifiée.
+
+begin{tcolorbox}[title={Fiche Récapitulative}]
+- Création de processus par le parent.
+- Inheritance des attributs par le processus fils.
+- Gestion des files d'attente de processus.
+- Nettoyage des processus zombies.
+- Utilisation des appels système texttt{wait}.
+end{tcolorbox}
+
+newpage
+
+section{texttt{fork()} - Génération d'un processus fils}
+
+La fonction texttt{fork()} initialise un nouveau PCB basé sur la valeur du parent et ajoute ce PCB à la file d'attente des processus exécutables. Cela signifie qu'il y a maintenant deux processus au même point d'exécution.
+
+L'espace d'adressage du fils est une copie complète de celui du parent, à une différence près. La fonction texttt{fork()} retourne deux fois : une fois au parent avec un texttt{pid} supérieur à zéro, et une fois au fils avec un texttt{pid} égal à zéro.
+
+begin{tcolorbox}[title={Vulgarisation simple}]
+Pensez à texttt{fork()} comme à une photocopieuse qui duplique un document (le processus parent) pour en créer un nouveau (le processus fils).
+end{tcolorbox}
+
+Quel est l'ordre d'impression ? La variable globale texttt{errno} contient le numéro d'erreur de la dernière appel système.
+
+Voici un exemple de code illustrant l'utilisation de texttt{fork()} :
+
+begin{lstlisting}
+int main(int argc, char *argv[]) {
+    int pid = fork();
+    if (pid == 0) {
+        // child
+        printf("parent=% d son=% dn", getppid(), getpid());
+    } else if (pid > 0) {
+        // parent
+        printf("parent=% d son=% dn", getpid(), pid);
+    } else {
+        // print string associated with errno
+        perror("fork() failed");
+    }
+    return 0;
+}
+end{lstlisting}
+
+begin{tcolorbox}[title={Fiche Récapitulative}]
+- texttt{fork()} crée un processus fils.
+- Retourne deux fois : une fois pour le parent, une fois pour le fils.
+- Gestion de l'espace d'adressage.
+- Utilisation de texttt{errno} pour les erreurs.
+end{tcolorbox}
+
+end{document}

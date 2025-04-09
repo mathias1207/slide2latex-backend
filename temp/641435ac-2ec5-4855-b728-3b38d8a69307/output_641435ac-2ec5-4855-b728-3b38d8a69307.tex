@@ -1,0 +1,217 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{textcomp}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{pca}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction à l'Analyse en Composantes Principales (ACP)}
+
+\subsection{Qu'est-ce que l'ACP ?}
+
+L'Analyse en Composantes Principales (ACP) est une méthode statistique utilisée pour réduire la dimensionnalité des données tout en conservant autant que possible la variance présente dans les données originales. Le terme "principal" se réfère à l'ordre d'importance des composantes, tandis que "composantes" désigne les coefficients ou représentations des données. L'ACP permet une analyse mathématique quantifiable et visuelle des données.
+
+\begin{tcolorbox}[title={Intuition}]
+L'ACP cherche à identifier les directions principales dans lesquelles les données varient le plus. Cela se fait en trouvant une base orthonormale qui maximise la variance des données projetées.
+\end{tcolorbox}
+
+\subsection{Historique}
+
+L'ACP a été inventée en 1901 par Karl Pearson comme une analogie du théorème de l'axe principal en mécanique. Elle a été développée indépendamment et nommée par Harold Hotelling dans les années 1930. Selon le domaine d'application, elle est également connue sous le nom de transformation discrète de Karhunen-Loève en traitement du signal, transformation de Hotelling en contrôle de qualité multivarié, décomposition orthogonale propre en ingénierie mécanique, et décomposition en valeurs singulières en algèbre linéaire, entre autres.
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+L'ACP est partout et porte différents noms selon le contexte. Elle est utilisée pour simplifier les données complexes en les réduisant à leurs éléments essentiels.
+\end{tcolorbox}
+
+\subsection{Pour les programmeurs}
+
+Pour un programmeur, l'ACP est un algorithme de réduction de dimensionnalité. Par exemple, en utilisant la bibliothèque \texttt{scikit-learn} en Python, l'ACP peut être appliquée pour projeter les données dans un espace de dimension inférieure.
+
+\begin{lstlisting}
+from sklearn.decomposition import PCA
+pca = PCA(n_components=2)
+X_reduced = pca.fit_transform(X)
+\end{lstlisting}
+
+\subsection{Pour les statisticiens}
+
+Pour un statisticien, l'ACP est une méthode pour trouver des représentations décorrélées qui expliquent la majorité de la variance dans les données. Elle permet de réduire le nombre de variables tout en préservant l'information essentielle.
+
+\subsection{Pour les mathématiciens de l'optimisation}
+
+Pour un mathématicien de l'optimisation, l'ACP est la solution à un problème de maximisation itératif de type \( L^2 \). Le \( k \)-ème composant peut être trouvé en soustrayant les \( k-1 \) premiers composants principaux de \( \mathbf{X} \).
+
+\begin{align}
+\hat{\mathbf{X}}_k &= \mathbf{X} - \sum_{s=1}^{k-1} \mathbf{X} \mathbf{w}_{(s)} \mathbf{w}_{(s)}^T \\
+\mathbf{w}_{(k)} &= \arg\max_{\|\mathbf{w}\|=1} \left\| \hat{\mathbf{X}}_k \mathbf{w} \right\|^2
+\end{align}
+
+\subsection{Pour les mathématiciens des opérateurs}
+
+Pour un mathématicien des opérateurs, l'ACP est la solution à un problème d'approximation min-max sous une énergie de type Dirichlet bornée pour un certain opérateur de corrélation.
+
+\begin{tcolorbox}[title={Fiche Récapitulative}]
+\textbf{Objectif :} Résumer le concept principal de cette section.
+
+\textbf{Principe central :} L'ACP réduit la dimensionnalité des données tout en maximisant la variance expliquée.
+
+\vspace{0.4em}
+\textbf{Points essentiels :}  
+- Réduction de dimensionnalité
+- Maximisation de la variance
+- Représentation orthonormale
+
+\vspace{0.4em}
+\textbf{Formules clés :}  
+\begin{itemize}
+\item \(\mathbf{X} = \mathbf{U} \mathbf{\Lambda} \mathbf{U}^T\)
+\item \(\mathbf{Y} = \mathbf{U}^T (\mathbf{X} - \mu)\)
+\end{itemize}
+\end{tcolorbox}
+
+\newpage
+
+\section{Perspective Géométrique}
+
+\subsection{Objectif}
+
+L'objectif est de trouver les directions principales intrinsèques des données. Cela implique de trouver une base orthonormale le long des directions principales.
+
+% FIGURE: Distribution des données et directions principales
+
+\begin{tcolorbox}[title={Intuition}]
+L'ACP trouve itérativement la direction principale de "dispersion" des données.
+\end{tcolorbox}
+
+\newpage
+
+\section{Perspective Algorithmique}
+
+\subsection{Algorithme Commun de l'ACP}
+
+Les données \( \mathbf{X} \sim d(\mu, \mathbf{C}, ?) \), où \( \mathbf{X} \in \mathbb{R}^D \), sont issues d'une distribution avec des statistiques d'ordre connues :
+
+\begin{itemize}
+\item Moyenne : \( \mathbb{E}(\mathbf{X}) = \mu \)
+\item Matrice de covariance : \( \mathbb{E}((\mathbf{X} - \mu)(\mathbf{X} - \mu)^T) = \mathbf{C} \)
+\end{itemize}
+
+Les "directions principales" sont les vecteurs propres triés de la matrice de covariance.
+
+\begin{align}
+\mathbf{C} &= \mathbf{U} \mathbf{\Lambda} \mathbf{U}^T
+\end{align}
+
+\begin{tcolorbox}[title={À retenir}]
+Les colonnes de \(\mathbf{U}\) sont les directions principales, et les valeurs propres dans \(\mathbf{\Lambda}\) représentent la variance des données le long de chaque direction.
+\end{tcolorbox}
+
+\newpage
+
+\section{Transformation ACP}
+
+Réécriture des données dans la nouvelle base ACP :
+
+\begin{align}
+\mathbf{X} &= \begin{pmatrix} x_1 \\ \vdots \\ x_D \end{pmatrix} \quad \Longleftrightarrow \quad \mathbf{Y} = \begin{pmatrix} y_1 \\ \vdots \\ y_D \end{pmatrix}
+\end{align}
+
+Le changement de base est effectué par :
+
+\begin{align}
+\mathbf{Y} = \mathbf{U}^T (\mathbf{X} - \mu)
+\end{align}
+
+\newpage
+
+\section{ACP et Réduction de Dimensionnalité}
+
+L'ACP est une approximation en termes de \( k \) dans la base ACP :
+
+\begin{align}
+\mathbf{X} &\approx \mathbf{Y}_d = \begin{pmatrix} y_1 \\ \vdots \\ y_d \end{pmatrix}, \quad d \ll D
+\end{align}
+
+Les composantes principales sont :
+
+\begin{align}
+\mathbf{U}_d = \begin{pmatrix} u_1 & \cdots & u_d \end{pmatrix}
+\end{align}
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+L'ACP simplifie les données en réduisant le nombre de dimensions tout en conservant l'essentiel de l'information.
+\end{tcolorbox}
+
+\newpage
+
+\section{Exercices}
+
+\subsection{Exercice 1}
+
+Considérons un signal aléatoire \( \varphi \in \mathbb{R}^3 \) avec une moyenne \( \mathbb{E}(\varphi) = 0 \) et une matrice d'autocorrélation :
+
+\begin{align}
+\mathbf{R}_\varphi = \begin{pmatrix} 1-\alpha & -\frac{\alpha}{2} & -\frac{\alpha}{2} \\ -\frac{\alpha}{2} & 1-\alpha & -\frac{\alpha}{2} \\ -\frac{\alpha}{2} & -\frac{\alpha}{2} & 1-\alpha \end{pmatrix}
+\end{align}
+
+Pour un certain scalaire \( 0 < \alpha < 1 \).
+
+\begin{tcolorbox}[title={Intuition}]
+La matrice d'autocorrélation est circulante et peut être diagonalisee dans la base de Fourier.
+\end{tcolorbox}
+
+\subsection{Exercice 2}
+
+Considérons un signal aléatoire \( \varphi \in \mathbb{R}^3 \) avec une moyenne \( \mathbb{E}(\varphi) = 0 \) et une matrice d'autocorrélation :
+
+\begin{align}
+\mathbf{R}_\varphi = \begin{pmatrix} 1-\alpha & -\alpha & 0 \\ -\alpha & 1 & -\alpha \\ 0 & -\alpha & 1-\alpha \end{pmatrix}
+\end{align}
+
+Pour un certain scalaire \( 0 < \alpha < 1 \).
+
+\begin{tcolorbox}[title={À retenir}]
+La matrice d'autocorrélation n'est pas circulante et nécessite un calcul manuel des valeurs propres et vecteurs propres.
+\end{tcolorbox}
+
+\end{document}

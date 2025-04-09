@@ -1,0 +1,14 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{2}{}%
+\contentsline {subsection}{\numberline {1.1}Signals and Systems in Continuous Time}{2}{}%
+\contentsline {subsection}{\numberline {1.2}Properties of Systems}{2}{}%
+\contentsline {subsection}{\numberline {1.3}Examples}{2}{}%
+\contentsline {section}{\numberline {2}Linear Shift-Invariant Systems}{2}{}%
+\contentsline {subsection}{\numberline {2.1}Input Signal and System}{2}{}%
+\contentsline {section}{\numberline {3}Convolution Systems}{2}{}%
+\contentsline {section}{\numberline {4}Fourier-based Analysis of Systems}{3}{}%
+\contentsline {subsection}{\numberline {4.1}Convolution Systems}{3}{}%
+\contentsline {section}{\numberline {5}Derivation System}{3}{}%
+\contentsline {section}{\numberline {6}DFT}{4}{}%
+\contentsline {section}{\numberline {7}Representation of a Discrete Signal in the DFT Domain}{4}{}%
+\contentsline {section}{\numberline {8}Example}{4}{}%

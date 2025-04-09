@@ -1,0 +1,198 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage[version=4]{mhchem}
+\usepackage{stmaryrd}
+\graphicspath{ {./images/} }
+\usepackage{float}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{amsthm}
+\usepackage{pifont}
+\DeclareUnicodeCharacter{00A0}{~}
+\DeclareUnicodeCharacter{200B}{}
+\usepackage{hyperref}
+\usepackage[french]{babel}
+
+% Configuration simplifiée pour éviter les erreurs avec \hss
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    keepspaces=true,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+% Configuration minimale de tcolorbox
+\tcbuselibrary{most}
+
+% Ajouter cette commande pour les échappements
+\newcommand{\escapesym}[1]{\texttt{\textbackslash{}#1}}
+
+% Configuration des marges
+\geometry{margin=2.5cm}
+
+\title{PIF}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction au traitement et à la représentation des données}
+
+\subsection{Traitement du signal}
+
+Le traitement du signal consiste à effectuer des opérations intelligentes sur un "signal" donné. Cela peut inclure un signal unique tel qu'une image, un ensemble de signaux comme des données, ou une distribution de signaux aléatoires. Les opérations typiques incluent le débruitage, le défloutage, le sous-échantillonnage ou sur-échantillonnage, la classification et la régression.
+
+\begin{tcolorbox}[title={Intuition}]
+Le secret d'un bon traitement du signal réside dans la recherche d'une bonne représentation du signal.
+\end{tcolorbox}
+
+\subsection{Exemples dans ce cours}
+
+Dans ce cours, nous nous concentrons sur le défloutage et le débruitage. L'objectif est de récupérer le signal propre en minimisant une certaine erreur. Par exemple, à partir d'un signal dégradé observé, nous cherchons à estimer le signal d'origine.
+
+% FIGURE: Exemple de signal de référence, signal dégradé, et signal estimé
+
+\subsection{Modèle de traitement du signal}
+
+Le modèle de traitement du signal peut être décrit par une dégradation linéaire suivie d'un bruit aléatoire additif, et enfin une reconstruction linéaire. Différentes hypothèses sur le signal conduiront à différentes approches de résolution.
+
+\begin{align}
+\varphi & \rightarrow H\varphi \rightarrow \varphi_{\text{data}} = H\varphi + n \rightarrow \hat{\varphi} = M\varphi_{\text{data}}
+\end{align}
+
+\begin{tcolorbox}[colback=red!5!white, colframe=red!75!black, title={\faBookmark\hspace{0.5em}Fiche Récapitulative}]
+\textbf{Objectif :} Résumer le concept principal de cette section.
+
+\textbf{Principe central :} Le traitement du signal vise à récupérer un signal propre à partir de données dégradées.
+
+\vspace{0.4em}
+\textbf{Points essentiels :}  
+- Dégradation linéaire
+- Bruit additif
+- Reconstruction linéaire
+
+\vspace{0.4em}
+\textbf{Formules clés :}  
+\begin{itemize}
+\item $\varphi_{\text{data}} = H\varphi + n$
+\item $\hat{\varphi} = M\varphi_{\text{data}}$
+\end{itemize}
+\end{tcolorbox}
+
+\newpage
+
+\section{Filtrage pseudo-inverse}
+
+\subsection{Modèle déterministe sans bruit}
+
+Dans un modèle déterministe sans bruit, la dégradation est linéaire et l'opérateur de dégradation $H$ est connu. L'objectif est de trouver $\hat{\varphi} \approx \varphi$.
+
+% FIGURE: Modèle de dégradation linéaire et reconstruction
+
+\subsection{Monde idéal}
+
+Dans un monde idéal, $H$ est inversible. Ainsi, $M = H^{-1}$ et $\hat{\varphi} = M\varphi_{\text{data}} = H^{-1}H\varphi = \varphi$, ce qui permet une reconstruction parfaite.
+
+\begin{align}
+M &= H^{-1} \\
+\hat{\varphi} &= H^{-1}H\varphi = \varphi
+\end{align}
+
+\subsection{Monde réel}
+
+Dans le monde réel, $H$ n'est pas inversible, ce qui entraîne une perte d'information. La question devient alors : comment concevoir $M$ pour que $\hat{\varphi} \approx \varphi$ ?
+
+% FIGURE: Monde réel avec perte d'information
+
+\subsection{Hypothèse 1}
+
+L'hypothèse 1 suppose que $H$ est diagonalisable dans une base unitaire. Ainsi, $H = U\Lambda U^*$, où les colonnes de $U$ forment une base orthonormale.
+
+\begin{align}
+x &= \begin{pmatrix} x_1 \\ \vdots \\ x_n \end{pmatrix} \\
+x^U &= \begin{pmatrix} x_1^U \\ \vdots \\ x_n^U \end{pmatrix} = U^*x
+\end{align}
+
+\subsection{Hypothèse 2}
+
+L'hypothèse 2 suppose que $M = U\Sigma U^*$ est diagonalisable dans la même base. Cela conduit à des solutions où $\hat{\varphi} = M\varphi_{\text{data}} = U\Sigma\Lambda U^*\varphi$.
+
+\begin{align}
+\varphi_{\text{data}} &= H\varphi = U\Lambda U^*\varphi \\
+\hat{\varphi} &= U\Sigma\Lambda U^*\varphi
+\end{align}
+
+\begin{tcolorbox}[title={À retenir}]
+Les coefficients du signal restauré satisfont $\hat{\varphi}_i^U = \sigma_i \lambda_i \varphi_i^U$. Pour concevoir $M$, nous voulons que $\varphi \approx \hat{\varphi}$, ce qui implique $\varphi^U \approx \hat{\varphi}^U$.
+\end{tcolorbox}
+
+\subsection{Choix des coefficients}
+
+Pour un choix obligatoire, si $\lambda_i \neq 0$, alors $\sigma_i = \frac{1}{\lambda_i}$, ce qui permet une récupération parfaite des coefficients. Si $\lambda_i = 0$, alors $\sigma_i \lambda_i = 0$, et le coefficient n'est pas récupérable.
+
+\begin{align}
+\lambda_i \neq 0 &\implies \sigma_i = \frac{1}{\lambda_i} \\
+\lambda_i = 0 &\implies \sigma_i = 0
+\end{align}
+
+\subsection{Erreur de reconstruction}
+
+L'erreur de reconstruction est donnée par :
+
+\begin{align}
+\|\varphi - \hat{\varphi}\|_2^2 &= \|U\varphi^U - U\hat{\varphi}^U\|_2^2 \\
+&= \sum_i |\varphi_i^U - \hat{\varphi}_i^U|^2 \\
+&= \sum_{i \text{ s.t. } \lambda_i = 0} |\varphi_i^U|^2
+\end{align}
+
+\begin{tcolorbox}[title={Vulgarisation simple}]
+L'énergie de $\varphi$ dans le noyau de $H$ ne peut pas être récupérée, ce qui entraîne une perte d'information.
+\end{tcolorbox}
+
+\subsection{Filtrage pseudo-inverse avec a priori}
+
+Les filtres pseudo-inverses apparaissent en utilisant des a priori sur la solution. Par exemple, en minimisant la norme $L^2$ de $\hat{\varphi}$ sous la contrainte $H\hat{\varphi} = \varphi_{\text{data}}$, on obtient le filtre pseudo-inverse.
+
+\begin{align}
+\hat{\varphi} &= \argmin_{\hat{\varphi}} \|\hat{\varphi}\|_2^2 \quad \text{s.t. } H\hat{\varphi} = \varphi_{\text{data}}
+\end{align}
+
+\begin{tcolorbox}[colback=red!5!white, colframe=red!75!black, title={\faBookmark\hspace{0.5em}Fiche Récapitulative}]
+\textbf{Objectif :} Résumer le concept principal de cette section.
+
+\textbf{Principe central :} Le filtrage pseudo-inverse utilise des a priori pour récupérer un signal à partir de données dégradées.
+
+\vspace{0.4em}
+\textbf{Points essentiels :}  
+- Hypothèses sur la diagonalisabilité
+- Choix des coefficients
+- Erreur de reconstruction
+
+\vspace{0.4em}
+\textbf{Formules clés :}  
+\begin{itemize}
+\item $\hat{\varphi} = M\varphi_{\text{data}}$
+\item $\|\varphi - \hat{\varphi}\|_2^2 = \sum_{i \text{ s.t. } \lambda_i = 0} |\varphi_i^U|^2$
+\end{itemize}
+\end{tcolorbox}
+
+\end{document}

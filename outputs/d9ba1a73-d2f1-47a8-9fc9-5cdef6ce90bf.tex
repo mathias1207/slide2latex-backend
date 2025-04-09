@@ -1,0 +1,168 @@
+% !TEX program = xelatex
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{algorithm2e}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,float}
+\usepackage{xcolor}
+\usepackage{parskip}
+
+% Configuration des listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    showstringspaces=false,
+    language=C,
+    keepspaces=true,
+    columns=flexible,
+    literate={*}{\textasteriskcentered}1
+}
+
+% Configuration des tcolorbox
+\tcbuselibrary{most}
+\newtcolorbox{mybox}[1][]{
+    colback=white,
+    colframe=black,
+    coltitle=black,
+    title=#1,
+    fonttitle=\bfseries
+}
+
+% Configuration des marges
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\graphicspath{{./images/}}
+\title{OS test}
+\author{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Cours : OS test
+\begin{tcolorbox}[
+     colback=blue!10,
+     colframe=blue,
+     title={\fontfamily{lmr}\selectfont \faComment\ Vulgarisation simple},
+     fonttitle=\bfseries,
+     fontupper=\fontfamily{lmr}\selectfont,
+     boxrule=1pt,
+     sharp corners,
+     ]
+     Imaginez un processus comme une tâche que votre ordinateur doit accomplir. Un processus parent peut créer un processus enfant, un peu comme si vous déléguiez une partie de votre travail à un collègue. L'enfant commence avec les mêmes outils et les mêmes instructions que le parent, mais peut ensuite suivre son propre chemin. Lorsqu'un processus a terminé son travail, il devient un 'zombie' et doit être 'nettoyé' par le processus parent.
+\end{tcolorbox}
+\section{Création et terminaison de processus}
+
+Un processus, que nous appellerons le \textit{parent}, peut en créer un autre, le \textit{enfant}. Lors de cette création, un nouveau Bloc de Contrôle de Processus (PCB) est alloué et initialisé. Pour mieux comprendre, vous pouvez exécuter la commande 'ps auxwww' dans le shell ; le PPID est l'ID du processus parent.
+
+\subsection{Héritage des attributs}
+
+Dans le standard POSIX, le processus enfant hérite de la plupart des attributs de son parent. Cela inclut l'ID utilisateur (UID), les fichiers ouverts (qui devraient être fermés si inutiles ; pourquoi ?), le répertoire de travail courant (cwd), etc.
+
+\subsection{Exécution et mouvement entre les files d'attente}
+
+Pendant son exécution, le PCB se déplace entre différentes files d'attente, selon le graphique de changement d'état. Ces files d'attente peuvent être : exécutable, en attente d'un événement i (i=1,2,3…).
+
+\subsection{Terminaison d'un processus}
+
+Après qu'un processus meurt (soit par une sortie normale, soit par une interruption), il devient un \textit{zombie}. Le processus parent utilise l'appel système wait* pour effacer le zombie du système (pourquoi ?). La famille d'appels système wait comprend : wait, waitpid, waitid, wait3, wait4. Par exemple :
+
+\begin{lstlisting}[language=C]
+pid_t wait4(pid_t, int *wstatus, int options, struct rusage *rusage);
+\end{lstlisting}
+
+Le processus parent peut attendre que son enfant termine ou exécuter en parallèle. L'appel système wait*() bloquera à moins que WNOHANG ne soit donné dans 'options'. Pour plus de détails, vous pouvez consuliter la page de manuel 'man 2 wait'.
+
+\begin{tcolorbox}[
+     colback=green!10,
+     colframe=green,
+     title={\fontfamily{lmr}\selectfont \faLightbulb\ Intuition},
+     fonttitle=\bfseries,
+     fontupper=\fontfamily{lmr}\selectfont,
+     boxrule=1pt,
+     sharp corners,
+     ]
+
+Pensez à la fonction fork() comme une machine à cloner qui crée une copie exacte de vous. Après avoir utilisé la machine, il y a deux versions de vous qui peuvent agir indépendamment. De la même manière, fork() crée une copie du processus actuel, permettant à deux processus de fonctionner indépendamment.
+
+\end{tcolorbox}
+\begin{tcolorbox}[
+     colback=blue!10,
+     colframe=blue,
+     title={\fontfamily{lmr}\selectfont \faComment\ Vulgarisation simple},
+     fonttitle=\bfseries,
+     fontupper=\fontfamily{lmr}\selectfont,
+     boxrule=1pt,
+     sharp corners,
+     ]
+
+Imaginez que vous êtes en train de cuisiner et que vous avez besoin d'aide. Vous avez une machine spéciale qui peut créer une copie exacte de vous. Cette copie peut faire tout ce que vous pouvez faire. Vous utilisez la machine et maintenant il y a deux de vous dans la cuisine. Vous pouvez continuer à préparer la sauce pendant que votre copie s'occupe de la cuisson des pâtes. C'est ce que fait la fonction fork() dans un programme. Elle crée une copie du processus actuel qui peut faire tout ce que le processus original peut faire.
+
+\end{tcolorbox}
+\section{Création d'un processus enfant avec fork()} 
+
+Dans le monde des systèmes d'exploitation, la création d'un nouveau processus est une tâche courante. En C, cela peut être accompli avec la fonction fork(). Cette fonction crée un nouveau processus en dupliquant le processus actuel. Le processus qui appelle fork() est appelé le processus parent et le nouveau processus est appelé le processus enfant. 
+
+\subsection{Le code}
+
+Voici un exemple de code qui illustre l'utilisation de fork():
+
+\begin{lstlisting}[language=C]
+int main(int argc, char *argv[])
+{
+  int pid = fork();
+  if( pid==0 ) { 
+   //
+   // child
+      //
+      printf("parent=%d son=%d\n",
+             getppid(), getpid());
+  }
+  else if( pid > 0 ) {
+      //
+      // parent
+      //
+      printf("parent=%d son=%d\n",
+             getpid(), pid);
+  }
+  else { // print string associated
+         // with errno   
+      perror("fork() failed"); 
+  }
+  return 0;
+}
+\end{lstlisting}
+
+
+\section*{Fiche Récapitulative}
+\section{Création et terminaison de processus}
+
+Dans le monde de l'informatique, un processus, que nous appellerons le \textit{parent}, peut en créer un autre, le \textit{enfant}. Lors de cette création, un nouveau Bloc de Contrôle de Processus (PCB) est alloué et initialisé. Pour mieux comprendre, vous pouvez exécuter la commande 'ps auxwww' dans le shell ; le PPID est l'ID du processus parent.
+
+\subsection{Héritage des attributs}
+
+Dans le standard POSIX, le processus enfant hérite de la plupart des attributs de son parent. Cela inclut l'ID utilisateur (UID), les fichiers ouverts (qui devraient être fermés si inutiles ; pourquoi ?), le répertoire de travail courant (cwd), etc.
+
+\subsection{Exécution et mouvement entre les files d'attente}
+
+Pendant son exécution, le PCB se déplace entre différentes files d'attente, selon le graphique de changement d'état. Ces files d'attente peuvent être : exécutable, en attente d'un événement i (i=1,2,3…).
+
+\subsection{Terminaison d'un processus}
+
+Après qu'un processus meurt (soit par une sortie normale, soit par une interruption), il devient un \textit{zombie}. Le processus parent utilise l'appel système wait* pour effacer le zombie du système (pourquoi ?). La famille d'appels système wait comprend : wait, waitpid, waitid, wait3, wait4.
+
+\section{Création d'un processus enfant avec fork()}
+
+Dans le monde des systèmes d'exploitation, la création d'un nouveau processus est une tâche courante. En C, cela peut être accompli avec la fonction fork(). Cette fonction crée un nouveau processus en dupliquant le processus actuel. Le processus qui appelle fork() est appelé le processus parent et le nouveau processus est appelé le processus enfant.
+
+\end{document}
