@@ -1,2 +1,10 @@
 .env
 .env
+
+# Ignorer les fichiers système macOS
+.DS_Store
+
+# Ignorer les fichiers Python bytecode
+__pycache__/
+*.py[cod]
+*.class
